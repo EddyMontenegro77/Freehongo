@@ -30,8 +30,6 @@ export class WritingCanvas {
 
   expectedStrokes = input.required<Stroke[]>();
 
-  sequenceValidationResults!: SequenceValidationResult;
-  strokesValidationResults: StrokeValidationResult[] = [];
   sequenceError: SequenceErrorType = 'none';
   isValidSequence: boolean = false;
   hasValidationResults = false;
@@ -52,7 +50,9 @@ export class WritingCanvas {
   ) {}
 
   ngAfterViewInit() {
-    const canvasContext = this.writingCanvas.nativeElement.getContext('2d');
+    const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {
+      willReadFrequently: true,
+    });
     if (!canvasContext) throw new Error('Canvas 2D context cannot be obtained');
     this.canvasRenderService.setCanvasContext(canvasContext);
   }
@@ -92,14 +92,14 @@ export class WritingCanvas {
   getSequenceValidationResults = (): void => {
     this.isValidSequence = false;
     const inputStrokes = this.strokeService.getStrokes();
-    this.sequenceValidationResults = this.strokeValidationService.validateSequence(
+    const sequenceValidationResults = this.strokeValidationService.validateSequence(
       inputStrokes,
       this.expectedStrokes(),
     );
 
-    this.isValidSequence = this.sequenceValidationResults.isValidSequence;
-    this.sequenceError = this.sequenceValidationResults.sequenceErrorType;
-    this.tableConfig.rows = this.sequenceValidationResults.strokeResults;
+    this.isValidSequence = sequenceValidationResults.isValidSequence;
+    this.sequenceError = sequenceValidationResults.sequenceErrorType;
+    this.tableConfig.rows = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
   };
 
