@@ -1,9 +1,20 @@
-<canvas
-  #writingCanvas
-  (pointerdown)="onPointerDown($event)"
-  (pointerup)="onPointerUp($event)"
-  (pointermove)="onPointerMove($event)"
-  [width]="width()"
-  [height]="height()"
->
-</canvas>
+<div class="writing-canvas-container">
+  <section class="canvas-section" aria-label="canvas-section">
+    <canvas
+      #writingCanvas
+      (pointerdown)="onPointerDown($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointermove)="onPointerMove($event)"
+      [width]="width()"
+      [height]="height()"
+    >
+    </canvas>
+    <app-action-btn title="Validate" [action]="getSequenceValidationResults" />
+    <app-action-btn title="Reset" [action]="resetCanvas" />
+    <app-action-btn title="Undo" [action]="undoStroke" />
+    <app-action-btn title="Redo" [action]="redoStroke" />
+  </section>
+  <section class="validation-section" aria-label="validation-section">
+    <img class="" alt="expected strokes preview" />
+  </section>
+</div>
