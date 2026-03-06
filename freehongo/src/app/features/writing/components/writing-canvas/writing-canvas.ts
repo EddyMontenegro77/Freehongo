@@ -11,11 +11,7 @@ import {
   StrokeValidationResult,
 } from '../../models/stroke-validation-result.interface';
 import { Table } from '../../../../shared/components/table/table';
-import {
-  TableColumn,
-  TableConfig,
-  TableRow,
-} from '../../../../shared/components/table/interface/table.interface';
+import { TableConfig } from '../../../../shared/components/table/interface/table.interface';
 
 @Component({
   selector: 'app-writing-canvas',
