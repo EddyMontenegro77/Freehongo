@@ -15,6 +15,16 @@
     <app-action-btn title="Redo" [action]="redoStroke" />
   </section>
   <section class="validation-section" aria-label="validation-section">
-    <img class="" alt="expected strokes preview" />
+    @if (!hasValidationResults) {
+      <label>Draw and press "Validate" to get the results</label>
+    } @else {
+      @if (isValidSequence) {
+        <label>Correct Sequence</label>
+      } @else {
+        <img class="" alt="expected strokes preview" />
+        <label>Sequence is not valid: {{ sequenceError }}</label>
+        <app-table [headers]="tableConfig.columns" [rows]="tableConfig.rows"></app-table>
+      }
+    }
   </section>
 </div>

@@ -5,11 +5,21 @@ import { Point } from '../../models/point.interface';
 import { CanvasRenderService } from '../../services/canvas-render.service';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
-import { SequenceValidationResult } from '../../models/stroke-validation-result.interface';
+import {
+  SequenceErrorType,
+  SequenceValidationResult,
+  StrokeValidationResult,
+} from '../../models/stroke-validation-result.interface';
+import { Table } from '../../../../shared/components/table/table';
+import {
+  TableColumn,
+  TableConfig,
+  TableRow,
+} from '../../../../shared/components/table/interface/table.interface';
 
 @Component({
   selector: 'app-writing-canvas',
-  imports: [ActionBtn],
+  imports: [ActionBtn, Table],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
@@ -23,7 +33,21 @@ export class WritingCanvas {
   isPointerDown: boolean = false;
 
   expectedStrokes = input.required<Stroke[]>();
+
   sequenceValidationResults!: SequenceValidationResult;
+  strokesValidationResults: StrokeValidationResult[] = [];
+  sequenceError: SequenceErrorType = 'none';
+  isValidSequence: boolean = false;
+  hasValidationResults = false;
+
+  tableConfig: TableConfig<StrokeValidationResult> = {
+    columns: [
+      { key: 'strokeIndex', header: 'Stroke' },
+      { key: 'isValid', header: 'Valid', formatter: (v) => (v ? 'Yes' : 'No') },
+      { key: 'errorType', header: 'Error' },
+    ],
+    rows: [],
+  };
 
   constructor(
     private strokeService: StrokeService,
@@ -70,12 +94,17 @@ export class WritingCanvas {
   // Actions
 
   getSequenceValidationResults = (): void => {
+    this.isValidSequence = false;
     const inputStrokes = this.strokeService.getStrokes();
     this.sequenceValidationResults = this.strokeValidationService.validateSequence(
       inputStrokes,
       this.expectedStrokes(),
     );
-    // To Do: make validation reflex in component view.
+
+    this.isValidSequence = this.sequenceValidationResults.isValidSequence;
+    this.sequenceError = this.sequenceValidationResults.sequenceErrorType;
+    this.tableConfig.rows = this.sequenceValidationResults.strokeResults;
+    this.hasValidationResults = true;
   };
 
   resetCanvas = (): void => {
@@ -84,6 +113,10 @@ export class WritingCanvas {
     this.lastPoint = { x: -1, y: -1 } as Point;
     this.isPointerDown = false;
     this.currentStroke = new Stroke();
+    this.tableConfig.rows = [];
+    this.sequenceError = 'none';
+    this.isValidSequence = false;
+    this.hasValidationResults = false;
   };
 
   undoStroke = (): void => {
