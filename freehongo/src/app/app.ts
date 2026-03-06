@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { WritingCanvas } from './features/writing/components/writing-canvas/writing-canvas';
+import { Stroke } from './features/writing/models/stroke.model';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,5 @@ import { WritingCanvas } from './features/writing/components/writing-canvas/writ
 })
 export class App {
   protected readonly title = signal('freehongo');
+  tempStrokes: Stroke[] = [];
 }
