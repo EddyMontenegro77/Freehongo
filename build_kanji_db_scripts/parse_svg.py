@@ -79,6 +79,7 @@ def path_to_points(d:str, samples=32):
             distance_along_path = total_length * sample_index / (samples - 1)
             distance_along_path = min(distance_along_path, total_length) # Clamp
             path_parameter = path.ilength(distance_along_path) # converts px to t => parameter
+            path_parameter = min(path_parameter, 1.0)
             point_complex = path.point(path_parameter)
             points.append({"x": point_complex.real, "y": point_complex.imag})
         return points
