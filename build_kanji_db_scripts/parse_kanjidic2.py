@@ -1,5 +1,10 @@
 import sys
+import os
 import xml.etree.ElementTree as ET
+
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+RED = "\033[91m"
 
 def parse_kanjidic2(xml_path: str) -> dict:
     """
@@ -9,20 +14,23 @@ def parse_kanjidic2(xml_path: str) -> dict:
     Returns:
         db: Dictionary database with all characters parsed.
     """
-    print(f"Parsing Kanjidic2: {xml_path}");
+
+    if not os.path.isfile(xml_path):
+        print(f"{RED}Kanjidic2 file not found: {xml_path}")
+        return
+    
+    print(f"{YELLOW}Parsing Kanjidic2: {xml_path}");
     parser = ET.XMLParser()
     tree = ET.parse(xml_path, parser=parser)
     root = tree.getroot()
-    print(root.tag)
-    print(root.attrib)
 
     db = {}
     characters = root.findall("character");
     total = len(characters)
 
     for index, character in enumerate(characters, start=1):
-        if index % 100 == 0:
-            print(f"{index}/{total} characters processed...")
+        if index % 100 == 0 or index == total:
+            print(f"\r{YELLOW}{index}/{total} characters processed...", end="", flush=True)
         processed_character = process_character(character)
         db[processed_character["unicode"]] = processed_character
 
@@ -55,9 +63,9 @@ def process_character(character):
     jlpt_level = to_int(misc.findtext('jlpt'))
 
     reading_meaning = character.find('reading_meaning')
-    readings, meanings = get_character_readings_meanings(reading_meaning)
+    readings, meanings = get_character_readings_meanings(reading_meaning) if reading_meaning is not None else ({}, {})
 
-    nanori_list = get_nanoris(reading_meaning)
+    nanori_list = get_nanoris(reading_meaning) if reading_meaning is not None else []
 
     return  {
         "literal": literal,
