@@ -53,7 +53,7 @@ def process_character(character):
     literal = character.find('literal').text
 
     codepoint = character.find('codepoint')
-    unicode = codepoint.findtext("cp_value[@cp_type='ucs']")
+    unicode = codepoint.findtext("cp_value[@cp_type='ucs']").lstrip("0") or "0" # No left 0's normalization
 
     misc = character.find('misc')
     grade = to_int(misc.findtext('grade'))
