@@ -2,3 +2,4 @@
 /__pycache__
 kana_db.json
 kanji_db.json
+.env
