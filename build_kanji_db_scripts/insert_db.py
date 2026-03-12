@@ -9,7 +9,7 @@ GREEN = "\033[92m"
 YELLOW = "\033[93m"
 RED = "\033[91m"
 
-load_dotenv()
+load_dotenv("../.env")
 
 def get_connection():
     connection = psycopg2.connect(
