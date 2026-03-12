@@ -43,12 +43,14 @@ def build_kanji_db(svg_folder: str, kanjidic2_file_path: str, samples=32):
         if index % 500 == 0 or index == total:
             print(f"\r{YELLOW}Merging: {index}/{total}...", end="", flush=True)
         kanji_data = kanjidic2_db.get(unicode)
+        kana_type = get_kana_type(unicode)
         if kanji_data:
             kanji_db[unicode] = {**kanji_data, "strokes": svg_data["strokes"]}
-        elif is_kana(unicode):
+        elif kana_type:
             kana_db[unicode] = {
                 "literal": svg_data["literal"],
                 "unicode": unicode,
+                "type": kana_type,
                 "stroke_count": len(svg_data["strokes"]),
                 "strokes": svg_data["strokes"]
             }
@@ -67,12 +69,13 @@ def build_kanji_db(svg_folder: str, kanjidic2_file_path: str, samples=32):
     print(f"{GREEN}Done: {len(kanji_db)} kanji, {len(kana_db)} kana")
     return kanji_db, kana_db
 
-def is_kana(unicode_str: str) -> bool:
+def get_kana_type(unicode_str: str) -> str | None:
     code = int(unicode_str, 16)
-    return (
-        0x3041 <= code <= 0x3096 or  # hiragana
-        0x30A0 <= code <= 0x30FF      # katakana
-    )
+    if 0x3041 <= code <= 0x3096:
+        return "hiragana"
+    if 0x30A0 <= code <= 0x30FF:
+        return "katakana"
+    return None
 
 if __name__ == "__main__":
     try:
