@@ -1,4 +1,4 @@
-import { Stroke } from './stroke.model';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 export interface StrokeValidationResult {
   strokeIndex: number;

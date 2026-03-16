@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CanvasRenderService } from './canvas-render.service';
-import { Stroke } from '../models/stroke.model';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 describe('CanvasRenderService', () => {
   let service: CanvasRenderService;

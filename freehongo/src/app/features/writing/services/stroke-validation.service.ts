@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Stroke } from '../models/stroke.model';
+import { Point } from '../../../shared/models/writing/point.interface';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 import {
   SequenceErrorType,
   SequenceValidationResult,
@@ -12,7 +13,6 @@ import {
   calculateAverageDistanceAB,
   vectorComparison,
 } from '../utils/stroke-geometry.util';
-import { Point } from '../models/point.interface';
 
 @Injectable({
   providedIn: 'root',

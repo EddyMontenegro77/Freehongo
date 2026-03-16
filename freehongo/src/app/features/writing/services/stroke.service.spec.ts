@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
 import { StrokeService } from './stroke.service';
-import { Stroke } from '../models/stroke.model';
-import { Point } from '../models/point.interface';
+import { Point } from '../../../shared/models/writing/point.interface';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 describe('StrokeService', () => {
   let service: StrokeService;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Stroke } from '../models/stroke.model';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 @Injectable({
   providedIn: 'root',

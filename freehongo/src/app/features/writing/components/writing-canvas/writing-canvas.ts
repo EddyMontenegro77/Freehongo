@@ -1,7 +1,7 @@
 import { Component, ElementRef, input, ViewChild } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
-import { Stroke } from '../../models/stroke.model';
-import { Point } from '../../models/point.interface';
+import { Stroke } from '../../../../shared/models/writing/stroke.model';
+import { Point } from '../../../../shared/models/writing/point.interface';
 import { CanvasRenderService } from '../../services/canvas-render.service';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
