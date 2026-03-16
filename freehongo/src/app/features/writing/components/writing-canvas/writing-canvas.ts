@@ -12,6 +12,9 @@ import {
 } from '../../models/stroke-validation-result.interface';
 import { Table } from '../../../../shared/components/table/table';
 import { TableConfig } from '../../../../shared/components/table/interface/table.interface';
+import { JapaneseService } from '../../../../shared/services/japanese/japanese.service';
+import { Kanji } from '../../../../shared/models/japanese/kanji.model';
+import { Kana } from '../../../../shared/models/japanese/kana.model';
 
 @Component({
   selector: 'app-writing-canvas',
@@ -24,11 +27,17 @@ export class WritingCanvas {
 
   width = input.required<number>();
   height = input.required<number>();
+  unicode = input.required<string>();
+  type = input.required<string>();
+
+  kanji!: Kanji;
+  kana!: Kana;
+
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
   isPointerDown: boolean = false;
 
-  expectedStrokes = input.required<Stroke[]>();
+  expectedStrokes!: Stroke[];
 
   sequenceError: SequenceErrorType = 'none';
   isValidSequence: boolean = false;
@@ -47,7 +56,31 @@ export class WritingCanvas {
     private strokeService: StrokeService,
     private canvasRenderService: CanvasRenderService,
     private strokeValidationService: StrokeValidationService,
+    private japaneseService: JapaneseService,
   ) {}
+
+  ngOnInit() {
+    if (this.type() === 'kana')
+      this.japaneseService.getKana(this.unicode()).subscribe({
+        next: (kana) => {
+          this.kana = kana;
+          this.expectedStrokes = this.kana.strokes;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+    else
+      this.japaneseService.getKanji(this.unicode()).subscribe({
+        next: (kanji) => {
+          this.kanji = kanji;
+          this.expectedStrokes = this.kanji.strokes;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
 
   ngAfterViewInit() {
     const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {
@@ -94,7 +127,7 @@ export class WritingCanvas {
     const inputStrokes = this.strokeService.getStrokes();
     const sequenceValidationResults = this.strokeValidationService.validateSequence(
       inputStrokes,
-      this.expectedStrokes(),
+      this.expectedStrokes,
     );
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
