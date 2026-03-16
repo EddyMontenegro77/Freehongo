@@ -24,4 +24,10 @@ export class Stroke {
     copy.points = this.points.map((p) => ({ x: p.x, y: p.y }));
     return copy;
   }
+
+  static fromStrokeData(points: Point[]): Stroke {
+    const stroke = new Stroke();
+    stroke.setPoints(points);
+    return stroke;
+  }
 }
