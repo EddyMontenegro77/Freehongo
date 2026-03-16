@@ -1,4 +1,4 @@
-import { Stroke } from '../models/stroke.model';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 import {
   normalizePoints,
   normalizeStrokes,

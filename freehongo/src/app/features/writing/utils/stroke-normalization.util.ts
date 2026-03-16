@@ -1,5 +1,5 @@
-import { Point } from '../models/point.interface';
-import { Stroke } from '../models/stroke.model';
+import { Point } from '../../../shared/models/writing/point.interface';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 /**
  * @param strokes:Stroke[]

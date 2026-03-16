@@ -1,13 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Table } from './table';
-import { TableColumn, TableRow } from './interface/table.interface';
+import { TableColumn } from './interface/table.interface';
 
 describe('Table', () => {
   let component: Table;
   let fixture: ComponentFixture<Table>;
 
-  const headers: TableColumn<TableRow>[] = [
+  type Row = { name: string; strokes: number; passed: boolean };
+
+  const headers: TableColumn<Row>[] = [
     { key: 'name', header: 'Name' },
     { key: 'strokes', header: 'Strokes', align: 'right' },
     {
@@ -17,7 +19,7 @@ describe('Table', () => {
     },
   ];
 
-  const rows: TableRow[] = [
+  const rows: Row[] = [
     { name: 'A', strokes: 3, passed: true },
     { name: 'B', strokes: 5, passed: false },
   ];

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { WritingCanvas } from './features/writing/components/writing-canvas/writing-canvas';
-import { Stroke } from './features/writing/models/stroke.model';
+import { Stroke } from './shared/models/writing/stroke.model';
 
 @Component({
   selector: 'app-root',
