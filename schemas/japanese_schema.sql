@@ -7,6 +7,7 @@ CREATE TABLE kana (
     literal      CHAR(1),
     type         VARCHAR,
     stroke_count INT,
+    reading VARCHAR,
     strokes      JSONB
 );
 
