@@ -17,11 +17,12 @@
   <section class="validation-section" aria-label="validation-section">
     @if (!hasValidationResults) {
       <label>Draw and press "Validate" to get the results</label>
+      <img class="" alt="expected strokes preview" [src]="expectedUrl()" />
     } @else {
       @if (isValidSequence) {
         <label>Correct Sequence</label>
       } @else {
-        <img class="" alt="expected strokes preview" />
+        <img class="" alt="expected strokes preview" [src]="expectedUrl()" />
         <label>Sequence is not valid: {{ sequenceError }}</label>
         <app-table [headers]="tableConfig.columns" [rows]="tableConfig.rows"></app-table>
       }

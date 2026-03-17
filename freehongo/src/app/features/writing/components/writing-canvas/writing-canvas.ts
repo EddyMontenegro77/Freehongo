@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, ViewChild } from '@angular/core';
+import { Component, ElementRef, input, signal, ViewChild } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
 import { Point } from '../../../../shared/models/writing/point.interface';
@@ -38,6 +38,7 @@ export class WritingCanvas {
   isPointerDown: boolean = false;
 
   expectedStrokes!: Stroke[];
+  expectedUrl = signal<string>('');
 
   sequenceError: SequenceErrorType = 'none';
   isValidSequence: boolean = false;
@@ -65,6 +66,8 @@ export class WritingCanvas {
         next: (kana) => {
           this.kana = kana;
           this.expectedStrokes = this.kana.strokes;
+          this.expectedUrl.set(this.japaneseService.getKanaSVG(this.unicode()));
+          console.log(this.expectedUrl());
         },
         error: (err) => {
           console.error(err);
@@ -75,6 +78,8 @@ export class WritingCanvas {
         next: (kanji) => {
           this.kanji = kanji;
           this.expectedStrokes = this.kanji.strokes;
+          this.expectedUrl.set(this.japaneseService.getKanjiSVG(this.unicode()));
+          console.log(this.expectedUrl());
         },
         error: (err) => {
           console.error(err);
