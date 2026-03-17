@@ -4,6 +4,7 @@ import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { Kanji, KanjiData, KanjiError } from '../../models/japanese/kanji.model';
 import { Kana, KanaData, KanaError } from '../../models/japanese/kana.model';
 import { Stroke } from '../../models/writing/stroke.model';
+import { environment } from '../../../../environments/environments';
 
 @Injectable({
   providedIn: 'root',
@@ -33,5 +34,13 @@ export class JapaneseService {
       })),
       catchError((error) => throwError(() => error.error as KanaError)),
     );
+  }
+
+  getKanaSVG(unicode: string): string {
+    return `${environment.supabaseUrl}/storage/v1/object/public/japanese-characters/kana/${unicode}.svg`;
+  }
+
+  getKanjiSVG(unicode: string): string {
+    return `${environment.supabaseUrl}/storage/v1/object/public/japanese-characters/kanji/${unicode}.svg`;
   }
 }
