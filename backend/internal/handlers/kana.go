@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"freehongo-api/internal/repository"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,4 +26,13 @@ func GetKana(db *sql.DB) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, kana)
 	}
+}
+
+func GetKanaSVG() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        unicode := c.Param("unicode")
+        url := fmt.Sprintf("%s/storage/v1/object/public/japanese-characters/kana/%s.svg",
+            os.Getenv("SUPABASE_URL"), unicode)
+        c.JSON(http.StatusOK, gin.H{"url": url})
+    }
 }
