@@ -7,7 +7,7 @@ import (
 
 func GetKana(db *sql.DB, unicode string) (*models.Kana, error) {
 	row := db.QueryRow(`
-		SELECT unicode, literal, type, stroke_count, strokes
+		SELECT unicode, literal, type, stroke_count, reading, strokes
 		FROM japanese.kana
 		WHERE unicode = $1;
 	`, unicode)
@@ -18,6 +18,7 @@ func GetKana(db *sql.DB, unicode string) (*models.Kana, error) {
 			&kana.Literal,
 			&kana.Type,
 			&kana.StrokeCount,
+			&kana.Reading,
 			&kana.Strokes,
 		)
 		if err != nil {

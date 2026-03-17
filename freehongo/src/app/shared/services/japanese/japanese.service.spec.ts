@@ -29,7 +29,12 @@ describe('JapaneseService', () => {
       unicode: '4e00',
       literal: '一',
       stroke_count: 1,
-      strokes: [[{ x: 0, y: 0 }, { x: 10, y: 0 }]],
+      strokes: [
+        [
+          { x: 0, y: 0 },
+          { x: 10, y: 0 },
+        ],
+      ],
       readings: { ja_on: ['イチ'] },
       meanings: { en: ['one'] },
       nanori: [],
@@ -56,9 +61,16 @@ describe('JapaneseService', () => {
       literal: 'あ',
       type: 'hiragana',
       stroke_count: 2,
+      reading: 'a',
       strokes: [
-        [{ x: 1, y: 2 }, { x: 3, y: 4 }],
-        [{ x: 5, y: 6 }, { x: 7, y: 8 }],
+        [
+          { x: 1, y: 2 },
+          { x: 3, y: 4 },
+        ],
+        [
+          { x: 5, y: 6 },
+          { x: 7, y: 8 },
+        ],
       ],
     };
 

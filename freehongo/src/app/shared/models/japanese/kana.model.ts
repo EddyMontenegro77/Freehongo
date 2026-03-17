@@ -6,6 +6,7 @@ export interface Kana {
   literal: string;
   type: string;
   stroke_count: number;
+  reading: string;
   strokes: Stroke[];
 }
 
@@ -14,6 +15,7 @@ export interface KanaData {
   literal: string;
   type: string;
   stroke_count: number;
+  reading: string;
   strokes: Point[][];
 }
 
