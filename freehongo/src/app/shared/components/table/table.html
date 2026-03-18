@@ -1,22 +1,24 @@
-<table>
-  <thead>
-    <tr>
-      @for (column of headers(); track column.key) {
-        <th [style.text-align]="column.align ?? 'left'">{{ column.header }}</th>
-      }
-    </tr>
-  </thead>
-  <tbody>
-    @for (row of rows(); track $index) {
-      @if (isRowVisible(row)) {
-        <tr>
-          @for (column of headers(); track column.key) {
-            @if (isColumnVisible(row, column)) {
-              <td [style.text-align]="column.align ?? 'left'">{{ getCellValue(row, column) }}</td>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        @for (column of headers(); track column.key) {
+          <th [style.text-align]="column.align ?? 'left'">{{ column.header }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track $index) {
+        @if (isRowVisible(row)) {
+          <tr>
+            @for (column of headers(); track column.key) {
+              @if (isColumnVisible(row, column)) {
+                <td [style.text-align]="column.align ?? 'left'">{{ getCellValue(row, column) }}</td>
+              }
             }
-          }
-        </tr>
+          </tr>
+        }
       }
-    }
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
