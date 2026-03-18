@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Point } from '../../../shared/models/writing/point.interface';
 import { Stroke } from '../../../shared/models/writing/stroke.model';
+import { smoothPoints } from '../utils/stroke-smoothing.util';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,9 @@ export class CanvasRenderService {
   setCanvasContext(canvasContext: CanvasRenderingContext2D, fillStyle: string = 'black'): void {
     this.canvasContext = canvasContext;
     canvasContext.fillStyle = fillStyle;
+    canvasContext.lineWidth = 4;
+    canvasContext.lineCap = 'round';
+    canvasContext.lineJoin = 'round';
     this.saveCanvasSnapshot();
   }
 
@@ -27,10 +31,13 @@ export class CanvasRenderService {
   renderStroke(stroke: Stroke): void {
     const points = stroke.getPoints();
     if (points.length < 1) return;
+
+    const smootedPoints = smoothPoints(points);
+
     this.canvasContext.beginPath();
-    this.canvasContext.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      this.canvasContext.lineTo(points[i].x, points[i].y);
+    this.canvasContext.moveTo(smootedPoints[0].x, smootedPoints[0].y);
+    for (let i = 1; i < smootedPoints.length; i++) {
+      this.canvasContext.lineTo(smootedPoints[i].x, smootedPoints[i].y);
     }
     this.canvasContext.stroke();
   }
