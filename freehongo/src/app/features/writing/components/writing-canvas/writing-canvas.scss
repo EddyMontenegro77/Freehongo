@@ -1,3 +1,55 @@
 canvas {
-  border: 1px solid black;
+  box-shadow: var(--light-box-shadow-strong);
+}
+
+.writing-canvas-container {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+  align-items: start;
+
+  .canvas-section {
+    display: grid;
+    grid-template-rows: auto auto;
+    align-self: start;
+
+    .canvas-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
+      place-items: center;
+      margin-top: 1rem;
+    }
+  }
+
+  .validation-section {
+    display: flex;
+    flex-flow: column nowrap;
+    margin-left: 1rem;
+    min-height: 0;
+    max-height: 100%;
+
+    .validation-header {
+      display: flex;
+      flex-direction: row wrap;
+      gap: 1rem;
+      align-items: baseline;
+    }
+
+    .validated,
+    .not-validated {
+      display: flex;
+      flex-flow: column nowrap;
+      overflow-y: scroll;
+      justify-items: center;
+      min-height: 0;
+    }
+
+    .validated app-table {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+  }
 }

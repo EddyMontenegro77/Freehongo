@@ -9,23 +9,41 @@
       [height]="height()"
     >
     </canvas>
-    <app-action-btn title="Validate" [action]="getSequenceValidationResults" />
-    <app-action-btn title="Reset" [action]="resetCanvas" />
-    <app-action-btn title="Undo" [action]="undoStroke" />
-    <app-action-btn title="Redo" [action]="redoStroke" />
+    <section class="canvas-btns" aria-label="canvas-buttons">
+      <app-action-btn title="Validate" [action]="getSequenceValidationResults" />
+      <app-action-btn title="Reset" [action]="resetCanvas" />
+      <app-action-btn title="Undo" [action]="undoStroke" />
+      <app-action-btn title="Redo" [action]="redoStroke" />
+    </section>
   </section>
   <section class="validation-section" aria-label="validation-section">
+    <div class="validation-header">
+      <h2>Validation</h2>
+      <app-icon-btn title="Expected strokes" [action]="openExpectedModal" iconSrc="" />
+    </div>
     @if (!hasValidationResults) {
-      <label>Draw and press "Validate" to get the results</label>
-      <img class="" alt="expected strokes preview" [src]="expectedUrl()" />
+      <section class="not-validated">
+        <label>Draw and press "Validate" to get the results</label>
+      </section>
     } @else {
-      @if (isValidSequence) {
-        <label>Correct Sequence</label>
-      } @else {
-        <img class="" alt="expected strokes preview" [src]="expectedUrl()" />
-        <label>Sequence is not valid: {{ sequenceError }}</label>
-        <app-table [headers]="tableConfig.columns" [rows]="tableConfig.rows"></app-table>
-      }
+      <section class="validated">
+        @if (isValidSequence) {
+          <label>Correct Sequence</label>
+        } @else {
+          <label>Sequence is not valid: {{ sequenceError }}</label>
+          <app-table [headers]="tableConfig.columns" [rows]="tableConfig.rows"></app-table>
+        }
+      </section>
     }
   </section>
 </div>
+
+<app-modal #expectedModal title="Expected Preview">
+  <div modal-body>
+    <img [src]="expectedUrl()" alt="expected strokes preview" />
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Close" [action]="closeExpectedModal" />
+  </div>
+</app-modal>

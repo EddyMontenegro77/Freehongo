@@ -15,15 +15,18 @@ import { TableConfig } from '../../../../shared/components/table/interface/table
 import { JapaneseService } from '../../../../shared/services/japanese/japanese.service';
 import { Kanji } from '../../../../shared/models/japanese/kanji.model';
 import { Kana } from '../../../../shared/models/japanese/kana.model';
+import { Modal } from '../../../../shared/components/modal/modal';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 
 @Component({
   selector: 'app-writing-canvas',
-  imports: [ActionBtn, Table],
+  imports: [ActionBtn, Table, Modal, IconBtn],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('expectedModal') expectedModal!: Modal;
 
   width = input.required<number>();
   height = input.required<number>();
@@ -32,6 +35,7 @@ export class WritingCanvas {
 
   kanji!: Kanji;
   kana!: Kana;
+  character!: Kanji | Kana;
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -64,10 +68,9 @@ export class WritingCanvas {
     if (this.type() === 'kana')
       this.japaneseService.getKana(this.unicode()).subscribe({
         next: (kana) => {
-          this.kana = kana;
-          this.expectedStrokes = this.kana.strokes;
+          this.character = kana;
+          this.expectedStrokes = this.character.strokes;
           this.expectedUrl.set(this.japaneseService.getKanaSVG(this.unicode()));
-          console.log(this.expectedUrl());
         },
         error: (err) => {
           console.error(err);
@@ -76,10 +79,9 @@ export class WritingCanvas {
     else
       this.japaneseService.getKanji(this.unicode()).subscribe({
         next: (kanji) => {
-          this.kanji = kanji;
-          this.expectedStrokes = this.kanji.strokes;
+          this.character = kanji;
+          this.expectedStrokes = this.character.strokes;
           this.expectedUrl.set(this.japaneseService.getKanjiSVG(this.unicode()));
-          console.log(this.expectedUrl());
         },
         error: (err) => {
           console.error(err);
@@ -124,6 +126,14 @@ export class WritingCanvas {
     this.canvasRenderService.renderPoint(this.lastPoint, currentPoint);
     this.lastPoint = currentPoint;
   }
+
+  openExpectedModal = (): void => {
+    this.expectedModal.open();
+  };
+
+  closeExpectedModal = (): void => {
+    this.expectedModal.close();
+  };
 
   // Actions
 
