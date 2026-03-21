@@ -7,7 +7,7 @@ import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
 import {
   SequenceErrorType,
-  SequenceValidationResult,
+  StrokeErrorType,
   StrokeValidationResult,
 } from '../../models/stroke-validation-result.interface';
 import { Table } from '../../../../shared/components/table/table';
@@ -53,9 +53,13 @@ export class WritingCanvas {
 
   tableConfig: TableConfig<StrokeValidationResult> = {
     columns: [
-      { key: 'strokeIndex', header: 'Stroke' },
+      { key: 'strokeIndex', header: 'Stroke', formatter: (v) => Number(v) + 1 },
       { key: 'isValid', header: 'Valid', formatter: (v) => (v ? 'Yes' : 'No') },
-      { key: 'errorType', header: 'Error' },
+      {
+        key: 'errorType',
+        header: 'Error',
+        formatter: (v) => this.strokeErrorLabel(v as StrokeErrorType),
+      },
     ],
     rows: [],
   };
@@ -197,10 +201,7 @@ export class WritingCanvas {
     );
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
-    this.sequenceError =
-      sequenceValidationResults.sequenceErrorType != 'none'
-        ? sequenceValidationResults.sequenceErrorType
-        : '';
+    this.sequenceError = this.sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
     this.tableConfig.rows = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
   };
@@ -246,4 +247,29 @@ export class WritingCanvas {
       y: (event.clientY - rect.top) * scaleY,
     };
   }
+
+  // Error formatting
+  private strokeErrorLabel = (errorType: StrokeErrorType): string => {
+    switch (errorType) {
+      case 'wrong-direction':
+        return 'Stroke direction is incorrect';
+      case 'wrong-shape':
+        return 'Stroke shape does not match';
+      case 'none':
+      default:
+        return 'Stroke is correct';
+    }
+  };
+
+  private sequenceErrorLabel = (errorType: SequenceErrorType): string => {
+    switch (errorType) {
+      case 'wrong-amount':
+        return 'Wrong number of strokes';
+      case 'wrong-order':
+        return 'Stroke order is incorrect';
+      case 'none':
+      default:
+        return '';
+    }
+  };
 }
