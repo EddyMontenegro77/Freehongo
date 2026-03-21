@@ -5,7 +5,7 @@ import { Point } from '../../../shared/models/writing/point.interface';
  * The first and last points are preserved so the stroke keeps its endpoints.
  */
 export function smoothPoints(points: Point[]): Point[] {
-  if (points.length < 3) return points.map((point) => ({ x: point.x, y: point.y }));
+  if (points.length < 3) return points.map((point) => ({ x: point.x, y: point.y })); // Not enough Neighbours
 
   const smoothed: Point[] = [{ x: points[0].x, y: points[0].y }];
 
@@ -15,6 +15,12 @@ export function smoothPoints(points: Point[]): Point[] {
     const next = points[index + 1];
 
     smoothed.push({
+      /* Symmetric weighted kernel [0.25, 0.5, 0.25] for soft smoothing.
+       * The center weight preserves the original point,
+       * while neighbor weights introduce smoothing.
+       * Reducing the center weight increases smoothing,
+       * while increasing it preserves more detail.
+       */
       x: previous.x * 0.25 + current.x * 0.5 + next.x * 0.25,
       y: previous.y * 0.25 + current.y * 0.5 + next.y * 0.25,
     });
