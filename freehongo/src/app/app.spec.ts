@@ -58,6 +58,6 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('app-writing-canvas')).toBeTruthy();
+    expect(compiled.querySelector('app-writing-practice')).toBeTruthy();
   });
 });

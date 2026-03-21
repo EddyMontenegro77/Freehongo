@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { WritingCanvas } from './features/writing/components/writing-canvas/writing-canvas';
+import { WritingPractice } from './features/writing/components/writing-practice/writing-practice';
 import { Stroke } from './shared/models/writing/stroke.model';
 import { ThemeService } from './shared/services/theme/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, WritingCanvas],
+  imports: [RouterOutlet, WritingPractice],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
