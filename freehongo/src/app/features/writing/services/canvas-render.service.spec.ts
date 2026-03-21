@@ -56,19 +56,18 @@ describe('CanvasRenderService', () => {
     expect(ctx.stroke).toHaveBeenCalledOnce();
   });
 
-  it('should render a stroke path', () => {
+  it('should render a smoothed stroke path', () => {
     service.setCanvasContext(ctx);
     const stroke = createStroke([
       { x: 0, y: 0 },
       { x: 10, y: 10 },
       { x: 20, y: 5 },
     ]);
-
     service.renderStroke(stroke);
 
     expect(ctx.beginPath).toHaveBeenCalled();
     expect(ctx.moveTo).toHaveBeenCalledWith(0, 0);
-    expect(ctx.lineTo).toHaveBeenCalledWith(10, 10);
+    expect(ctx.lineTo).toHaveBeenCalledWith(10, 6.25);
     expect(ctx.lineTo).toHaveBeenCalledWith(20, 5);
     expect(ctx.stroke).toHaveBeenCalled();
   });
