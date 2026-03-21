@@ -20,7 +20,8 @@ canvas {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 0.3rem;
-      place-items: center;
+      width: 100%;
+      place-items: stretch;
       margin-top: 1rem;
     }
   }
@@ -34,7 +35,7 @@ canvas {
 
     .validation-header {
       display: flex;
-      flex-direction: row wrap;
+      flex-flow: row wrap;
       gap: 1rem;
       align-items: center;
     }
@@ -69,4 +70,50 @@ canvas {
   padding: 1rem;
   background-color: white;
   border-radius: var(--radius-md);
+}
+
+@media (max-width: 1024px) {
+  .writing-canvas-container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+
+    .validation-section {
+      margin-left: 0;
+      max-width: 100%;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .writing-canvas-container {
+    padding: 1rem;
+    gap: 1rem;
+
+    .canvas-section {
+      width: 100%;
+
+      .canvas-btns {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+    }
+
+    .validation-section {
+      .validated {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      app-table {
+        margin-top: 1rem;
+        width: min(100%, 42rem);
+      }
+    }
+  }
+
+  .preview-image {
+    width: min(100%, 18rem);
+  }
 }
