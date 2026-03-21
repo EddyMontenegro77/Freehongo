@@ -5,39 +5,26 @@ import { Point } from '../../../../shared/models/writing/point.interface';
 import { CanvasRenderService } from '../../services/canvas-render.service';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
-import {
-  StrokeErrorType,
-  StrokeValidationResult,
-} from '../../models/stroke-validation-result.interface';
-import { Table } from '../../../../shared/components/table/table';
-import { TableConfig } from '../../../../shared/components/table/interface/table.interface';
-import { List } from '../../../../shared/components/list/list';
-import { Modal } from '../../../../shared/components/modal/modal';
-import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
-import { ThemeService } from '../../../../shared/services/theme/theme.service';
+import { StrokeValidationResult } from '../../models/stroke-validation-result.interface';
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
-import { strokeErrorLabel } from '../../mappers/stroke-error-label.mapper';
 import { CanvasWritingFacadeService } from '../../services/canvas-writing.facade.service';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
-import { ExpectedCharacterViewModel } from '../../services/canvas-writing.facade.service';
+import { WritingValidation } from '../writing-validation/writing-validation';
 
 @Component({
   selector: 'app-writing-canvas',
-  imports: [ActionBtn, Table, Modal, IconBtn, List],
+  standalone: true,
+  imports: [ActionBtn, WritingValidation],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('expectedModal') expectedModal!: Modal;
-  @ViewChild('infoModal') infoModal!: Modal;
 
   width = input.required<number>();
   height = input.required<number>();
   unicode = input.required<string>();
   type = input.required<CharacterType>();
-
-  character!: ExpectedCharacterViewModel['character'];
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -49,26 +36,13 @@ export class WritingCanvas {
   sequenceError: string = 'none';
   isValidSequence: boolean = false;
   hasValidationResults = false;
-
-  tableConfig: TableConfig<StrokeValidationResult> = {
-    columns: [
-      { key: 'strokeIndex', header: 'Stroke', formatter: (v) => Number(v) + 1 },
-      { key: 'isValid', header: 'Valid', formatter: (v) => (v ? 'Yes' : 'No') },
-      {
-        key: 'errorType',
-        header: 'Error',
-        formatter: (v) => strokeErrorLabel(v as StrokeErrorType),
-      },
-    ],
-    rows: [],
-  };
+  strokeResults: StrokeValidationResult[] = [];
 
   constructor(
     private strokeService: StrokeService,
     private canvasRenderService: CanvasRenderService,
     private strokeValidationService: StrokeValidationService,
     private canvasWritingFacadeService: CanvasWritingFacadeService,
-    public themeService: ThemeService,
   ) {}
 
   ngOnInit() {
@@ -77,7 +51,6 @@ export class WritingCanvas {
 
     this.canvasWritingFacadeService.loadExpectedCharacter(unicode, type).subscribe({
       next: ({ character, expectedUrl }) => {
-        this.character = character;
         this.expectedStrokes = character.strokes;
         this.expectedUrl.set(expectedUrl);
       },
@@ -134,22 +107,6 @@ export class WritingCanvas {
     this.lastPoint = currentPoint;
   }
 
-  openExpectedModal = (): void => {
-    this.expectedModal.open();
-  };
-
-  closeExpectedModal = (): void => {
-    this.expectedModal.close();
-  };
-
-  openInfoModal = (): void => {
-    this.infoModal.open();
-  };
-
-  closeInfoModal = (): void => {
-    this.infoModal.close();
-  };
-
   // Event listeners
   @HostListener('window:keydown', ['$event'])
   handleKeyboard(event: KeyboardEvent): void {
@@ -201,7 +158,7 @@ export class WritingCanvas {
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
     this.sequenceError = sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
-    this.tableConfig.rows = sequenceValidationResults.strokeResults;
+    this.strokeResults = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
   };
 
@@ -211,7 +168,7 @@ export class WritingCanvas {
     this.lastPoint = { x: -1, y: -1 } as Point;
     this.isPointerDown = false;
     this.currentStroke = new Stroke();
-    this.tableConfig.rows = [];
+    this.strokeResults = [];
     this.sequenceError = 'none';
     this.isValidSequence = false;
     this.hasValidationResults = false;
