@@ -6,19 +6,20 @@ import { CanvasRenderService } from '../../services/canvas-render.service';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
 import {
-  SequenceErrorType,
   StrokeErrorType,
   StrokeValidationResult,
 } from '../../models/stroke-validation-result.interface';
 import { Table } from '../../../../shared/components/table/table';
 import { TableConfig } from '../../../../shared/components/table/interface/table.interface';
 import { List } from '../../../../shared/components/list/list';
-import { JapaneseService } from '../../../../shared/services/japanese/japanese.service';
-import { Kanji } from '../../../../shared/models/japanese/kanji.model';
-import { Kana } from '../../../../shared/models/japanese/kana.model';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { ThemeService } from '../../../../shared/services/theme/theme.service';
+import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
+import { strokeErrorLabel } from '../../mappers/stroke-error-label.mapper';
+import { CanvasWritingFacadeService } from '../../services/canvas-writing.facade.service';
+import { CharacterType } from '../../../../shared/models/japanese/character.type';
+import { ExpectedCharacterViewModel } from '../../services/canvas-writing.facade.service';
 
 @Component({
   selector: 'app-writing-canvas',
@@ -34,11 +35,9 @@ export class WritingCanvas {
   width = input.required<number>();
   height = input.required<number>();
   unicode = input.required<string>();
-  type = input.required<string>();
+  type = input.required<CharacterType>();
 
-  kanji!: Kanji;
-  kana!: Kana;
-  character!: Kanji | Kana;
+  character!: ExpectedCharacterViewModel['character'];
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -58,7 +57,7 @@ export class WritingCanvas {
       {
         key: 'errorType',
         header: 'Error',
-        formatter: (v) => this.strokeErrorLabel(v as StrokeErrorType),
+        formatter: (v) => strokeErrorLabel(v as StrokeErrorType),
       },
     ],
     rows: [],
@@ -68,33 +67,24 @@ export class WritingCanvas {
     private strokeService: StrokeService,
     private canvasRenderService: CanvasRenderService,
     private strokeValidationService: StrokeValidationService,
-    private japaneseService: JapaneseService,
+    private canvasWritingFacadeService: CanvasWritingFacadeService,
     public themeService: ThemeService,
   ) {}
 
   ngOnInit() {
-    if (this.type() === 'kana')
-      this.japaneseService.getKana(this.unicode()).subscribe({
-        next: (kana) => {
-          this.character = kana;
-          this.expectedStrokes = this.character.strokes;
-          this.expectedUrl.set(this.japaneseService.getKanaSVG(this.unicode()));
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
-    else
-      this.japaneseService.getKanji(this.unicode()).subscribe({
-        next: (kanji) => {
-          this.character = kanji;
-          this.expectedStrokes = this.character.strokes;
-          this.expectedUrl.set(this.japaneseService.getKanjiSVG(this.unicode()));
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+    const type = this.type();
+    const unicode = this.unicode();
+
+    this.canvasWritingFacadeService.loadExpectedCharacter(unicode, type).subscribe({
+      next: ({ character, expectedUrl }) => {
+        this.character = character;
+        this.expectedStrokes = character.strokes;
+        this.expectedUrl.set(expectedUrl);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -108,7 +98,10 @@ export class WritingCanvas {
   onPointerDown(event: PointerEvent): void {
     this.isPointerDown = true;
     this.currentStroke = new Stroke();
-    const currentPoint = this.getCanvasCoordinates(event);
+    const currentPoint = CanvasRenderService.getCanvasCoordinates(
+      this.writingCanvas.nativeElement,
+      event,
+    );
     this.lastPoint = currentPoint;
     this.currentStroke.addPoint(currentPoint);
   }
@@ -116,7 +109,10 @@ export class WritingCanvas {
   onPointerUp(event: PointerEvent): void {
     if (!this.isPointerDown) return;
     this.isPointerDown = false;
-    const currentPoint = this.getCanvasCoordinates(event);
+    const currentPoint = CanvasRenderService.getCanvasCoordinates(
+      this.writingCanvas.nativeElement,
+      event,
+    );
     this.currentStroke.addPoint(currentPoint);
     this.strokeService.addStroke(this.currentStroke);
     this.canvasRenderService.renderPoint(this.lastPoint, currentPoint);
@@ -126,7 +122,10 @@ export class WritingCanvas {
 
   onPointerMove(event: PointerEvent) {
     if (!this.isPointerDown) return;
-    const currentPoint = this.getCanvasCoordinates(event);
+    const currentPoint = CanvasRenderService.getCanvasCoordinates(
+      this.writingCanvas.nativeElement,
+      event,
+    );
 
     if (currentPoint.x === this.lastPoint.x && currentPoint.y === this.lastPoint.y) return;
 
@@ -201,7 +200,7 @@ export class WritingCanvas {
     );
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
-    this.sequenceError = this.sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
+    this.sequenceError = sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
     this.tableConfig.rows = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
   };
@@ -233,43 +232,6 @@ export class WritingCanvas {
     // redraw from the current stroke state.
     if (!this.canvasRenderService.redoCanvasSnapshot()) {
       this.canvasRenderService.renderAllStrokes(this.strokeService.getStrokes());
-    }
-  };
-
-  private getCanvasCoordinates(event: PointerEvent): Point {
-    const canvas = this.writingCanvas.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY,
-    };
-  }
-
-  // Error formatting
-  private strokeErrorLabel = (errorType: StrokeErrorType): string => {
-    switch (errorType) {
-      case 'wrong-direction':
-        return 'Stroke direction is incorrect';
-      case 'wrong-shape':
-        return 'Stroke shape does not match';
-      case 'none':
-      default:
-        return 'Stroke is correct';
-    }
-  };
-
-  private sequenceErrorLabel = (errorType: SequenceErrorType): string => {
-    switch (errorType) {
-      case 'wrong-amount':
-        return 'Wrong number of strokes';
-      case 'wrong-order':
-        return 'Stroke order is incorrect';
-      case 'none':
-      default:
-        return '';
     }
   };
 }
