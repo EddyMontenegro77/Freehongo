@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, input, signal, ViewChild } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
 import { Point } from '../../../../shared/models/writing/point.interface';
@@ -12,21 +12,24 @@ import {
 } from '../../models/stroke-validation-result.interface';
 import { Table } from '../../../../shared/components/table/table';
 import { TableConfig } from '../../../../shared/components/table/interface/table.interface';
+import { List } from '../../../../shared/components/list/list';
 import { JapaneseService } from '../../../../shared/services/japanese/japanese.service';
 import { Kanji } from '../../../../shared/models/japanese/kanji.model';
 import { Kana } from '../../../../shared/models/japanese/kana.model';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
+import { ThemeService } from '../../../../shared/services/theme/theme.service';
 
 @Component({
   selector: 'app-writing-canvas',
-  imports: [ActionBtn, Table, Modal, IconBtn],
+  imports: [ActionBtn, Table, Modal, IconBtn, List],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('expectedModal') expectedModal!: Modal;
+  @ViewChild('infoModal') infoModal!: Modal;
 
   width = input.required<number>();
   height = input.required<number>();
@@ -44,7 +47,7 @@ export class WritingCanvas {
   expectedStrokes!: Stroke[];
   expectedUrl = signal<string>('');
 
-  sequenceError: SequenceErrorType = 'none';
+  sequenceError: string = 'none';
   isValidSequence: boolean = false;
   hasValidationResults = false;
 
@@ -62,6 +65,7 @@ export class WritingCanvas {
     private canvasRenderService: CanvasRenderService,
     private strokeValidationService: StrokeValidationService,
     private japaneseService: JapaneseService,
+    public themeService: ThemeService,
   ) {}
 
   ngOnInit() {
@@ -135,6 +139,53 @@ export class WritingCanvas {
     this.expectedModal.close();
   };
 
+  openInfoModal = (): void => {
+    this.infoModal.open();
+  };
+
+  closeInfoModal = (): void => {
+    this.infoModal.close();
+  };
+
+  // Event listeners
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent): void {
+    const ctrlOrMeta = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+    const isUndo = ctrlOrMeta && !event.shiftKey && key === 'z';
+    const isRedo = ctrlOrMeta && ((event.shiftKey && key === 'z') || key === 'y');
+    const isReset = ctrlOrMeta && key === 'r';
+    const isValidate = ctrlOrMeta && key === 'v';
+
+    if (isUndo) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.undoStroke();
+      return;
+    }
+
+    if (isRedo) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.redoStroke();
+      return;
+    }
+
+    if (isReset) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.resetCanvas();
+      return;
+    }
+
+    if (isValidate) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.getSequenceValidationResults();
+      return;
+    }
+  }
+
   // Actions
 
   getSequenceValidationResults = (): void => {
@@ -146,7 +197,10 @@ export class WritingCanvas {
     );
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
-    this.sequenceError = sequenceValidationResults.sequenceErrorType;
+    this.sequenceError =
+      sequenceValidationResults.sequenceErrorType != 'none'
+        ? sequenceValidationResults.sequenceErrorType
+        : '';
     this.tableConfig.rows = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
   };
