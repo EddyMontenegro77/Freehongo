@@ -44,7 +44,11 @@
           <label class="status-label">Correct Sequence</label>
         } @else {
           <label class="status-label">Sequence is not valid: {{ sequenceError }}</label>
-          <app-table [headers]="tableConfig.columns" [rows]="tableConfig.rows"></app-table>
+          <app-table
+            [headers]="tableConfig.columns"
+            [rows]="tableConfig.rows"
+            tableAlignment="left"
+          ></app-table>
         }
       </section>
     }
