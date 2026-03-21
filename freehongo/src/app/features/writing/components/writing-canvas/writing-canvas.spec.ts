@@ -1,24 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 
 import { WritingCanvas } from './writing-canvas';
-import { CanvasWritingFacadeService } from '../../services/canvas-writing.facade.service';
+import { Stroke } from '../../../../shared/models/writing/stroke.model';
 
 describe('WritingCanvas', () => {
   let component: WritingCanvas;
   let fixture: ComponentFixture<WritingCanvas>;
-  const canvasWritingFacadeServiceMock = {
-    loadExpectedCharacter: vi.fn().mockReturnValue(
-      of({ character: { strokes: [] } as never, expectedUrl: '' }),
-    ),
-  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [WritingCanvas],
-      providers: [
-        { provide: CanvasWritingFacadeService, useValue: canvasWritingFacadeServiceMock },
-      ],
     })
     .compileComponents();
 
@@ -43,6 +34,8 @@ describe('WritingCanvas', () => {
     fixture.componentRef.setInput('height', 400);
     fixture.componentRef.setInput('unicode', '3043');
     fixture.componentRef.setInput('type', 'kana');
+    fixture.componentRef.setInput('expectedStrokes', [] as Stroke[]);
+    fixture.componentRef.setInput('expectedUrl', '');
     fixture.detectChanges();
     await fixture.whenStable();
   });

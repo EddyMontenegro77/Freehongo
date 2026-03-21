@@ -7,7 +7,6 @@ import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
 import { StrokeValidationResult } from '../../models/stroke-validation-result.interface';
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
-import { CanvasWritingFacadeService } from '../../services/canvas-writing.facade.service';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { WritingValidation } from '../writing-validation/writing-validation';
 
@@ -25,13 +24,12 @@ export class WritingCanvas {
   height = input.required<number>();
   unicode = input.required<string>();
   type = input.required<CharacterType>();
+  expectedStrokes = input.required<Stroke[]>();
+  expectedUrl = input.required<string>();
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
   isPointerDown: boolean = false;
-
-  expectedStrokes!: Stroke[];
-  expectedUrl = signal<string>('');
 
   sequenceError: string = 'none';
   isValidSequence: boolean = false;
@@ -42,23 +40,7 @@ export class WritingCanvas {
     private strokeService: StrokeService,
     private canvasRenderService: CanvasRenderService,
     private strokeValidationService: StrokeValidationService,
-    private canvasWritingFacadeService: CanvasWritingFacadeService,
   ) {}
-
-  ngOnInit() {
-    const type = this.type();
-    const unicode = this.unicode();
-
-    this.canvasWritingFacadeService.loadExpectedCharacter(unicode, type).subscribe({
-      next: ({ character, expectedUrl }) => {
-        this.expectedStrokes = character.strokes;
-        this.expectedUrl.set(expectedUrl);
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
 
   ngAfterViewInit() {
     const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {
@@ -153,7 +135,7 @@ export class WritingCanvas {
     const inputStrokes = this.strokeService.getStrokes();
     const sequenceValidationResults = this.strokeValidationService.validateSequence(
       inputStrokes,
-      this.expectedStrokes,
+      this.expectedStrokes(),
     );
 
     this.isValidSequence = sequenceValidationResults.isValidSequence;
