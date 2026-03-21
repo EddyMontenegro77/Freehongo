@@ -1,8 +1,21 @@
-<section class="writing-practice">
-  <app-writing-canvas
-    [width]="width()"
-    [height]="height()"
-    [unicode]="unicode()"
-    [type]="type()"
+@if (isLoading()) {
+  <app-loading-state message="Loading practice data..." />
+} @else if (loadError()) {
+  <app-error-state
+    title="Could not load practice"
+    [message]="loadError()!"
+    actionTitle="Retry"
+    [action]="loadPractice"
   />
-</section>
+} @else {
+  <section class="writing-practice">
+    <app-writing-canvas
+      [width]="width()"
+      [height]="height()"
+      [unicode]="unicode()"
+      [type]="type()"
+      [expectedStrokes]="expectedStrokes()"
+      [expectedUrl]="expectedUrl()"
+    />
+  </section>
+}

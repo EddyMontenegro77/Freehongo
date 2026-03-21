@@ -5,3 +5,13 @@
 .writing-practice {
   display: block;
 }
+
+.writing-practice__error {
+  margin: 0;
+  padding: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
