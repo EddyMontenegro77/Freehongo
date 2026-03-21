@@ -58,4 +58,30 @@ describe('Table', () => {
     expect(firstRowCells[1].textContent.trim()).toBe('3');
     expect(firstRowCells[2].textContent.trim()).toBe('Yes');
   });
+
+  it('should center the table by default', () => {
+    const wrapper = fixture.nativeElement.querySelector('.table-wrapper');
+
+    expect(wrapper.classList.contains('table-wrapper--center')).toBe(true);
+  });
+
+  it('should align the table to the left when requested', async () => {
+    fixture.componentRef.setInput('tableAlignment', 'left');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const wrapper = fixture.nativeElement.querySelector('.table-wrapper');
+
+    expect(wrapper.classList.contains('table-wrapper--left')).toBe(true);
+  });
+
+  it('should align the table to the right when requested', async () => {
+    fixture.componentRef.setInput('tableAlignment', 'right');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const wrapper = fixture.nativeElement.querySelector('.table-wrapper');
+
+    expect(wrapper.classList.contains('table-wrapper--right')).toBe(true);
+  });
 });

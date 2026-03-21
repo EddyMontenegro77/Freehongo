@@ -1,4 +1,9 @@
-<div class="table-wrapper">
+<div
+  class="table-wrapper"
+  [class.table-wrapper--left]="tableAlignment() === 'left'"
+  [class.table-wrapper--center]="tableAlignment() === 'center'"
+  [class.table-wrapper--right]="tableAlignment() === 'right'"
+>
   <table>
     <thead>
       <tr>

@@ -9,6 +9,20 @@
   box-shadow: var(--shadow-sm);
 }
 
+.table-wrapper--center {
+  margin-inline: auto;
+}
+
+.table-wrapper--left {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+.table-wrapper--right {
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
+
 table {
   width: max-content;
   table-layout: auto;

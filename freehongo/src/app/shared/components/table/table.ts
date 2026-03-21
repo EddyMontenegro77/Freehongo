@@ -1,6 +1,8 @@
 import { Component, input } from '@angular/core';
 import { TableColumn, TableRow } from './interface/table.interface';
 
+export type TableAlignment = 'left' | 'center' | 'right';
+
 @Component({
   selector: 'app-table',
   imports: [],
@@ -11,6 +13,7 @@ export class Table {
   headers = input.required<TableColumn<any>[]>();
   rows = input.required<any[]>();
   showRow = input<(row: TableRow) => boolean>();
+  tableAlignment = input<TableAlignment>('center');
 
   getCellValue(row: TableRow, column: TableColumn<TableRow>): unknown {
     const value = row[column.key];
