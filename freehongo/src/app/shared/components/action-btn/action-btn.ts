@@ -1,7 +1,8 @@
-import { Component, output, input, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 
 @Component({
   selector: 'app-action-btn',
+  standalone: true,
   imports: [],
   templateUrl: './action-btn.html',
   styleUrl: './action-btn.scss',
