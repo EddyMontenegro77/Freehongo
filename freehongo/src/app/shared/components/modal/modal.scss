@@ -9,6 +9,7 @@
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
   }
 }
 
@@ -20,8 +21,10 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   border-radius: 1rem;
-  background: #fff;
-  box-shadow: var(--light-box-shadow-strong);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .modal__header,
@@ -35,7 +38,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .modal__title {
@@ -50,11 +53,5 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.modal__close {
-  border: none;
-  background: transparent;
-  cursor: pointer;
+  border-top: 1px solid var(--border);
 }
