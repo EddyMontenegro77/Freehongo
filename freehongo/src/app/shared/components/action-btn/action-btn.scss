@@ -1,4 +1,6 @@
 button {
+  display: block;
+  width: 100%;
   border: none;
   background-color: var(--action-btn-bg);
   color: var(--action-btn-text);
