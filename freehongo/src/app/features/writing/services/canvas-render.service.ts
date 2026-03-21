@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ElementRef, Injectable } from '@angular/core';
 import { Point } from '../../../shared/models/writing/point.interface';
 import { Stroke } from '../../../shared/models/writing/stroke.model';
 import { smoothPoints } from '../utils/stroke-smoothing.util';
@@ -106,5 +106,16 @@ export class CanvasRenderService {
     this.historyImages = [];
     this.historyIndex = 0;
     this.saveCanvasSnapshot();
+  }
+
+  static getCanvasCoordinates(canvas: HTMLCanvasElement, event: PointerEvent): Point {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
+    };
   }
 }
