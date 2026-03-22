@@ -1,17 +1,21 @@
 @if (isLoading()) {
-  <app-loading-state message="Loading practice data..." />
+  <section class="writing-practice__state writing-practice__state--loading">
+    <app-loading-state message="Loading practice data..." />
+  </section>
 } @else if (loadError()) {
-  <app-error-state
-    title="Could not load practice"
-    [message]="loadError()!"
-    actionTitle="Retry"
-    [action]="loadPractice"
-  />
+  <section class="writing-practice__state writing-practice__state--error">
+    <app-error-state
+      title="Could not load practice"
+      [message]="loadError()!"
+      actionTitle="Retry"
+      [action]="loadPractice"
+    />
+  </section>
 } @else {
   <section class="writing-practice">
     <app-writing-canvas
-      [width]="width()"
-      [height]="height()"
+      [width]="width"
+      [height]="height"
       [unicode]="unicode()"
       [type]="type()"
       [expectedStrokes]="expectedStrokes()"

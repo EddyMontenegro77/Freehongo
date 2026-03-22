@@ -46,6 +46,7 @@ describe('WritingPractice', () => {
     fixture.componentRef.setInput('unicode', '3042');
     fixture.componentRef.setInput('type', 'kana');
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   afterEach(() => {
