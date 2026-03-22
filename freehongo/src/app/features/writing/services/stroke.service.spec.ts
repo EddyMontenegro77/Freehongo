@@ -1,13 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 
 import { StrokeService } from './stroke.service';
-import { Stroke } from '../models/stroke.model';
+import { Point } from '../../../shared/models/writing/point.interface';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 describe('StrokeService', () => {
   let service: StrokeService;
 
-  const testStroke = new Stroke();
-  testStroke.addPoint({ x: 0, y: 0 });
+  function createStroke(points: Point[]): Stroke {
+    const stroke = new Stroke();
+    stroke.setPoints(points);
+    return stroke;
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
@@ -19,43 +23,72 @@ describe('StrokeService', () => {
   });
 
   it('should add a stroke', () => {
+    const testStroke = createStroke([{ x: 0, y: 0 }]);
     service.addStroke(testStroke);
 
-    expect(service.strokes).toHaveLength(1);
+    expect(service.getStrokes()).toHaveLength(1);
   });
 
   it('should get strokes', () => {
+    const testStroke = createStroke([{ x: 0, y: 0 }]);
     service.addStroke(testStroke);
     const result = service.getStrokes();
 
     expect(result).toHaveLength(1);
-    expect(result).toContain(testStroke);
-  });
-
-  it('should clean strokes', () => {
-    service.cleanStrokes();
-    expect(service.strokes).toHaveLength(0);
+    expect(result[0].getPoints()).toEqual(testStroke.getPoints());
+    expect(result[0]).not.toBe(testStroke);
   });
 
   it('should clear strokes', () => {
+    const testStroke = createStroke([{ x: 0, y: 0 }]);
     service.addStroke(testStroke);
     service.cleanStrokes();
 
-    expect(service.strokes).toHaveLength(0);
+    expect(service.getStrokes()).toHaveLength(0);
+    expect(service.getRedoStack()).toHaveLength(0);
   });
 
-  it('should remove strokes', () => {
+  it('should undo a stroke', () => {
+    const testStroke = createStroke([{ x: 0, y: 0 }]);
     service.addStroke(testStroke);
-    const result = service.removeStroke(0);
 
-    expect(result).toEqual(testStroke);
-    expect(service.strokes).toHaveLength(0);
+    const result = service.undo();
+
+    expect(result).toBe(true);
+    expect(service.getStrokes()).toHaveLength(0);
+    expect(service.getRedoStack()).toHaveLength(1);
   });
 
-  it('should return null after attempting to remove an element of an empty strokes array', () => {
-    service.cleanStrokes();
-    const result = service.removeStroke(0);
+  it('should return false when undoing with empty strokes', () => {
+    expect(service.undo()).toBe(false);
+  });
 
-    expect(result).toBeNull();
+  it('should redo a stroke', () => {
+    const testStroke = createStroke([{ x: 0, y: 0 }]);
+    service.addStroke(testStroke);
+    service.undo();
+
+    const result = service.redo();
+
+    expect(result).toBe(true);
+    expect(service.getStrokes()).toHaveLength(1);
+    expect(service.getRedoStack()).toHaveLength(0);
+    expect(service.getStrokes()[0].getPoints()).toEqual(testStroke.getPoints());
+  });
+
+  it('should return false when redoing with empty redo stack', () => {
+    expect(service.redo()).toBe(false);
+  });
+
+  it('should clear redo stack when adding a new stroke after undo', () => {
+    const strokeA = createStroke([{ x: 0, y: 0 }]);
+    const strokeB = createStroke([{ x: 1, y: 1 }]);
+
+    service.addStroke(strokeA);
+    service.undo();
+    expect(service.getRedoStack()).toHaveLength(1);
+
+    service.addStroke(strokeB);
+    expect(service.getRedoStack()).toHaveLength(0);
   });
 });

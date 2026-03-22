@@ -1,3 +1,74 @@
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 canvas {
-  border: 1px solid black;
+  box-shadow: var(--shadow);
+  background-color: var(--color-light);
+}
+
+.writing-canvas-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1.5rem;
+  width: fit-content;
+  padding: 2rem;
+  align-items: start;
+  justify-content: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  .canvas-section {
+    display: grid;
+    grid-template-rows: auto auto;
+    align-self: start;
+    place-items: center;
+
+    .canvas-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.3rem;
+      width: 100%;
+      place-items: stretch;
+      margin-top: 1rem;
+    }
+  }
+}
+
+app-writing-validation {
+  min-width: 0;
+  justify-self: start;
+  width: fit-content;
+}
+
+@media (max-width: 1024px) {
+  .writing-canvas-container {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+    padding: 1.5rem;
+  }
+
+  app-writing-validation {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .writing-canvas-container {
+    padding: 1rem;
+    gap: 1rem;
+
+    .canvas-section {
+      width: 100%;
+
+      .canvas-btns {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+    }
+  }
 }
