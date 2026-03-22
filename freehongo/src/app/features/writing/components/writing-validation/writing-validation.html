@@ -1,0 +1,77 @@
+<section class="validation-section" aria-label="validation-section">
+  <div class="validation-header">
+    <h2>Validation section</h2>
+    <app-icon-btn
+      title="How to use writing canvas"
+      [action]="openInfoModal"
+      [iconSrc]="themeService.getTheme() === 'dark' ? 'info_dark.svg' : 'info_light.svg'"
+    />
+    <app-icon-btn
+      title="Expected strokes preview"
+      [action]="openExpectedModal"
+      [iconSrc]="themeService.getTheme() === 'dark' ? 'eye_dark.svg' : 'eye_light.svg'"
+    />
+  </div>
+  @if (!hasValidationResults()) {
+    <section class="not-validated">
+      <label class="status-label">
+        Draw on the canvas and click <b>Validate</b> to see the results.
+      </label>
+      <label class="status-label">-Click <b>info</b> button for more details.</label>
+      <label class="status-label">-Click the <b>eye icon</b> to see the expected strokes.</label>
+    </section>
+  } @else {
+    <section class="validated">
+      @if (isValidSequence()) {
+        <label class="status-label">Correct Sequence</label>
+      } @else {
+        <label class="status-label">Sequence is not valid: {{ sequenceError() }}</label>
+        <app-table
+          [headers]="columns"
+          [rows]="strokeResults()"
+          tableAlignment="left"
+        ></app-table>
+      }
+    </section>
+  }
+</section>
+
+<app-modal #expectedModal title="Expected Preview">
+  <div modal-body>
+    <img [src]="expectedUrl()" alt="expected strokes preview" class="preview-image" />
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Close" [action]="closeExpectedModal" />
+  </div>
+</app-modal>
+
+<app-modal #infoModal title="How to use the writing canvas">
+  <div modal-body>
+    <p class="strong">Click and draw in the canvas. You can also use some shortcuts:</p>
+    <app-list
+      [listType]="'ul'"
+      [items]="[
+        'Ctrl+z to undo',
+        'Ctrl+shift+z to redo',
+        'Ctrl+r to reset canvas',
+        'Ctrl+v to validate strokes',
+      ]"
+    ></app-list>
+
+    <p class="strong">Validation errors can mean:</p>
+    <app-list
+      [listType]="'ul'"
+      [items]="[
+        'wrong-amount: you drew too many or too few strokes.',
+        'wrong-order: the strokes are correct, but not in the expected order.',
+        'wrong-direction: at least one stroke was drawn in the opposite direction.',
+        'wrong-shape: the stroke shape does not match the expected one closely enough.',
+      ]"
+    ></app-list>
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Close" [action]="closeInfoModal" />
+  </div>
+</app-modal>

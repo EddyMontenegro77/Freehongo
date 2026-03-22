@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.validation-section {
+  display: flex;
+  flex-flow: column nowrap;
+  min-height: 0;
+  max-height: 100%;
+  width: fit-content;
+  max-width: 100%;
+  align-self: start;
+
+  .validation-header {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .validated,
+  .not-validated {
+    display: flex;
+    flex-flow: column nowrap;
+    overflow: auto;
+    justify-items: center;
+    min-height: 0;
+  }
+
+  .validated app-table {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+
+  .status-label {
+    font-weight: 500;
+  }
+}
+
+.preview-image {
+  display: block;
+  margin: 0 auto;
+  width: min(100%, 24rem);
+  height: auto;
+  object-fit: contain;
+  padding: 1rem;
+  background-color: white;
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 1024px) {
+  .validation-section {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .validation-section {
+    .validated {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    app-table {
+      margin-top: 1rem;
+      width: min(100%, 42rem);
+    }
+  }
+
+  .preview-image {
+    width: min(100%, 18rem);
+  }
+}

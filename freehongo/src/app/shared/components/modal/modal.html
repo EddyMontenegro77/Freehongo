@@ -1,0 +1,22 @@
+<dialog #dialog class="modal">
+  <div class="modal__panel">
+    <header class="modal__header">
+      <h2 class="modal__title">{{ title() }}</h2>
+      <app-icon-btn
+        type="button"
+        [title]="'Close'"
+        [action]="close"
+        [iconSrc]="themeService.getTheme() === 'dark' ? 'close_dark.svg' : 'close_light.svg'"
+        >Close</app-icon-btn
+      >
+    </header>
+
+    <section class="modal__body">
+      <ng-content select="[modal-body]"></ng-content>
+    </section>
+
+    <footer class="modal__footer">
+      <ng-content select="[modal-footer]"></ng-content>
+    </footer>
+  </div>
+</dialog>

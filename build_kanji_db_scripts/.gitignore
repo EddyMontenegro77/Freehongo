@@ -1,0 +1,5 @@
+/kanji_source_files
+/__pycache__
+kana_db.json
+kanji_db.json
+.env

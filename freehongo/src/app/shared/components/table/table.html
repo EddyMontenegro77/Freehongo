@@ -1,0 +1,29 @@
+<div
+  class="table-wrapper"
+  [class.table-wrapper--left]="tableAlignment() === 'left'"
+  [class.table-wrapper--center]="tableAlignment() === 'center'"
+  [class.table-wrapper--right]="tableAlignment() === 'right'"
+>
+  <table>
+    <thead>
+      <tr>
+        @for (column of headers(); track column.key) {
+          <th [style.text-align]="column.align ?? 'left'">{{ column.header }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track $index) {
+        @if (isRowVisible(row)) {
+          <tr>
+            @for (column of headers(); track column.key) {
+              @if (isColumnVisible(row, column)) {
+                <td [style.text-align]="column.align ?? 'left'">{{ getCellValue(row, column) }}</td>
+              }
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
