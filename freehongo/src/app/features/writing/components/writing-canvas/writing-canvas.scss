@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 canvas {
   box-shadow: var(--shadow);
   background-color: var(--color-light);
@@ -5,10 +11,15 @@ canvas {
 
 .writing-canvas-container {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto auto;
   gap: 1.5rem;
+  width: fit-content;
   padding: 2rem;
   align-items: start;
+  justify-content: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   .canvas-section {
     display: grid;
@@ -29,12 +40,19 @@ canvas {
 
 app-writing-validation {
   min-width: 0;
+  justify-self: start;
+  width: fit-content;
 }
 
 @media (max-width: 1024px) {
   .writing-canvas-container {
     grid-template-columns: 1fr;
+    justify-content: stretch;
     padding: 1.5rem;
+  }
+
+  app-writing-validation {
+    justify-self: stretch;
   }
 }
 
