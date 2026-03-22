@@ -8,6 +8,7 @@ describe('WritingPractice', () => {
   let component: WritingPractice;
   let fixture: ComponentFixture<WritingPractice>;
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
   const canvasWritingFacadeServiceMock = {
     loadExpectedCharacter: vi
       .fn()
@@ -41,8 +42,6 @@ describe('WritingPractice', () => {
 
     fixture = TestBed.createComponent(WritingPractice);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('width', 256);
-    fixture.componentRef.setInput('height', 256);
     fixture.componentRef.setInput('unicode', '3042');
     fixture.componentRef.setInput('type', 'kana');
     fixture.detectChanges();
@@ -69,8 +68,6 @@ describe('WritingPractice', () => {
 
     fixture = TestBed.createComponent(WritingPractice);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('width', 256);
-    fixture.componentRef.setInput('height', 256);
     fixture.componentRef.setInput('unicode', '3042');
     fixture.componentRef.setInput('type', 'kana');
     fixture.detectChanges();
