@@ -1,0 +1,34 @@
+<label class="field" [class.field--disabled]="disabled()">
+  <span class="field__label">
+    {{ label() }}
+    @if (required()) {
+      <span class="field__required" aria-hidden="true">*</span>
+    }
+  </span>
+
+  <select
+    class="field__control"
+    [value]="value()"
+    [disabled]="disabled()"
+    [required]="required()"
+    (change)="onChange($event)"
+  >
+    @if (placeholder()) {
+      <option value="" disabled [selected]="!value()">{{ placeholder() }}</option>
+    }
+
+    @for (option of options(); track option.value) {
+      <option [value]="option.value" [disabled]="option.disabled">
+        {{ option.label }}
+      </option>
+    }
+  </select>
+
+  @if (helperText()) {
+    <span class="field__helper">{{ helperText() }}</span>
+  }
+
+  @if (errorText()) {
+    <span class="field__error">{{ errorText() }}</span>
+  }
+</label>
