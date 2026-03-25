@@ -1,0 +1,146 @@
+<div class="picker__wrapper">
+  <form class="picker__form">
+    <div class="picker__row picker__row--four">
+      <app-input
+        label="Unicode"
+        type="text"
+        placeholder="3042"
+        [value]="unicode.value ?? ''"
+        (valueChange)="unicode.setValue($event)"
+      />
+
+      <app-input
+        label="Literal"
+        type="text"
+        placeholder="あ"
+        [value]="literal.value ?? ''"
+        (valueChange)="literal.setValue($event)"
+      />
+
+      <app-segmented-control
+        label="Type"
+        [options]="characterOptions"
+        [value]="characterType.value ?? 'kanji'"
+        (valueChange)="characterType.setValue($event)"
+      />
+
+      @if (characterType.value === 'kana') {
+        <app-segmented-control
+          label="Kana"
+          [options]="kanaTypeOptions"
+          [value]="kanaType.value"
+          (valueChange)="kanaType.setValue($event)"
+        />
+      } @else {
+        <app-segmented-control
+          label="Sort"
+          [options]="sortByOptions"
+          [value]="sortBy.value ?? 'literal'"
+          (valueChange)="sortBy.setValue($event)"
+        />
+      }
+    </div>
+
+    <div class="picker__row picker__row--four">
+      @if (characterType.value === 'kana') {
+        <app-input
+          label="Reading"
+          type="text"
+          placeholder="ga"
+          [value]="kanaReading.value ?? ''"
+          (valueChange)="kanaReading.setValue($event)"
+        />
+      } @else {
+        <app-segmented-control
+          class="small-segmented"
+          label="JLPT"
+          [options]="jlptLevelOptions"
+          [value]="jlptLevel.value ?? ''"
+          (valueChange)="jlptLevel.setValue($event)"
+        />
+
+        <app-select
+          class="small-selection"
+          label="Grade"
+          [options]="gradeLevelOptions"
+          [value]="gradeLevel.value ?? ''"
+          (valueChange)="gradeLevel.setValue($event)"
+        />
+
+        <app-input
+          label="Reading"
+          type="text"
+          placeholder="にち"
+          [value]="kanjiReading.value ?? ''"
+          (valueChange)="kanjiReading.setValue($event)"
+        />
+
+        <app-input
+          label="Meaning"
+          type="text"
+          placeholder="sun"
+          [value]="kanjiMeaning.value ?? ''"
+          (valueChange)="kanjiMeaning.setValue($event)"
+        />
+      }
+    </div>
+
+    @if (characterType.value !== 'kana') {
+      <div class="picker__row picker__row--three">
+        <app-input
+          label="Radical"
+          type="text"
+          placeholder="water"
+          [value]="radicalName.value ?? ''"
+          (valueChange)="radicalName.setValue($event)"
+        />
+
+        <app-input
+          label="Nanori"
+          type="text"
+          placeholder="hi"
+          [value]="kanjiNanori.value ?? ''"
+          (valueChange)="kanjiNanori.setValue($event)"
+        />
+      </div>
+    }
+  </form>
+
+  <div class="picker__actions">
+    <app-action-btn title="Reset filters" [action]="resetFilters" [disabled]="isLoading()" />
+    <app-action-btn title="Filter" [action]="applyFilters" [disabled]="isLoading()" />
+  </div>
+
+  <section class="character__results">
+    @if (isLoading()) {
+      <div class="character__results-state">
+        <app-loading-state message="Loading characters..." />
+      </div>
+    } @else if (loadError()) {
+      <div class="character__results-state">
+        <app-error-state
+          title="Could not load characters"
+          [message]="loadError()!"
+          [action]="applyFilters"
+          actionTitle="Retry"
+        />
+      </div>
+    } @else {
+      <div class="character__cards__grid">
+        @for (character of characters(); track $index) {
+          <app-character-card
+            [unicode]="character.unicode"
+            [literal]="character.literal"
+            [type]="character.type"
+          />
+        }
+      </div>
+    }
+  </section>
+
+  <app-pagination-controller
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    (pageChange)="loadPage($event)"
+  />
+</div>
