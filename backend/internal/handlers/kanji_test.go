@@ -62,3 +62,45 @@ func TestGetKanji_InternalError(t *testing.T) {
 		t.Fatalf("mock expectations: %v", err)
 	}
 }
+
+func TestBuildKanjiSearch_ParsesGradeAndSortBy(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/?jlpt_level=4&grade_level=g10&sort_by=frequency_of_use", nil)
+
+	search, err := buildKanjiSearch(c)
+	if err != nil {
+		t.Fatalf("buildKanjiSearch error: %v", err)
+	}
+
+	if search.JlptLevel == nil || *search.JlptLevel != 4 {
+		t.Fatalf("expected jlpt_level 4, got %+v", search.JlptLevel)
+	}
+	if search.GradeLevel == nil || *search.GradeLevel != 10 {
+		t.Fatalf("expected grade_level 10, got %+v", search.GradeLevel)
+	}
+	if search.SortBy != "frequency_of_use" {
+		t.Fatalf("expected sort_by frequency_of_use, got %q", search.SortBy)
+	}
+}
+
+func TestGetKanjiDisplay_InvalidSortBy(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db, _, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherRegexp))
+	if err != nil {
+		t.Fatalf("sqlmock.New error: %v", err)
+	}
+	defer db.Close()
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/?sort_by=unknown", nil)
+
+	handler := GetKanjiDisplay(db)
+	handler(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
