@@ -1,0 +1,18 @@
+<div class="toggle" [class.toggle--checked]="checked()" [class.toggle--disabled]="disabled()">
+  <span class="toggle__label">{{ label() }}</span>
+
+  <button
+    type="button"
+    class="toggle__control"
+    [disabled]="disabled()"
+    [attr.aria-pressed]="checked()"
+    (click)="toggle()"
+  >
+    <span class="toggle__track" aria-hidden="true">
+      <span class="toggle__thumb"></span>
+    </span>
+    <span class="toggle__state">
+      {{ checked() ? onLabel() : offLabel() }}
+    </span>
+  </button>
+</div>
