@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { JapaneseService } from '../../../shared/services/japanese/japanese.service';
-import { Kanji } from '../../../shared/models/japanese/kanji.model';
-import { Kana } from '../../../shared/models/japanese/kana.model';
+import { Kanji, KanjiWriting } from '../../../shared/models/japanese/kanji.model';
+import { Kana, KanaWriting } from '../../../shared/models/japanese/kana.model';
 import { map, Observable } from 'rxjs';
 import { CharacterType } from '../../../shared/models/japanese/character.type';
 
 export interface ExpectedCharacterViewModel {
-  character: Kanji | Kana;
+  character: KanjiWriting | KanaWriting;
   expectedUrl: string;
 }
 
@@ -22,14 +22,14 @@ export class CanvasWritingFacadeService {
   ): Observable<ExpectedCharacterViewModel> {
     switch (type) {
       case 'kana':
-        return this.japaneseService.getKana(unicode).pipe(
+        return this.japaneseService.getKanaWriting(unicode).pipe(
           map((character) => ({
             character,
             expectedUrl: this.japaneseService.getKanaSVG(unicode),
           })),
         );
       case 'kanji':
-        return this.japaneseService.getKanji(unicode).pipe(
+        return this.japaneseService.getKanjiWriting(unicode).pipe(
           map((character) => ({
             character,
             expectedUrl: this.japaneseService.getKanjiSVG(unicode),
