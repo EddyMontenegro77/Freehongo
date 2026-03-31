@@ -62,10 +62,16 @@ func GetKanji(db *sql.DB, unicode string) (*models.Kanji, error) {
 	return kanji, err
 }
 
-func GetKanjiDisplay(db *sql.DB, searchParameters *models.KanjiSearch, offset int) ([]*models.KanjiDisplay, error) {
+func GetKanjiDisplay(db *sql.DB, searchParameters *models.KanjiSearch, offset int) (*models.KanjiDisplayPage, error) {
 	const limit = 20
 
-	query, args := buildKanjiDisplayQuery(searchParameters, limit, offset)
+	countQuery, countArgs := buildKanjiDisplayCountQuery(searchParameters)
+	var totalCount int
+	if err := db.QueryRow(countQuery, countArgs...).Scan(&totalCount); err != nil {
+		return nil, err
+	}
+
+	query, args := buildKanjiDisplayItemsQuery(searchParameters, limit, offset)
 
 	rows, err := db.Query(query, args...)
 	if err != nil {
@@ -73,9 +79,9 @@ func GetKanjiDisplay(db *sql.DB, searchParameters *models.KanjiSearch, offset in
 	}
 	defer rows.Close()
 
-	results := make([]*models.KanjiDisplay, 0)
+	results := make([]models.KanjiDisplay, 0)
 	for rows.Next() {
-		item := &models.KanjiDisplay{}
+		item := models.KanjiDisplay{}
 		if err := rows.Scan(&item.Unicode, &item.Literal); err != nil {
 			return nil, err
 		}
@@ -86,7 +92,10 @@ func GetKanjiDisplay(db *sql.DB, searchParameters *models.KanjiSearch, offset in
 		return nil, err
 	}
 
-	return results, nil
+	return &models.KanjiDisplayPage{
+		Items:      results,
+		TotalCount: totalCount,
+	}, nil
 }
 
 func GetKanjiWriting(db *sql.DB, unicode string) (*models.KanjiWriting, error) {
@@ -109,10 +118,10 @@ func GetKanjiWriting(db *sql.DB, unicode string) (*models.KanjiWriting, error) {
 	return kanji, nil
 }
 
-func buildKanjiDisplayQuery(searchParameters *models.KanjiSearch, limit, offset int) (string, []any) {
+// buildKanjiDisplayBase builds the shared FROM and WHERE clause for kanji display queries.
+func buildKanjiDisplayBase(searchParameters *models.KanjiSearch) (string, []any, int) {
 	query := `
-		SELECT unicode, literal
-		FROM japanese.kanji k
+			FROM japanese.kanji k
 		WHERE 1 = 1
 	`
 	args := make([]any, 0, 8)
@@ -157,11 +166,25 @@ func buildKanjiDisplayQuery(searchParameters *models.KanjiSearch, limit, offset 
 		)
 	}
 
+	return query, args, argPos
+}
+
+// buildKanjiDisplayCountQuery builds the count query used to calculate the total number of matches.
+func buildKanjiDisplayCountQuery(searchParameters *models.KanjiSearch) (string, []any) {
+	baseQuery, args, _ := buildKanjiDisplayBase(searchParameters)
+	return "SELECT COUNT(*) " + baseQuery, args
+}
+
+// buildKanjiDisplayItemsQuery builds the paginated query used to fetch kanji display items.
+func buildKanjiDisplayItemsQuery(searchParameters *models.KanjiSearch, limit, offset int) (string, []any) {
+	baseQuery, args, argPos := buildKanjiDisplayBase(searchParameters)
+
 	sortBy := ""
 	if searchParameters != nil {
 		sortBy = searchParameters.SortBy
 	}
 
+	query := "SELECT unicode, literal " + baseQuery
 	query += buildKanjiDisplayOrderBy(sortBy)
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPos, argPos+1)
 	args = append(args, limit, offset)

@@ -48,10 +48,16 @@ func GetKanaWriting(db *sql.DB, unicode string) (*models.KanaWriting, error) {
 	return kana, nil
 }
 
-func GetKanaDisplay(db *sql.DB, searchParameters *models.KanaSearch, offset int) ([]*models.KanaDisplay, error) {
+func GetKanaDisplay(db *sql.DB, searchParameters *models.KanaSearch, offset int) (*models.KanaDisplayPage, error) {
 	const limit = 20
 
-	query, args := buildKanaDisplayQuery(searchParameters, limit, offset)
+	countQuery, countArgs := buildKanaDisplayCountQuery(searchParameters)
+	var totalCount int
+	if err := db.QueryRow(countQuery, countArgs...).Scan(&totalCount); err != nil {
+		return nil, err
+	}
+
+	query, args := buildKanaDisplayItemsQuery(searchParameters, limit, offset)
 
 	rows, err := db.Query(query, args...)
 	if err != nil {
@@ -59,9 +65,9 @@ func GetKanaDisplay(db *sql.DB, searchParameters *models.KanaSearch, offset int)
 	}
 	defer rows.Close()
 
-	results := make([]*models.KanaDisplay, 0)
+	results := make([]models.KanaDisplay, 0)
 	for rows.Next() {
-		item := &models.KanaDisplay{}
+		item := models.KanaDisplay{}
 		if err := rows.Scan(&item.Unicode, &item.Literal); err != nil {
 			return nil, err
 		}
@@ -72,13 +78,16 @@ func GetKanaDisplay(db *sql.DB, searchParameters *models.KanaSearch, offset int)
 		return nil, err
 	}
 
-	return results, nil
+	return &models.KanaDisplayPage{
+		Items:      results,
+		TotalCount: totalCount,
+	}, nil
 }
 
-func buildKanaDisplayQuery(searchParameters *models.KanaSearch, limit, offset int) (string, []any) {
+// buildKanaDisplayBase builds the shared FROM and WHERE clause for kana display queries.
+func buildKanaDisplayBase(searchParameters *models.KanaSearch) (string, []any, int) {
 	query := `
-		SELECT unicode, literal
-		FROM japanese.kana
+			FROM japanese.kana
 		WHERE 1 = 1
 	`
 	args := make([]any, 0, 6)
@@ -93,7 +102,21 @@ func buildKanaDisplayQuery(searchParameters *models.KanaSearch, limit, offset in
 		query, args, argPos = addLikeStringFilter(query, args, argPos, "reading", searchParameters.Reading)
 	}
 
-	query += buildKanaDisplayOrderBy("")
+	return query, args, argPos
+}
+
+// buildKanaDisplayCountQuery builds the count query used to calculate the total number of matches.
+func buildKanaDisplayCountQuery(searchParameters *models.KanaSearch) (string, []any) {
+	baseQuery, args, _ := buildKanaDisplayBase(searchParameters)
+	return "SELECT COUNT(*) " + baseQuery, args
+}
+
+// buildKanaDisplayItemsQuery builds the paginated query used to fetch kana display items.
+func buildKanaDisplayItemsQuery(searchParameters *models.KanaSearch, limit, offset int) (string, []any) {
+	baseQuery, args, argPos := buildKanaDisplayBase(searchParameters)
+
+	query := "SELECT unicode, literal " + baseQuery
+	query += buildKanaDisplayOrderBy()
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPos, argPos+1)
 	args = append(args, limit, offset)
 
