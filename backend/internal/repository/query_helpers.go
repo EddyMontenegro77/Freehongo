@@ -42,7 +42,7 @@ func addExistsLikeFilter(query string, args []any, argPos int, existsClause stri
 	return query, args, argPos + 1
 }
 
-func buildKanaDisplayOrderBy(sortBy string) string {
+func buildKanaDisplayOrderBy() string {
 	return " ORDER BY literal, unicode"
 }
 
