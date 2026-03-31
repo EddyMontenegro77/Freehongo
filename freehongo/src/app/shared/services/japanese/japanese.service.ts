@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import {
   KanjiDisplay,
+  KanjiDisplayPage,
   Kanji,
   KanjiData,
   KanjiError,
@@ -15,6 +16,7 @@ import {
   KanaData,
   KanaError,
   KanaDisplay,
+  KanaDisplayPage,
   KanaWriting,
   KanaWritingData,
   KanaDisplayParams,
@@ -65,9 +67,9 @@ export class JapaneseService {
   /**
    * Fetches kana rows for list and picker views with optional filters.
    */
-  getKanaDisplay(params: KanaDisplayParams = {}): Observable<KanaDisplay[]> {
+  getKanaDisplay(params: KanaDisplayParams = {}): Observable<KanaDisplayPage> {
     return this.http
-      .get<KanaDisplay[]>(`${this.apiUrl}/kana/display`, {
+      .get<KanaDisplayPage>(`${this.apiUrl}/kana/display`, {
         params: this.buildHttpParams([
           ['unicode', params.unicode],
           ['literal', params.literal],
@@ -82,9 +84,9 @@ export class JapaneseService {
   /**
    * Fetches kanji rows for list and picker views with optional filters and sorting.
    */
-  getKanjiDisplay(params: KanjiDisplayParams = {}): Observable<KanjiDisplay[]> {
+  getKanjiDisplay(params: KanjiDisplayParams = {}): Observable<KanjiDisplayPage> {
     return this.http
-      .get<KanjiDisplay[]>(`${this.apiUrl}/kanji/display`, {
+      .get<KanjiDisplayPage>(`${this.apiUrl}/kanji/display`, {
         params: this.buildHttpParams([
           ['unicode', params.unicode],
           ['literal', params.literal],

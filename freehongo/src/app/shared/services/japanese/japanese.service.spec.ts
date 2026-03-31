@@ -137,19 +137,25 @@ describe('JapaneseService', () => {
     );
 
     expect(req.request.method).toBe('GET');
-    req.flush([
-      {
-        unicode: '3042',
-        literal: 'あ',
-      },
-    ]);
+    req.flush({
+      items: [
+        {
+          unicode: '3042',
+          literal: 'あ',
+        },
+      ],
+      total_count: 1,
+    });
 
-    expect(await displayPromise).toEqual([
-      {
-        unicode: '3042',
-        literal: 'あ',
-      },
-    ]);
+    expect(await displayPromise).toEqual({
+      items: [
+        {
+          unicode: '3042',
+          literal: 'あ',
+        },
+      ],
+      total_count: 1,
+    });
   });
 
   it('should request kanji display with query params', async () => {
@@ -186,19 +192,25 @@ describe('JapaneseService', () => {
     );
 
     expect(req.request.method).toBe('GET');
-    req.flush([
-      {
-        unicode: '65e5',
-        literal: '日',
-      },
-    ]);
+    req.flush({
+      items: [
+        {
+          unicode: '65e5',
+          literal: '日',
+        },
+      ],
+      total_count: 1,
+    });
 
-    expect(await displayPromise).toEqual([
-      {
-        unicode: '65e5',
-        literal: '日',
-      },
-    ]);
+    expect(await displayPromise).toEqual({
+      items: [
+        {
+          unicode: '65e5',
+          literal: '日',
+        },
+      ],
+      total_count: 1,
+    });
   });
 
 });
