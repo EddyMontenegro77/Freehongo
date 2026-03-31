@@ -22,10 +22,13 @@ describe('CharacterPickerFacade', () => {
 
   it('should load kana display and enrich items with type', async () => {
     japaneseServiceMock.getKanaDisplay.mockReturnValue(
-      of([
-        { unicode: '3042', literal: 'あ' },
-        { unicode: '3044', literal: 'い' },
-      ]),
+      of({
+        items: [
+          { unicode: '3042', literal: 'あ' },
+          { unicode: '3044', literal: 'い' },
+        ],
+        total_count: 2,
+      }),
     );
 
     const result = await firstValueFrom(
@@ -50,18 +53,24 @@ describe('CharacterPickerFacade', () => {
       reading: 'a',
       offset: 20,
     });
-    expect(result).toEqual([
-      { unicode: '3042', literal: 'あ', type: 'kana' },
-      { unicode: '3044', literal: 'い', type: 'kana' },
-    ]);
+    expect(result).toEqual({
+      items: [
+        { unicode: '3042', literal: 'あ', type: 'kana' },
+        { unicode: '3044', literal: 'い', type: 'kana' },
+      ],
+      totalCount: 2,
+    });
   });
 
   it('should load kanji display and convert filters to api params', async () => {
     japaneseServiceMock.getKanjiDisplay.mockReturnValue(
-      of([
-        { unicode: '65e5', literal: '日' },
-        { unicode: '672c', literal: '本' },
-      ]),
+      of({
+        items: [
+          { unicode: '65e5', literal: '日' },
+          { unicode: '672c', literal: '本' },
+        ],
+        total_count: 2,
+      }),
     );
 
     const result = await firstValueFrom(
@@ -96,10 +105,13 @@ describe('CharacterPickerFacade', () => {
       sortBy: 'frequency_of_use',
       offset: 40,
     });
-    expect(result).toEqual([
-      { unicode: '65e5', literal: '日', type: 'kanji' },
-      { unicode: '672c', literal: '本', type: 'kanji' },
-    ]);
+    expect(result).toEqual({
+      items: [
+        { unicode: '65e5', literal: '日', type: 'kanji' },
+        { unicode: '672c', literal: '本', type: 'kanji' },
+      ],
+      totalCount: 2,
+    });
   });
 
   it('should throw on unsupported character type', () => {

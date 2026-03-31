@@ -3,8 +3,16 @@ import { Observable, map } from 'rxjs';
 import { JapaneseService } from '../../../shared/services/japanese/japanese.service';
 import { CharacterType } from '../../../shared/models/japanese/character.type';
 import { kanaType } from '../../../shared/models/japanese/kana.type';
-import { KanaDisplay, KanaDisplayParams } from '../../../shared/models/japanese/kana.model';
-import { KanjiDisplay, KanjiDisplayParams } from '../../../shared/models/japanese/kanji.model';
+import {
+  KanaDisplay,
+  KanaDisplayPage,
+  KanaDisplayParams,
+} from '../../../shared/models/japanese/kana.model';
+import {
+  KanjiDisplay,
+  KanjiDisplayPage,
+  KanjiDisplayParams,
+} from '../../../shared/models/japanese/kanji.model';
 
 export interface CharacterPickerFilters {
   type: CharacterType;
@@ -47,6 +55,14 @@ export type CharacterPickerItem =
   | (KanaDisplay & { type: 'kana' })
   | (KanjiDisplay & { type: 'kanji' });
 
+/**
+ * Paginated picker response used by the UI.
+ */
+export interface CharacterPickerPageResult {
+  items: CharacterPickerItem[];
+  totalCount: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -58,14 +74,14 @@ export class characterPickerFacadeService {
   /**
    * Loads a page of characters using the filter structure from the picker form.
    */
-  loadCharacters(filters: CharacterPickerFilters): Observable<CharacterPickerItem[]> {
+  loadCharacters(filters: CharacterPickerFilters): Observable<CharacterPickerPageResult> {
     return this.loadPage(filters);
   }
 
   /**
    * Loads the requested page and routes the query to kana or kanji display endpoints.
    */
-  loadPage(filters: CharacterPickerFilters): Observable<CharacterPickerItem[]> {
+  loadPage(filters: CharacterPickerFilters): Observable<CharacterPickerPageResult> {
     const page = this.normalizePage(filters.page);
     const offset = this.calculateOffset(page);
 
@@ -82,7 +98,7 @@ export class characterPickerFacadeService {
   private loadKanaDisplay(
     filters: CharacterPickerFilters,
     offset: number,
-  ): Observable<CharacterPickerItem[]> {
+  ): Observable<CharacterPickerPageResult> {
     const general = filters.general ?? {};
     const kana = filters.kana ?? {};
     const params: KanaDisplayParams = {
@@ -95,13 +111,13 @@ export class characterPickerFacadeService {
 
     return this.japaneseService
       .getKanaDisplay(params)
-      .pipe(map((items) => items.map((item) => this.withType(item, 'kana'))));
+      .pipe(map((page) => this.toPageResult(page, 'kana')));
   }
 
   private loadKanjiDisplay(
     filters: CharacterPickerFilters,
     offset: number,
-  ): Observable<CharacterPickerItem[]> {
+  ): Observable<CharacterPickerPageResult> {
     const general = filters.general ?? {};
     const kanji = filters.kanji ?? {};
     const params: KanjiDisplayParams = {
@@ -119,7 +135,7 @@ export class characterPickerFacadeService {
 
     return this.japaneseService
       .getKanjiDisplay(params)
-      .pipe(map((items) => items.map((item) => this.withType(item, 'kanji'))));
+      .pipe(map((page) => this.toPageResult(page, 'kanji')));
   }
 
   private withType<T extends KanaDisplay | KanjiDisplay>(
@@ -130,6 +146,19 @@ export class characterPickerFacadeService {
       ...item,
       type,
     } as CharacterPickerItem;
+  }
+
+  /**
+   * Converts a paged backend response into typed picker items plus total count.
+   */
+  private toPageResult(
+    page: KanaDisplayPage | KanjiDisplayPage,
+    type: CharacterType,
+  ): CharacterPickerPageResult {
+    return {
+      items: page.items.map((item) => this.withType(item, type)),
+      totalCount: page.total_count,
+    };
   }
 
   private normalizePage(page?: number): number {
