@@ -38,6 +38,7 @@ func GetKanaSVG() gin.HandlerFunc {
 	}
 }
 
+// GetKanaDisplay returns a paginated kana list with the filters provided in the query string.
 func GetKanaDisplay(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		offset, err := parseOffsetQuery(c)

@@ -45,6 +45,7 @@ func GetKanjiSVG() gin.HandlerFunc {
 	}
 }
 
+// GetKanjiDisplay returns a paginated kanji list with optional filters and sorting.
 func GetKanjiDisplay(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		offset, err := parseOffsetQuery(c)
