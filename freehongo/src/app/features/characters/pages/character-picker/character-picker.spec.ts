@@ -8,7 +8,7 @@ describe('CharacterPicker', () => {
   let component: CharacterPicker;
   let fixture: ComponentFixture<CharacterPicker>;
   const characterPickerFacadeServiceMock = {
-    loadCharacters: vi.fn().mockReturnValue(of([])),
+    loadCharacters: vi.fn().mockReturnValue(of({ items: [], totalCount: 0 })),
   };
 
   beforeEach(async () => {
@@ -69,6 +69,6 @@ describe('CharacterPicker', () => {
     expect(component.kanjiMeaning.value).toBe('');
     expect(component.kanjiNanori.value).toBe('');
     expect(component.currentPage).toBe(1);
-    expect(characterPickerFacadeServiceMock.loadCharacters).toHaveBeenCalledTimes(2);
+    expect(characterPickerFacadeServiceMock.loadCharacters).toHaveBeenCalledTimes(4);
   });
 });

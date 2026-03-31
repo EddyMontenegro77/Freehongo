@@ -16,6 +16,7 @@ import {
   CharacterPickerFilters,
   CharacterPickerGeneralFilters,
   CharacterPickerItem,
+  CharacterPickerPageResult,
   CharacterPickerKanaFilters,
   CharacterPickerKanjiFilters,
 } from '../../services/character-picker.facade.service';
@@ -41,6 +42,8 @@ import { CharacterCard } from '../../components/character-card/character-card';
 })
 export class CharacterPicker {
   constructor(private characterPickerFacadeService: characterPickerFacadeService) {}
+
+  private readonly pageSize = 20;
 
   characters = signal<CharacterPickerItem[]>([]);
   isLoading = signal<boolean>(true);
@@ -117,6 +120,7 @@ export class CharacterPicker {
   }
 
   applyFilters = (): void => {
+    this.currentPage = 1;
     this.loadCharacters();
   };
 
@@ -143,8 +147,9 @@ export class CharacterPicker {
     this.loadError.set(null);
 
     this.characterPickerFacadeService.loadCharacters(this.buildFilters()).subscribe({
-      next: (characters) => {
-        this.characters.set(characters);
+      next: (result: CharacterPickerPageResult) => {
+        this.characters.set(result.items);
+        this.totalPages = Math.max(1, Math.ceil(result.totalCount / this.pageSize));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
