@@ -32,6 +32,14 @@ export interface KanjiDisplay {
   literal: string;
 }
 
+/**
+ * Paged kanji display response returned by the backend.
+ */
+export interface KanjiDisplayPage {
+  items: KanjiDisplay[];
+  total_count: number;
+}
+
 export interface KanjiDisplayParams {
   unicode?: string;
   literal?: string;

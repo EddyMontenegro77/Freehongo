@@ -21,6 +21,15 @@ export interface KanaDisplay {
   unicode: string;
   literal: string;
 }
+
+/**
+ * Paged kana display response returned by the backend.
+ */
+export interface KanaDisplayPage {
+  items: KanaDisplay[];
+  total_count: number;
+}
+
 export interface KanaDisplayParams {
   unicode?: string;
   literal?: string;
