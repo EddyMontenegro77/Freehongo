@@ -23,6 +23,11 @@ type KanaDisplay struct {
 	Literal     	string 				`json:"literal"`
 }
 
+type KanaDisplayPage struct {
+	Items      []KanaDisplay `json:"items"`
+	TotalCount int           `json:"total_count"`
+}
+
 type KanaSearch struct{
 	Unicode			string
 	Literal			string

@@ -28,6 +28,11 @@ type KanjiDisplay struct {
 	Literal string `json:"literal"`
 }
 
+type KanjiDisplayPage struct {
+	Items      []KanjiDisplay `json:"items"`
+	TotalCount int            `json:"total_count"`
+}
+
 type KanjiSearch struct {
 	Unicode        string `json:"unicode"`
 	Literal        string `json:"literal"`
