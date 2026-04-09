@@ -15,7 +15,7 @@ export class CharacterCard {
   constructor(private router: Router) {}
 
   WRITING_PRACTICE_ROUTE = 'writing';
-  CHARACTER_DETAILS_ROUTE = 'character/info';
+  CHARACTER_DETAILS_ROUTE = 'characters/info';
 
   literal = input.required<string>();
   unicode = input.required<string>();
