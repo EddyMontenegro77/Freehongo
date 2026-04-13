@@ -9,6 +9,6 @@
       actionTitle="Retry"
     />
   } @else if (character() !== null) {
-    <app-character-meta [character]="character()!" />
+    <app-character-meta [character]="character()!" [expectedUrl]="expectedUrl()" />
   }
 </div>
