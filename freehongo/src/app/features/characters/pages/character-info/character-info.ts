@@ -18,6 +18,7 @@ export class CharacterInfo {
   unicode = input.required<string>();
 
   character = signal<Character | null>(null);
+  expectedUrl = signal<string>('');
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
 
@@ -36,12 +37,18 @@ export class CharacterInfo {
         this.character.set(result);
         this.isLoading.set(false);
         this.loadError.set(null);
+        const expectedCharacterUrl = this.characterInfoFacade.loadExpectedUrl(
+          this.unicode(),
+          this.type(),
+        );
+        this.expectedUrl.set(expectedCharacterUrl);
       },
       error: (err: unknown) => {
         console.error(err);
         this.isLoading.set(false);
         this.loadError.set('Could not load character');
         this.character.set(null);
+        this.expectedUrl.set('');
       },
     });
   };
