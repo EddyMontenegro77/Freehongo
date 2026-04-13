@@ -69,6 +69,6 @@ describe('CharacterPicker', () => {
     expect(component.kanjiMeaning.value).toBe('');
     expect(component.kanjiNanori.value).toBe('');
     expect(component.currentPage).toBe(1);
-    expect(characterPickerFacadeServiceMock.loadCharacters).toHaveBeenCalledTimes(4);
+    expect(characterPickerFacadeServiceMock.loadCharacters).toHaveBeenCalledTimes(2);
   });
 });
