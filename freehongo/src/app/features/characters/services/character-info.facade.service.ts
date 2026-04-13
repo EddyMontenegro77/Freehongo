@@ -36,4 +36,9 @@ export class CharacterInfoFacadeService {
       })),
     );
   }
+
+  loadExpectedUrl(unicode: string, type: CharacterType): string {
+    if (type == 'kanji') return this.japaneseService.getKanjiSVG(unicode);
+    else return this.japaneseService.getKanaSVG(unicode);
+  }
 }
