@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { CharacterMeta } from './character-meta';
 
 describe('CharacterMeta', () => {
@@ -16,7 +17,7 @@ describe('CharacterMeta', () => {
     component = fixture.componentInstance;
   });
 
-  it('should render kana reading', () => {
+  it('should render kana reading and expected preview', () => {
     fixture.componentRef.setInput('character', {
       kind: 'kana',
       unicode: '3042',
@@ -25,15 +26,22 @@ describe('CharacterMeta', () => {
       stroke_count: 3,
       reading: 'a',
     });
+    fixture.componentRef.setInput(
+      'expectedUrl',
+      'https://supabaseMockUrl/storage/v1/object/public/japanese-characters/kana/3042.svg',
+    );
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('あ');
     expect(fixture.nativeElement.textContent).toContain('Reading');
     expect(fixture.nativeElement.textContent).toContain('a');
     expect(fixture.nativeElement.textContent).toContain('Type');
+    expect(fixture.nativeElement.querySelector('.preview-image')?.getAttribute('src')).toContain(
+      'kana/3042.svg',
+    );
   });
 
-  it('should render kanji groups and navigate to practice', () => {
+  it('should render kanji groups, expected preview and navigate to practice', () => {
     fixture.componentRef.setInput('character', {
       kind: 'kanji',
       unicode: '65e5',
@@ -47,6 +55,10 @@ describe('CharacterMeta', () => {
       meanings: { en: ['sun', 'day'] },
       nanori: ['hi'],
     });
+    fixture.componentRef.setInput(
+      'expectedUrl',
+      'https://supabaseMockUrl/storage/v1/object/public/japanese-characters/kanji/65e5.svg',
+    );
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Summary');
@@ -60,6 +72,9 @@ describe('CharacterMeta', () => {
     expect(fixture.nativeElement.textContent).toContain('ひ');
     expect(fixture.nativeElement.textContent).toContain('sun');
     expect(fixture.nativeElement.textContent).toContain('day');
+    expect(fixture.nativeElement.querySelector('.preview-image')?.getAttribute('src')).toContain(
+      'kanji/65e5.svg',
+    );
 
     const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     component.openPractice();
