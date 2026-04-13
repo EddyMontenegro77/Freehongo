@@ -16,8 +16,15 @@
 
 .character-meta__identity {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.25rem;
+  text-align: center;
+}
+
+.identity__head__wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-right: 1rem;
 }
 
 .character-meta__literal {
@@ -94,4 +101,15 @@
   .character-meta__footer app-action-btn {
     width: 100%;
   }
+}
+
+.preview-image {
+  display: block;
+  margin: 0 auto;
+  width: min(100%, 24rem);
+  height: auto;
+  object-fit: contain;
+  padding: 1rem;
+  background-color: white;
+  border-radius: var(--radius-md);
 }
