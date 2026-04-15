@@ -1,0 +1,20 @@
+<div class="pagination__wrapper">
+  <app-action-btn title="Previous" [action]="previousPage" [disabled]="currentPage() <= 1" />
+
+  <label class="pagination__field">
+    <span class="pagination__label">Page</span>
+    <input
+      class="pagination__input"
+      type="number"
+      [value]="selectedPage()"
+      [min]="1"
+      [max]="totalPages()"
+      (input)="onPageInput($event)"
+      (keyup.enter)="selectPage()"
+    />
+  </label>
+
+  <app-action-btn title="Go" [action]="selectPage" [disabled]="!canSelectPage()" />
+
+  <app-action-btn title="Next" [action]="nextPage" />
+</div>

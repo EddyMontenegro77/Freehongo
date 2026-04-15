@@ -7,7 +7,6 @@ export interface Kana {
   type: string;
   stroke_count: number;
   reading: string;
-  strokes: Stroke[];
 }
 
 export interface KanaData {
@@ -16,6 +15,40 @@ export interface KanaData {
   type: string;
   stroke_count: number;
   reading: string;
+}
+
+export interface KanaDisplay {
+  unicode: string;
+  literal: string;
+}
+
+/**
+ * Paged kana display response returned by the backend.
+ */
+export interface KanaDisplayPage {
+  items: KanaDisplay[];
+  total_count: number;
+}
+
+export interface KanaDisplayParams {
+  unicode?: string;
+  literal?: string;
+  type?: string;
+  reading?: string;
+  offset?: number;
+}
+
+export interface KanaWriting {
+  unicode: string;
+  literal: string;
+  stroke_count: number;
+  strokes: Stroke[];
+}
+
+export interface KanaWritingData {
+  unicode: string;
+  literal: string;
+  stroke_count: number;
   strokes: Point[][];
 }
 

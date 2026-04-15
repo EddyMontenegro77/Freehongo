@@ -1,0 +1,30 @@
+<label class="field" [class.field--disabled]="disabled()">
+  <span class="field__label">
+    {{ label() }}
+    @if (required()) {
+      <span class="field__required" aria-hidden="true">*</span>
+    }
+  </span>
+
+  <input
+    class="field__control"
+    [attr.type]="type()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [attr.autocomplete]="autocomplete() || null"
+    [attr.min]="min()"
+    [attr.max]="max()"
+    [attr.step]="step()"
+    (input)="onInput($event)"
+  />
+
+  @if (helperText()) {
+    <span class="field__helper">{{ helperText() }}</span>
+  }
+
+  @if (errorText()) {
+    <span class="field__error">{{ errorText() }}</span>
+  }
+</label>

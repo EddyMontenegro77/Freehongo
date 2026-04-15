@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.card--outline {
+  border-color: var(--border);
+}
+
+.card--elevated {
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+.card__header,
+.card__body,
+.card__footer {
+  padding-inline: 1.25rem;
+}
+
+.card__header {
+  padding-block: 1rem 0.75rem;
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-block: 0.75rem 1rem;
+}
+
+.card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.card__header:empty,
+.card__body:empty,
+.card__footer:empty {
+  display: none;
+}
+
+.card--sm {
+  border-radius: var(--radius-md);
+}
+
+.card--sm .card__header,
+.card--sm .card__body,
+.card--sm .card__footer {
+  padding-inline: 1rem;
+}
+
+.card--sm .card__header {
+  padding-block: 0.875rem 0.625rem;
+}
+
+.card--sm .card__body {
+  padding-block: 0.625rem 0.875rem;
+}
+
+.card--sm .card__footer {
+  padding-block: 0.875rem;
+}
+
+.card--lg {
+  border-radius: var(--radius-lg);
+}
+
+.card--lg .card__header,
+.card--lg .card__body,
+.card--lg .card__footer {
+  padding-inline: 1.5rem;
+}
+
+.card--lg .card__header {
+  padding-block: 1.25rem 0.875rem;
+}
+
+.card--lg .card__body {
+  padding-block: 0.875rem 1.25rem;
+}
+
+.card--lg .card__footer {
+  padding-block: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .card {
+    border-radius: var(--radius-md);
+  }
+
+  .card__header,
+  .card__body,
+  .card__footer {
+    padding-inline: 1rem;
+  }
+
+  .card__header {
+    padding-block: 0.875rem 0.625rem;
+  }
+
+  .card__body {
+    gap: 0.625rem;
+    padding-block: 0.625rem 0.875rem;
+  }
+
+  .card__footer {
+    padding-block: 0.875rem;
+  }
+}

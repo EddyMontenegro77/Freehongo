@@ -1,0 +1,94 @@
+@let current = character();
+
+<div class="character-meta-wrapper">
+  <app-card variant="outline" size="lg">
+    <div card-header class="character-meta__header">
+      <div class="character-meta__identity">
+        <div class="identity__head__wrapper">
+          <h2 class="character-meta__literal">{{ current.literal }}</h2>
+          <p class="character-meta__unicode">{{ current.unicode }}</p>
+        </div>
+        <app-icon-btn
+          title="Expected strokes preview"
+          [action]="openExpectedPreviewModal"
+          [iconSrc]="themeService.getTheme() === 'dark' ? 'eye_dark.svg' : 'eye_light.svg'"
+        />
+      </div>
+
+      <span class="character-meta__kind">{{ current.kind }}</span>
+    </div>
+
+    <div card-body class="character-meta__body">
+      @if (current.kind === 'kana') {
+        <app-chip-group title="Reading">
+          <app-chip>{{ current.reading }}</app-chip>
+          <app-chip>Type: {{ current.type }}</app-chip>
+        </app-chip-group>
+      } @else {
+        <app-chip-group title="Summary">
+          @if (current.radical_name) {
+            <app-chip>Radical: {{ current.radical_name }}</app-chip>
+          }
+
+          @if (current.frequency_of_use !== undefined) {
+            <app-chip>Frequency: {{ current.frequency_of_use }}</app-chip>
+          }
+
+          @if (current.jlpt_level !== undefined) {
+            <app-chip>JLPT: N{{ current.jlpt_level }}</app-chip>
+          }
+
+          @if (current.grade_level) {
+            <app-chip>Grade: {{ current.grade_level }}</app-chip>
+          }
+        </app-chip-group>
+
+        <app-chip-group title="Readings" layout="stack">
+          @for (entry of entries(current.readings); track entry[0]) {
+            <div class="character-meta__entry">
+              <p class="character-meta__entry-title">{{ entry[0] }}</p>
+              <div class="character-meta__entry-content">
+                @for (reading of entry[1]; track reading) {
+                  <app-chip>{{ reading }}</app-chip>
+                }
+              </div>
+            </div>
+          }
+        </app-chip-group>
+
+        <app-chip-group title="Meanings" layout="stack">
+          @for (entry of entries(current.meanings); track entry[0]) {
+            <div class="character-meta__entry">
+              <p class="character-meta__entry-title">{{ entry[0] }}</p>
+              <div class="character-meta__entry-content">
+                @for (meaning of entry[1]; track meaning) {
+                  <app-chip>{{ meaning }}</app-chip>
+                }
+              </div>
+            </div>
+          }
+        </app-chip-group>
+
+        <app-chip-group title="Nanori">
+          @for (nanoriItem of current.nanori; track nanoriItem) {
+            <app-chip>{{ nanoriItem }}</app-chip>
+          }
+        </app-chip-group>
+      }
+    </div>
+
+    <div card-footer class="character-meta__footer">
+      <app-action-btn title="Practice" [action]="openPractice" />
+    </div>
+  </app-card>
+</div>
+
+<app-modal #expectedPreviewModal title="Expected Preview">
+  <div modal-body>
+    <img [src]="expectedUrl()" alt="expected strokes preview" class="preview-image" />
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Close" [action]="closeExpectedPreviewModal" />
+  </div>
+</app-modal>

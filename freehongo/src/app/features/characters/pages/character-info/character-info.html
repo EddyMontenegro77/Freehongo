@@ -1,0 +1,14 @@
+<div class="character-info-wrapper">
+  @if (isLoading()) {
+    <app-loading-state message="Loading character details..." />
+  } @else if (loadError()) {
+    <app-error-state
+      title="Could not load character"
+      [message]="loadError()!"
+      [action]="loadCharacterInfo"
+      actionTitle="Retry"
+    />
+  } @else if (character() !== null) {
+    <app-character-meta [character]="character()!" [expectedUrl]="expectedUrl()" />
+  }
+</div>
