@@ -1,0 +1,13 @@
+.nav__wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+
+  .navigation__btns {
+    flex-grow: 2;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+}

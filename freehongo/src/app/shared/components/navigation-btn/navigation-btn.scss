@@ -1,0 +1,30 @@
+button {
+  display: block;
+  width: 100%;
+  border: none;
+  background-color: rgb(var(--action-btn-hover-bg) / 70%);
+  color: var(--action-btn-hover-text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color 350ms ease,
+    color var(--transition-normal);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    background-color: var(--action-btn-bg);
+    color: var(--action-btn-text);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+}

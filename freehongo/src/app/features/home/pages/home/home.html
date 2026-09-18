@@ -1,6 +1,87 @@
-<p>Welcome to FreeHongo!</p>
-
-<app-action-btn
-  title="Pick a character to practice"
-  [action]="() => navigateTo('characters/picker/')"
-/>
+<div class="hero">
+  <h1>FreeHongo!</h1>
+  <div class="hero-subtitles">
+    <div class="svg-container">
+      <svg
+        #heroLogo
+        class="hero-logo"
+        width="100%"
+        height="100%"
+        viewBox="0 0 460 300"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xml:space="preserve"
+        xmlns:serif="http://www.serif.com/"
+        style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2"
+      >
+        <path
+          d="M30.031,15.015l0,269.826c0,8.287 -6.728,15.015 -15.015,15.015c-8.287,0 -15.015,-6.728 -15.015,-15.015l0,-269.826c0,-8.287 6.728,-15.015 15.015,-15.015c8.287,0 15.015,6.728 15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+        <path
+          d="M146.215,30.031l-129.323,-0c-9.323,0 -16.892,-6.728 -16.892,-15.015c0,-8.287 7.569,-15.015 16.892,-15.015l146.215,0c9.323,0 16.892,6.728 16.892,15.015l-0,269.826c0,8.287 -7.569,15.015 -16.892,15.015c-9.323,0 -16.892,-6.728 -16.892,-15.015l0,-254.81Z"
+          style="fill: #a5def1"
+        />
+        <path
+          d="M164.985,150l-149.969,0c-8.287,0 -15.015,-6.728 -15.015,-15.015c0,-8.287 6.728,-15.015 15.015,-15.015l149.969,0c8.287,0 15.015,6.728 15.015,15.015c0,8.287 -6.728,15.015 -15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+        <path
+          d="M164.985,270.031l-149.969,0c-8.287,0 -15.015,-6.728 -15.015,-15.015c0,-8.287 6.728,-15.015 15.015,-15.015l149.969,0c8.287,0 15.015,6.728 15.015,15.015c0,8.287 -6.728,15.015 -15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+        <path
+          d="M424.985,75.077l-169.969,0c-8.287,0 -15.015,-6.728 -15.015,-15.015c0,-8.287 6.728,-15.015 15.015,-15.015l169.969,-0c8.287,0 15.015,6.728 15.015,15.015c0,8.287 -6.728,15.015 -15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+        <path
+          d="M355.015,15.087l0,269.826c0,8.287 -6.728,15.015 -15.015,15.015c-8.287,0 -15.015,-6.728 -15.015,-15.015l0,-269.826c0,-8.287 6.728,-15.015 15.015,-15.015c8.287,0 15.015,6.728 15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+        <g>
+          <path
+            d="M347.503,75.71c-19.686,60.248 -57.248,109.777 -104.801,141.312c-8.004,5.308 -17.501,2.7 -21.362,-5.484c-3.556,-7.536 -1.169,-17.409 6.281,-22.633c42.606,-29.877 75.713,-76.78 91.407,-133.592c3.106,-11.243 11.915,-16.052 19.794,-10.982c8.351,5.374 12.48,19.752 8.681,31.379Z"
+            style="fill: #a5def1"
+          />
+        </g>
+        <g>
+          <path
+            d="M332.42,75.71c19.686,60.248 57.248,109.777 104.801,141.312c8.004,5.308 17.501,2.7 21.362,-5.484c3.556,-7.536 1.169,-17.409 -6.281,-22.633c-42.606,-29.877 -75.713,-76.78 -91.407,-133.592c-3.106,-11.243 -11.915,-16.052 -19.794,-10.982c-8.351,5.374 -12.48,19.752 -8.681,31.379Z"
+            style="fill: #a5def1"
+          />
+        </g>
+        <path
+          d="M374.985,230.001l-69.714,0c-8.287,0 -15.015,-6.728 -15.015,-15.015c0,-8.287 6.728,-15.015 15.015,-15.015l69.714,0c8.287,0 15.015,6.728 15.015,15.015c0,8.287 -6.728,15.015 -15.015,15.015Z"
+          style="fill: #a5def1"
+        />
+      </svg>
+    </div>
+    <h2>Learn japanese character by character</h2>
+    <p>Practice writing with feedback and examples. Create your own study lists.</p>
+  </div>
+</div>
+<div class="hero-info-wrapper">
+  <label>Discover</label>
+  <ul class="hero-list">
+    <li>Meanings</li>
+    <li>Readings</li>
+    <li>Frequency of use</li>
+    <li>Language levels</li>
+    <li>And more...</li>
+  </ul>
+</div>
+<div class="characters-info">
+  <div class="character-info-text">
+    <p>All Hiragana and Katanaka characters</p>
+    <p>+6400 Kanjis</p>
+  </div>
+  <span class="char-flip" #charFlip>あ</span>
+</div>
+<div class="cta-section">
+  <app-navigation-btn title="Pick a character to practice" [route]="['characters/picker/']" />
+  <app-navigation-btn
+    title="Try the easiest one"
+    [route]="['/characters/info/kanji/4e00']"
+  ></app-navigation-btn>
+</div>
