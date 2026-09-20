@@ -1,5 +1,6 @@
 button {
-  display: block;
+  display: flex;
+  flex-flow: row nowrap;
   width: 100%;
   border: none;
   background-color: rgb(var(--action-btn-hover-bg) / 70%);
@@ -15,6 +16,8 @@ button {
     box-shadow var(--transition-fast),
     background-color 350ms ease,
     color var(--transition-normal);
+  justify-content: baseline;
+  gap: 0.5rem;
 
   &:hover {
     transform: translateY(-1px);
