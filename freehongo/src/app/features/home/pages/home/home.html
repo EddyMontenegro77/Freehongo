@@ -1,0 +1,94 @@
+<div class="hero">
+  <div class="hero-text">
+    <h1>FreeHongo!</h1>
+    <h2>Learn japanese character by character</h2>
+    <p>Practice writing with feedback and examples. Create your own study lists.</p>
+    <div class="cta-hero-section">
+      <app-navigation-btn
+        class="cta-primary"
+        icon="internal_link_nav_icon.svg"
+        title="START PRACTICING"
+        [route]="['characters/picker/']"
+      />
+    </div>
+  </div>
+  <div class="svg-container">
+    <svg
+      #heroLogo
+      width="100%"
+      height="100%"
+      viewBox="0 0 162 118"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xml:space="preserve"
+      xmlns:serif="http://www.serif.com/"
+      style="
+        fill-rule: evenodd;
+        clip-rule: evenodd;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-miterlimit: 1.5;
+      "
+    >
+      <path d="M6,6l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path d="M6,6l45.532,0l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path d="M6,53.994l45.532,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path d="M6,102.179l45.532,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path d="M93.467,18.6l55.388,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path d="M121.162,6l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+      <path
+        d="M121.162,18.6c0,0 -10.879,50.626 -34.8,59.341"
+        style="fill: none; stroke: #a5def1; stroke-width: 12px"
+      />
+      <path
+        d="M121.162,18.6c0,0 10.879,50.626 34.8,59.341"
+        style="fill: none; stroke: #a5def1; stroke-width: 12px"
+      />
+      <path d="M133.162,80.4l-24,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
+    </svg>
+  </div>
+</div>
+<div class="hero-info-wrapper">
+  <label>Discover</label>
+  <ul class="hero-list">
+    <li>
+      <img class="list-icons" src="meanings_icon.svg" />
+      <span>Meanings</span>
+    </li>
+    <li>
+      <img class="list-icons" src="readings_icon.svg" />
+      <span>Readings</span>
+    </li>
+    <li>
+      <img class="list-icons" src="frequency_icon.svg" />
+      <span>Frequency of use</span>
+    </li>
+    <li>
+      <img class="list-icons" src="levels_icon.svg" />
+      <span>Language levels</span>
+    </li>
+    <li class="more">
+      <span>And more...</span>
+    </li>
+  </ul>
+</div>
+<div class="characters-info">
+  <div class="character-info-text">
+    <p>All Hiragana and Katanaka characters</p>
+    <p><span #kanjiCount>0</span> Kanjis</p>
+  </div>
+  <span class="char-flip" #charFlip>あ</span>
+</div>
+<div class="cta-section">
+  <app-navigation-btn
+    class="cta-primary"
+    title="Pick a character to practice"
+    [route]="['characters/picker/']"
+  />
+  <app-navigation-btn
+    class="cta-secondary"
+    title="Try the easiest one"
+    [route]="['/characters/info/kanji/4e00']"
+  />
+</div>

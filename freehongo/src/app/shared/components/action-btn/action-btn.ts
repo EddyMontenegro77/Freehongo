@@ -12,7 +12,6 @@ export class ActionBtn {
   action = input.required<() => void | Promise<void>>();
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);
-  isLoading = input<boolean>(false);
 
   async handleClick(): Promise<void> {
     if (this.disabled() || this.busy()) return;
