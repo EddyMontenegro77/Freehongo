@@ -1,0 +1,16 @@
+.nav__wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  padding: 0.5rem;
+
+  .navigation__btns {
+    flex-grow: 2;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+}
