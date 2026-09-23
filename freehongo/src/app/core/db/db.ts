@@ -1,8 +1,8 @@
 import Dexie, { Table } from 'dexie';
-import { List } from '../../shared/models/lists/list.model';
+import { CharacterList } from '../../shared/models/lists/list.model';
 
 export class FreeHongoDB extends Dexie {
-  lists!: Table<List, string>;
+  lists!: Table<CharacterList, string>;
 
   constructor() {
     super('FreeHongoDB');

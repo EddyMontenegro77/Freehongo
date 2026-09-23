@@ -1,6 +1,6 @@
 import { Character } from '../japanese/character.model';
 
-export class List {
+export class CharacterList {
   listId: string = '';
   name: string = '';
   description?: string = '';
@@ -11,7 +11,7 @@ export class List {
   syncStatus?: 'synced' | 'pending' | 'local-only' = 'local-only';
 }
 
-export class ResolvedList {
+export class ResolvedCharacterList {
   listId: string = '';
   name: string = '';
   description?: string = '';
@@ -20,7 +20,7 @@ export class ResolvedList {
   createdAt?: Date;
 }
 
-export class CreateListInput {
+export class CreateCharacterListInput {
   name: string = '';
   description?: string = '';
   type: 'hiragana' | 'katakana' | 'kanji' | 'mixed' = 'kanji';
