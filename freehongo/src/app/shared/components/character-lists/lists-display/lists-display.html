@@ -28,7 +28,7 @@
       <div>
         {{ list.characters }}
       </div>
-      <app-navigation-btn title="" icon="" [route]="['lists', 'edit', list.listId]" />
+      <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
     </div>
   } @empty {
     <p>Lists not found</p>
@@ -42,7 +42,6 @@
       placeholder="My new list"
       type="text"
       [value]="newListName.value ?? ''"
-      errorText="Please type a valid name"
       (valueChange)="newListName.setValue($event)"
     />
     <app-select
@@ -54,7 +53,7 @@
     <app-action-btn title="Create" [action]="createList" />
   }
   @if (!creatingList()) {
-    <app-icon-btn title="" [action]="toggleCreatingList" iconSrc=""></app-icon-btn>
+    <app-icon-btn title="Add list" [action]="toggleCreatingList" iconSrc=""></app-icon-btn>
   } @else {
     <app-action-btn title="Cancel" [action]="toggleCreatingList"></app-action-btn>
   }

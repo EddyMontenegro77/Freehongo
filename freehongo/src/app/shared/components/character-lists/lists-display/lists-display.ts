@@ -111,6 +111,8 @@ export class ListsDisplay {
     };
 
     this.listService.createList(newListInput);
+    this.toggleCreatingList();
+    this.fetchUserLists();
   };
 
   async fetchUserLists(): Promise<void> {
