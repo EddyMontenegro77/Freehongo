@@ -1,10 +1,11 @@
 import { Character } from '../japanese/character.model';
 
+export type CharacterListType = 'hiragana' | 'katakana' | 'kanji' | 'mixed';
+
 export class CharacterList {
   listId: string = '';
   name: string = '';
-  description?: string = '';
-  type: 'hiragana' | 'katakana' | 'kanji' | 'mixed' = 'kanji';
+  type: CharacterListType = 'mixed';
   characters: string[] = []; // unicodes
   createdAt?: Date;
   updatedAt?: Date;
@@ -14,15 +15,13 @@ export class CharacterList {
 export class ResolvedCharacterList {
   listId: string = '';
   name: string = '';
-  description?: string = '';
-  type: 'hiragana' | 'katakana' | 'kanji' | 'mixed' = 'kanji';
+  type: CharacterListType = 'mixed';
   characters: Character[] = [];
   createdAt?: Date;
 }
 
 export class CreateCharacterListInput {
   name: string = '';
-  description?: string = '';
-  type: 'hiragana' | 'katakana' | 'kanji' | 'mixed' = 'kanji';
+  type: CharacterListType = 'mixed';
   characters: string[] = [];
 }

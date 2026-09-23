@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ListDisplay } from './list-display';
+import { ListPopup } from './list-popup';
 
-describe('ListDisplay', () => {
-  let component: ListDisplay;
-  let fixture: ComponentFixture<ListDisplay>;
+describe('ListPopup', () => {
+  let component: ListPopup;
+  let fixture: ComponentFixture<ListPopup>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListDisplay]
+      imports: [ListPopup]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ListDisplay);
+    fixture = TestBed.createComponent(ListPopup);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

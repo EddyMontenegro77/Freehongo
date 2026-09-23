@@ -1,0 +1,61 @@
+<div class="lists-container">
+  <p>My lists</p>
+  <div class="list-filters">
+    <p>Search lists</p>
+    <app-input
+      label="Name"
+      [value]="listName.value ?? ''"
+      (valueChange)="listName.setValue($event)"
+    ></app-input>
+    <app-segmented-control
+      label=""
+      [options]="characterOptions"
+      [value]="characterType.value ?? 'any'"
+      (valueChange)="characterType.setValue($event)"
+    />
+  </div>
+  <hr />
+  @for (list of filteredLists(); track list.listId) {
+    <div class="list-display">
+      <div class="list-display-header">
+        <span>{{ list.name }}</span>
+        <span>Type: {{ list.type }}</span>
+      </div>
+      <div class="under-header">
+        <span>{{ list.createdAt }}</span>
+        <span>{{ list.updatedAt }}</span>
+      </div>
+      <div>
+        {{ list.characters }}
+      </div>
+      <app-navigation-btn title="" icon="" [route]="['lists', 'edit', list.listId]" />
+    </div>
+  } @empty {
+    <p>Lists not found</p>
+    @if (!creatingList()) {
+      <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+    }
+  }
+  @if (creatingList()) {
+    <app-input
+      label="List name"
+      placeholder="My new list"
+      type="text"
+      [value]="newListName.value ?? ''"
+      errorText="Please type a valid name"
+      (valueChange)="newListName.setValue($event)"
+    />
+    <app-select
+      label="List type"
+      [options]="listTypeOptions"
+      [value]="newListType.value ?? 'mixed'"
+      (valueChange)="newListType.setValue($event)"
+    ></app-select>
+    <app-action-btn title="Create" [action]="createList" />
+  }
+  @if (!creatingList()) {
+    <app-icon-btn title="" [action]="toggleCreatingList" iconSrc=""></app-icon-btn>
+  } @else {
+    <app-action-btn title="Cancel" [action]="toggleCreatingList"></app-action-btn>
+  }
+</div>
