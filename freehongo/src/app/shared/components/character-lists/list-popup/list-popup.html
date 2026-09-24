@@ -1,6 +1,10 @@
-<app-modal class="list-popup-container" title="Add a character to your list">
+<app-modal #listPopupModal class="list-popup-container" title="Add a character to your list">
   <div modal-body>
-    <app-lists-display />
+    <app-lists-display
+      mode="select"
+      (listSelected)="addCharacterToList($event)"
+      (listCreated)="addCharacterToList($event)"
+    />
   </div>
-  <div modal-footer></div>
 </app-modal>
+<app-feedback-toast #feedbackToast />

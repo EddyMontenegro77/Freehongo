@@ -15,25 +15,42 @@
     />
   </div>
   <hr />
-  @for (list of filteredLists(); track list.listId) {
-    <div class="list-display">
-      <div class="list-display-header">
-        <span>{{ list.name }}</span>
-        <span>Type: {{ list.type }}</span>
+  @if (isLoading()) {
+    <p>Loading lists...</p>
+  } @else if (loadError()) {
+    <p>{{ loadError() }}</p>
+    <app-action-btn title="Retry" [action]="fetchUserLists" />
+  } @else {
+    @for (list of filteredLists(); track list.listId) {
+      <div class="list-display">
+        <div class="list-display-header">
+          <span>{{ list.name }}</span>
+          <span>Type: {{ list.type }}</span>
+        </div>
+        <div class="under-header">
+          <span>{{ list.createdAt }}</span>
+          <span>{{ list.updatedAt }}</span>
+        </div>
+        <div>
+          @for (char of list.characters; track $index) {
+            {{ char | unicodeCharacter }}
+          }
+        </div>
+        @if (mode() === 'select') {
+          <app-icon-btn
+            title="Add character"
+            iconSrc="add_icon_dark.svg"
+            [action]="() => listSelected.emit(list.listId)"
+          />
+        } @else {
+          <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
+        }
       </div>
-      <div class="under-header">
-        <span>{{ list.createdAt }}</span>
-        <span>{{ list.updatedAt }}</span>
-      </div>
-      <div>
-        {{ list.characters }}
-      </div>
-      <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
-    </div>
-  } @empty {
-    <p>Lists not found</p>
-    @if (!creatingList()) {
-      <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+    } @empty {
+      <p>Lists not found</p>
+      @if (!creatingList()) {
+        <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+      }
     }
   }
   @if (creatingList()) {
@@ -53,7 +70,11 @@
     <app-action-btn title="Create" [action]="createList" />
   }
   @if (!creatingList()) {
-    <app-icon-btn title="Add list" [action]="toggleCreatingList" iconSrc=""></app-icon-btn>
+    <app-action-btn
+      title="Create a new list"
+      [action]="toggleCreatingList"
+      iconSrc="create_list_icon.svg"
+    ></app-action-btn>
   } @else {
     <app-action-btn title="Cancel" [action]="toggleCreatingList"></app-action-btn>
   }

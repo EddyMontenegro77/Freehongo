@@ -128,11 +128,20 @@
     } @else {
       <div class="character__cards__grid">
         @for (character of characters(); track $index) {
-          <app-character-card
-            [unicode]="character.unicode"
-            [literal]="character.literal"
-            [type]="character.type"
-          />
+          <div class="character__card-item">
+            <app-character-card
+              [unicode]="character.unicode"
+              [literal]="character.literal"
+              [type]="character.type"
+            />
+            <app-list-popup #listPopup [unicode]="character.unicode" />
+            <app-icon-btn
+              class="character__save-btn"
+              title="Save"
+              [action]="listPopup.openlistPopupModal"
+              iconSrc="add_icon_dark.svg"
+            />
+          </div>
         }
       </div>
     }

@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { InputField } from '../../input/input';
 import { ActionBtn } from '../../action-btn/action-btn';
@@ -7,27 +8,42 @@ import { IconBtn } from '../../icon-btn/icon-btn';
 import { SegmentedControl, SegmentedOption } from '../../segmented-control/segmented-control';
 import { NavigationBtn } from '../../navigation-btn/navigation-btn';
 
-import { ListService } from '../../../../features/lists/services/list.service';
 import {
-  CharacterList,
-  CharacterListType,
-  CreateCharacterListInput,
-} from '../../../models/lists/list.model';
+  CharacterListTypeFilter,
+  ListsFacade,
+} from '../../../../features/lists/services/lists.facade.service';
+import { CharacterListType } from '../../../models/lists/list.model';
 import { SelectField, SelectOption } from '../../select/select';
+import { UnicodeCharacterPipe } from '../../../pipes/unicode.pipe';
 
-type CharacterListTypeFilter = 'any' | CharacterListType;
+export type ListsDisplayMode = 'manage' | 'select';
 
 @Component({
   selector: 'app-lists-display',
-  imports: [InputField, ActionBtn, IconBtn, SegmentedControl, NavigationBtn, SelectField],
+  imports: [
+    InputField,
+    ActionBtn,
+    IconBtn,
+    SegmentedControl,
+    NavigationBtn,
+    SelectField,
+    UnicodeCharacterPipe,
+  ],
   templateUrl: './lists-display.html',
   styleUrl: './lists-display.scss',
 })
 export class ListsDisplay {
-  private listService = inject(ListService);
+  private readonly listsFacade = inject(ListsFacade);
+  private readonly destroyRef = inject(DestroyRef);
 
-  lists = signal<CharacterList[]>([]);
-  filteredLists = signal<CharacterList[]>([]);
+  mode = input<ListsDisplayMode>('manage');
+  listSelected = output<string>();
+  listCreated = output<string>();
+
+  lists = this.listsFacade.lists;
+  filteredLists = this.listsFacade.filteredLists;
+  isLoading = this.listsFacade.isLoading;
+  loadError = this.listsFacade.loadError;
 
   creatingList = signal<boolean>(false);
 
@@ -83,11 +99,11 @@ export class ListsDisplay {
   ngOnInit(): void {
     this.fetchUserLists();
 
-    this.listName.valueChanges.subscribe(() => {
+    this.listName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.filterLists();
     });
 
-    this.characterType.valueChanges.subscribe(() => {
+    this.characterType.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.filterLists();
     });
   }
@@ -96,44 +112,37 @@ export class ListsDisplay {
     this.creatingList.set(!this.creatingList());
   };
 
-  createList = (): void => {
-    const name = this.newListName.value;
+  async createList(): Promise<void> {
+    const name = this.newListName.value?.trim();
     const type = this.newListType.value;
 
     if (!name || !type) {
       return;
     }
 
-    const newListInput: CreateCharacterListInput = {
+    const listId = await this.listsFacade.createList({
       name,
       type,
       characters: [],
-    };
+    });
 
-    this.listService.createList(newListInput);
     this.toggleCreatingList();
-    this.fetchUserLists();
-  };
+    await this.fetchUserLists();
+
+    if (this.mode() === 'select') {
+      this.listCreated.emit(listId);
+    }
+  }
 
   async fetchUserLists(): Promise<void> {
-    const data = await this.listService.getAllLists();
-
-    this.lists.set(data);
+    await this.listsFacade.loadLists();
     this.filterLists();
   }
 
   filterLists(): void {
-    const name = (this.listName.value ?? '').trim().toLowerCase();
+    const name = this.listName.value ?? '';
     const type = this.characterType.value ?? 'any';
 
-    const filtered = this.lists().filter((list) => {
-      const matchesName = list.name.toLowerCase().includes(name);
-
-      const matchesType = type === 'any' || list.type === type;
-
-      return matchesName && matchesType;
-    });
-
-    this.filteredLists.set(filtered);
+    this.listsFacade.filterLists(name, type);
   }
 }
