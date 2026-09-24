@@ -5,6 +5,7 @@
     <app-input
       label="Name"
       [value]="listName.value ?? ''"
+      placeholder="List name"
       (valueChange)="listName.setValue($event)"
     ></app-input>
     <app-segmented-control
