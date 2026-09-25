@@ -35,4 +35,11 @@ describe('SegmentedControl', () => {
 
     expect(spy).toHaveBeenCalledWith('kanji');
   });
+
+  it('adds the wrapping class when wrap is enabled', () => {
+    fixture.componentRef.setInput('wrap', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.segmented__group--wrap')).toBeTruthy();
+  });
 });

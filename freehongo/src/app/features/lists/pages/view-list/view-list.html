@@ -1,0 +1,86 @@
+<div class="edit-list-container">
+  @if (isLoading()) {
+    <app-loading-state message="Loading list..." />
+  } @else if (loadError(); as error) {
+    <app-error-state title="Could not load list" [message]="error" [action]="retryLoad" />
+  } @else if (modifiedList(); as currentList) {
+    <header class="list-header">
+      @if (editMode) {
+        <div class="edit-form">
+          <app-input
+            label="List name"
+            [value]="currentList.name"
+            [required]="true"
+            (valueChange)="updateName($event)"
+          />
+          <app-select
+            label="Type"
+            [value]="currentList.type"
+            [options]="listTypeOptions"
+            [required]="true"
+            (valueChange)="updateType($event)"
+          />
+        </div>
+      } @else {
+        <div>
+          <h1>{{ currentList.name }}</h1>
+          <span>Type: {{ currentList.type }}</span>
+        </div>
+        <app-action-btn title="Edit" [action]="enterEditMode" />
+      }
+
+      @if (saveError(); as error) {
+        <p class="save-error">{{ error }}</p>
+      }
+    </header>
+
+    <div class="list-dates">
+      <span>Created: {{ currentList.createdAt | date: 'medium' }}</span>
+      <span>Updated: {{ currentList.updatedAt | date: 'medium' }}</span>
+    </div>
+    <div class="char-cards-container">
+      @for (char of currentList.characters; track char) {
+        <app-card class="char-card">
+          <div card-header>
+            <app-icon-btn
+              title="View details"
+              iconSrc="eye_dark.svg"
+              [action]="() => goToCharacterDetails(char)"
+              class="view-details-btn"
+            />
+            <p class="char-unicode">{{ char }}</p>
+          </div>
+          <div card-body>
+            <p class="char-graphic">{{ char | unicodeCharacter }}</p>
+          </div>
+
+          <div card-footer>
+            @if (editMode) {
+              <app-icon-btn
+                title="Remove"
+                iconSrc="/close_dark.svg"
+                [action]="() => requestRemoveCharacter(char)"
+                class="remove-btn"
+              />
+            }
+          </div>
+        </app-card>
+      }
+    </div>
+    @if (editMode) {
+      <div class="edit-actions">
+        <app-action-btn title="Cancel" [action]="cancelChanges" [disabled]="isSaving()" />
+        <app-action-btn title="Save" [action]="saveChanges" [disabled]="isSaving()" />
+      </div>
+    }
+  }
+</div>
+
+<app-confirmation
+  [open]="pendingCharacter() !== null"
+  title="Remove character"
+  message="Are you sure you want to remove this character from the list?"
+  confirmText="Remove"
+  [confirmAction]="removeCharacterFromList"
+  [cancelAction]="closeRemoveConfirmation"
+/>

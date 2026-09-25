@@ -1,13 +1,22 @@
-<div class="lists-container">
-  <p>My lists</p>
+<div class="lists-container" [class.lists-container--compact]="compact()">
+  <header class="lists-header">
+    <div>
+      <p class="lists-eyebrow">Study collection</p>
+      <h2>My lists</h2>
+    </div>
+    @if (!creatingList()) {
+      <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+    }
+  </header>
+
   <div class="list-filters">
-    <p>Search lists</p>
+    <h3>Search lists</h3>
     <app-input
       label="Name"
       [value]="listName.value ?? ''"
       placeholder="List name"
       (valueChange)="listName.setValue($event)"
-    ></app-input>
+    />
     <app-segmented-control
       label=""
       [options]="characterOptions"
@@ -15,68 +24,96 @@
       (valueChange)="characterType.setValue($event)"
     />
   </div>
-  <hr />
+
+  @if (operationError(); as error) {
+    <app-error-state title="List action failed" [message]="error" />
+  }
+
   @if (isLoading()) {
-    <p>Loading lists...</p>
-  } @else if (loadError()) {
-    <p>{{ loadError() }}</p>
-    <app-action-btn title="Retry" [action]="fetchUserLists" />
+    <app-loading-state message="Loading lists..." />
+  } @else if (loadError(); as error) {
+    <app-error-state title="Could not load lists" [message]="error" [action]="fetchUserLists" />
   } @else {
-    @for (list of filteredLists(); track list.listId) {
-      <div class="list-display">
-        <div class="list-display-header">
-          <span>{{ list.name }}</span>
-          <span>Type: {{ list.type }}</span>
+    <div class="lists-grid">
+      @for (list of filteredLists(); track list.listId) {
+        <div class="list-display">
+          <div class="list-display-header">
+            <div>
+              <h3>{{ list.name }}</h3>
+              <span class="list-type">{{ list.type }}</span>
+            </div>
+            <span class="character-count">{{ list.characters.length }} chars</span>
+          </div>
+
+          <div class="under-header">
+            <span>Created {{ list.createdAt | date: 'dd/MM/yyyy' }}</span>
+            @if (list.updatedAt) {
+              <span>Updated {{ list.updatedAt | date: 'dd/MM/yyyy' }}</span>
+            }
+          </div>
+
+          <div class="character-preview">
+            @for (char of list.characters.slice(0, 5); track char) {
+              {{ char | unicodeCharacter }}
+            }
+            @if (list.characters.length > 5) {
+              <span class="more-characters">+{{ list.characters.length - 5 }} more</span>
+            }
+          </div>
+
+          <div class="list-actions">
+            @if (mode() === 'select') {
+              <app-icon-btn
+                title="Add character"
+                iconSrc="/add_icon_dark.svg"
+                [action]="() => listSelected.emit(list.listId)"
+              />
+            } @else {
+              <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
+              <app-action-btn title="Delete" [action]="() => requestDeleteList(list.listId)" />
+            }
+          </div>
         </div>
-        <div class="under-header">
-          <span>{{ list.createdAt }}</span>
-          <span>{{ list.updatedAt }}</span>
-        </div>
-        <div>
-          @for (char of list.characters; track $index) {
-            {{ char | unicodeCharacter }}
+      } @empty {
+        <div class="empty-state">
+          <p>Lists not found</p>
+          @if (!creatingList()) {
+            <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
           }
         </div>
-        @if (mode() === 'select') {
-          <app-icon-btn
-            title="Add character"
-            iconSrc="add_icon_dark.svg"
-            [action]="() => listSelected.emit(list.listId)"
-          />
-        } @else {
-          <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
-        }
-      </div>
-    } @empty {
-      <p>Lists not found</p>
-      @if (!creatingList()) {
-        <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
       }
-    }
+    </div>
   }
+
   @if (creatingList()) {
-    <app-input
-      label="List name"
-      placeholder="My new list"
-      type="text"
-      [value]="newListName.value ?? ''"
-      (valueChange)="newListName.setValue($event)"
-    />
-    <app-select
-      label="List type"
-      [options]="listTypeOptions"
-      [value]="newListType.value ?? 'mixed'"
-      (valueChange)="newListType.setValue($event)"
-    ></app-select>
-    <app-action-btn title="Create" [action]="createList" />
-  }
-  @if (!creatingList()) {
-    <app-action-btn
-      title="Create a new list"
-      [action]="toggleCreatingList"
-      iconSrc="create_list_icon.svg"
-    ></app-action-btn>
-  } @else {
-    <app-action-btn title="Cancel" [action]="toggleCreatingList"></app-action-btn>
+    <div #createForm class="create-form">
+      <h3>Create a new list</h3>
+      <app-input
+        label="List name"
+        placeholder="My new list"
+        type="text"
+        [value]="newListName.value ?? ''"
+        (valueChange)="newListName.setValue($event)"
+      />
+      <app-select
+        label="List type"
+        [options]="listTypeOptions"
+        [value]="newListType.value ?? 'mixed'"
+        (valueChange)="newListType.setValue($event)"
+      />
+      <div class="create-actions">
+        <app-action-btn title="Create" [action]="createList" />
+        <app-action-btn title="Cancel" [action]="toggleCreatingList" />
+      </div>
+    </div>
   }
 </div>
+
+<app-confirmation
+  [open]="pendingDeleteListId() !== null"
+  title="Delete list"
+  message="Are you sure you want to delete this list? This action cannot be undone."
+  confirmText="Delete"
+  [confirmAction]="deleteList"
+  [cancelAction]="cancelDelete"
+/>

@@ -1,4 +1,14 @@
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -15,6 +25,9 @@ import {
 import { CharacterListType } from '../../../models/lists/list.model';
 import { SelectField, SelectOption } from '../../select/select';
 import { UnicodeCharacterPipe } from '../../../pipes/unicode.pipe';
+import { LoadingState } from '../../app-state/loading-state/loading-state';
+import { ErrorState } from '../../app-state/error-state/error-state';
+import { Confirmation } from '../../confirmation/confirmation';
 
 export type ListsDisplayMode = 'manage' | 'select';
 
@@ -28,6 +41,10 @@ export type ListsDisplayMode = 'manage' | 'select';
     NavigationBtn,
     SelectField,
     UnicodeCharacterPipe,
+    DatePipe,
+    LoadingState,
+    ErrorState,
+    Confirmation,
   ],
   templateUrl: './lists-display.html',
   styleUrl: './lists-display.scss',
@@ -37,6 +54,7 @@ export class ListsDisplay {
   private readonly destroyRef = inject(DestroyRef);
 
   mode = input<ListsDisplayMode>('manage');
+  compact = input(false);
   listSelected = output<string>();
   listCreated = output<string>();
 
@@ -46,6 +64,10 @@ export class ListsDisplay {
   loadError = this.listsFacade.loadError;
 
   creatingList = signal<boolean>(false);
+  pendingDeleteListId = signal<string | null>(null);
+  operationError = signal<string | null>(null);
+
+  @ViewChild('createForm') createForm?: ElementRef<HTMLElement>;
 
   newListName = new FormControl<string>('');
   newListType = new FormControl<CharacterListType>('mixed');
@@ -109,32 +131,78 @@ export class ListsDisplay {
   }
 
   toggleCreatingList = (): void => {
-    this.creatingList.set(!this.creatingList());
+    this.operationError.set(null);
+    const shouldShowForm = !this.creatingList();
+    this.creatingList.set(shouldShowForm);
+
+    if (shouldShowForm && this.compact()) {
+      setTimeout(() => {
+        this.createForm?.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      });
+    }
   };
 
-  async createList(): Promise<void> {
+  createList = async (): Promise<void> => {
     const name = this.newListName.value?.trim();
     const type = this.newListType.value;
 
     if (!name || !type) {
+      this.operationError.set('Enter a name and choose a list type.');
       return;
     }
 
-    const listId = await this.listsFacade.createList({
-      name,
-      type,
-      characters: [],
-    });
+    try {
+      const listId = await this.listsFacade.createList({
+        name,
+        type,
+        characters: [],
+      });
 
-    this.toggleCreatingList();
-    await this.fetchUserLists();
+      this.newListName.reset('');
+      this.newListType.setValue('mixed');
+      this.toggleCreatingList();
+      await this.fetchUserLists();
 
-    if (this.mode() === 'select') {
-      this.listCreated.emit(listId);
+      if (this.mode() === 'select') {
+        this.listCreated.emit(listId);
+      }
+    } catch (error) {
+      console.error(error);
+      this.operationError.set('Could not create the list.');
     }
   }
 
-  async fetchUserLists(): Promise<void> {
+  requestDeleteList = (listId: string): void => {
+    this.operationError.set(null);
+    this.pendingDeleteListId.set(listId);
+  };
+
+  cancelDelete = (): void => {
+    this.pendingDeleteListId.set(null);
+  };
+
+  deleteList = async (): Promise<void> => {
+    const listId = this.pendingDeleteListId();
+
+    if (!listId) {
+      return;
+    }
+
+    try {
+      await this.listsFacade.deleteList(listId);
+      this.pendingDeleteListId.set(null);
+      await this.fetchUserLists();
+    } catch (error) {
+      console.error(error);
+      this.pendingDeleteListId.set(null);
+      this.operationError.set('Could not delete the list.');
+    }
+  }
+
+  fetchUserLists = async (): Promise<void> => {
     await this.listsFacade.loadLists();
     this.filterLists();
   }

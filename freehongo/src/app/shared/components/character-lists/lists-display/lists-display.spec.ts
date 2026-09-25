@@ -18,6 +18,7 @@ describe('ListsDisplay', () => {
       loadLists: vi.fn().mockResolvedValue(undefined),
       filterLists: vi.fn(),
       createList: vi.fn(),
+      deleteList: vi.fn().mockResolvedValue(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -57,6 +58,31 @@ describe('ListsDisplay', () => {
     expect(selected).toHaveBeenCalledWith('list-1');
   });
 
+  it('uses the compact layout only when requested', () => {
+    expect(fixture.nativeElement.querySelector('.lists-container--compact')).toBeNull();
+
+    fixture.componentRef.setInput('compact', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.lists-container--compact')).toBeTruthy();
+  });
+
+  it('scrolls to the create form when opening it in compact mode', () => {
+    fixture.componentRef.setInput('compact', true);
+    const scrollIntoView = vi.fn();
+    (component as any).createForm = { nativeElement: { scrollIntoView } };
+    vi.useFakeTimers();
+
+    component.toggleCreatingList();
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  });
+
   it('emits the new list id after creating a list in select mode', async () => {
     fixture.componentRef.setInput('mode', 'select');
     listsFacadeMock.createList.mockResolvedValue('new-list');
@@ -73,5 +99,41 @@ describe('ListsDisplay', () => {
       characters: [],
     });
     expect(created).toHaveBeenCalledWith('new-list');
+  });
+
+  it('limits the character preview and shows the remaining count', () => {
+    listsFacadeMock.filteredLists.set([
+      {
+        listId: 'list-1',
+        name: 'Large list',
+        type: 'mixed',
+        characters: ['3042', '3044', '3046', '3048', '304A', '304B', '304D'],
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.more-characters').textContent).toContain('+2 more');
+  });
+
+  it('deletes a list only after the confirmation action', async () => {
+    listsFacadeMock.filteredLists.set([
+      {
+        listId: 'list-1',
+        name: 'To delete',
+        type: 'mixed',
+        characters: [],
+      },
+    ]);
+    fixture.detectChanges();
+
+    component.requestDeleteList('list-1');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-confirmation')).toBeTruthy();
+    expect(listsFacadeMock.deleteList).not.toHaveBeenCalled();
+
+    await component.deleteList();
+
+    expect(listsFacadeMock.deleteList).toHaveBeenCalledWith('list-1');
   });
 });

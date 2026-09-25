@@ -29,6 +29,7 @@
 }
 
 .field__control {
+  box-sizing: border-box;
   width: 100%;
   padding: 0.8rem 0.95rem;
   border: 1px solid var(--border);
