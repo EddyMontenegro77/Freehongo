@@ -14,8 +14,8 @@
 }
 
 .modal__panel {
-  min-width: min(90vw, 42rem);
-  max-width: min(90vw, 42rem);
+  min-width: min(90vw, var(--modal-width, 42rem));
+  max-width: min(90vw, var(--modal-width, 42rem));
   max-height: 85vh;
   overflow: hidden;
   display: grid;
@@ -30,7 +30,7 @@
 .modal__header,
 .modal__footer,
 .modal__body {
-  padding: 1rem 1.25rem;
+  padding: var(--modal-body-padding, 1rem 1.25rem);
 }
 
 .modal__header {

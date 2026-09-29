@@ -1,7 +1,6 @@
 import { Component, ViewChild, input } from '@angular/core';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
-import { List } from '../../../../shared/components/list/list';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { Table } from '../../../../shared/components/table/table';
 import { TableColumn } from '../../../../shared/components/table/interface/table.interface';
@@ -11,6 +10,7 @@ import {
   StrokeErrorType,
 } from '../../models/stroke-validation-result.interface';
 import { strokeErrorLabel } from '../../mappers/stroke-error-label.mapper';
+import { List } from '../../../../shared/components/list/list';
 
 @Component({
   selector: 'app-writing-validation',
