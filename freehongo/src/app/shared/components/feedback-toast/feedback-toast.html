@@ -1,0 +1,10 @@
+@if (visible()) {
+  <div
+    class="feedback-toast"
+    role="status"
+    aria-live="polite"
+    [style.animation-duration.ms]="visibleDuration()"
+  >
+    {{ message() }}
+  </div>
+}

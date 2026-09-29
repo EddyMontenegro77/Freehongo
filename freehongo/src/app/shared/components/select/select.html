@@ -18,7 +18,11 @@
     }
 
     @for (option of options(); track option.value) {
-      <option [value]="option.value" [disabled]="option.disabled">
+      <option
+        [value]="option.value"
+        [disabled]="option.disabled"
+        [selected]="option.value === value()"
+      >
         {{ option.label }}
       </option>
     }

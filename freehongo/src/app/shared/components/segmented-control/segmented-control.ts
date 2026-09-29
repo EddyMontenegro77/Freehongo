@@ -17,6 +17,7 @@ export class SegmentedControl<T = string> {
   value = input<T>();
   options = input.required<ReadonlyArray<SegmentedOption<T>>>();
   disabled = input<boolean>(false);
+  wrap = input<boolean>(false);
 
   valueChange = output<T>();
 

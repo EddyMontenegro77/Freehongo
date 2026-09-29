@@ -1,14 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
 import { CharacterPicker } from './character-picker';
 import { characterPickerFacadeService } from '../../services/character-picker.facade.service';
+import { ListsFacade } from '../../../../features/lists/services/lists.facade.service';
 
 describe('CharacterPicker', () => {
   let component: CharacterPicker;
   let fixture: ComponentFixture<CharacterPicker>;
   const characterPickerFacadeServiceMock = {
     loadCharacters: vi.fn().mockReturnValue(of({ items: [], totalCount: 0 })),
+  };
+  const listsFacadeMock = {
+    lists: signal([]),
+    filteredLists: signal([]),
+    isLoading: signal(false),
+    loadError: signal<string | null>(null),
+    loadLists: vi.fn().mockResolvedValue(undefined),
+    filterLists: vi.fn(),
+    createList: vi.fn(),
+    addCharacterToList: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -20,6 +32,10 @@ describe('CharacterPicker', () => {
         {
           provide: characterPickerFacadeService,
           useValue: characterPickerFacadeServiceMock,
+        },
+        {
+          provide: ListsFacade,
+          useValue: listsFacadeMock,
         },
       ],
     }).compileComponents();
@@ -70,5 +86,15 @@ describe('CharacterPicker', () => {
     expect(component.kanjiNanori.value).toBe('');
     expect(component.currentPage).toBe(1);
     expect(characterPickerFacadeServiceMock.loadCharacters).toHaveBeenCalledTimes(2);
+  });
+
+  it('renders one card item with its save button', () => {
+    component.characters.set([{ unicode: '3042', literal: 'あ', type: 'kana' }]);
+    component.isLoading.set(false);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.character__card-item')).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector('.character__save-btn')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain('あ');
   });
 });

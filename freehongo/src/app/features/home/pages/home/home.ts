@@ -2,7 +2,10 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@ang
 import { Router } from '@angular/router';
 import { NavigationBtn } from '../../../../shared/components/navigation-btn/navigation-btn';
 import { gsap } from 'gsap';
-import { revealOnScroll } from '../../../../shared/utils/animations.utils';
+import {
+  registerScrollTrigger,
+  revealOnScroll,
+} from '../../../../shared/utils/animations.utils';
 
 @Component({
   selector: 'app-home',
@@ -34,7 +37,11 @@ export class Home implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    const paths = this.heroLogo.nativeElement.querySelectorAll<SVGPathElement>('path');
+    registerScrollTrigger();
+
+    const paths = Array.from(
+      this.heroLogo.nativeElement.querySelectorAll<SVGPathElement>('path'),
+    ).filter((path) => typeof path.getTotalLength === 'function');
     const heroSection = this.el.nativeElement.querySelector<HTMLElement>('.hero');
     const heroText = this.el.nativeElement.querySelector<HTMLElement>('.hero-text');
     const heroInfo = this.el.nativeElement.querySelector<HTMLElement>('.hero-info-wrapper');

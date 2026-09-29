@@ -61,6 +61,18 @@
   }
 }
 
+.segmented__group--wrap {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.segmented__group--wrap .segmented__option {
+  flex: 1 1 5rem;
+  min-height: 2.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .segmented__option--active {
   background: var(--primary);
   color: var(--cta-btn-text);

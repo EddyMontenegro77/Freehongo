@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PaginationController } from '../../../../shared/components/pagination-controller/pagination-controller';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { InputField } from '../../../../shared/components/input/input';
@@ -22,6 +22,8 @@ import {
 } from '../../services/character-picker.facade.service';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { CharacterCard } from '../../components/character-card/character-card';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
+import { ListPopup } from '../../../../shared/components/character-lists/list-popup/list-popup';
 
 @Component({
   selector: 'app-character-picker',
@@ -36,12 +38,14 @@ import { CharacterCard } from '../../components/character-card/character-card';
     SelectField,
     LoadingState,
     ErrorState,
+    IconBtn,
+    ListPopup,
   ],
   templateUrl: './character-picker.html',
   styleUrl: './character-picker.scss',
 })
 export class CharacterPicker {
-  constructor(private characterPickerFacadeService: characterPickerFacadeService) {}
+  characterPickerFacadeService = inject(characterPickerFacadeService);
 
   private readonly pageSize = 20;
 
@@ -190,4 +194,5 @@ export class CharacterPicker {
       page: this.currentPage,
     };
   }
+
 }
