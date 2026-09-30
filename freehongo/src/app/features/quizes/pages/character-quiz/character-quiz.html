@@ -1,0 +1,125 @@
+<main class="quiz-page">
+  @if (quizFacade.isLoading()) {
+    <app-loading-state message="Loading quiz..." />
+  } @else if (quizFacade.error(); as error) {
+    <app-error-state title="Could not load quiz" [message]="error" [action]="retry" />
+  } @else if (quizFacade.isFinished()) {
+    <section class="quiz-result">
+      <p class="quiz-eyebrow">
+        @if (isPractice()) {
+          Practice complete
+        } @else {
+          Evaluation complete
+        }
+      </p>
+      <h1>
+        @if (isPractice()) {
+          Practice finished
+        } @else {
+          Your result
+        }
+      </h1>
+      <p class="quiz-score">
+        {{ quizFacade.score() }} / {{ quizFacade.questions().length }} correct
+      </p>
+
+      @if (!isPractice()) {
+        <div class="quiz-review">
+          <h2>Review</h2>
+          @for (question of quizFacade.questions(); track question.characterUnicode) {
+            @if (getAnswerResult(question.characterUnicode); as result) {
+              <article class="quiz-review-item" [class.quiz-review-item--correct]="result.correct">
+                <div>
+                  <strong>{{ question.prompt }}</strong>
+                  <span>Your answer: {{ result.answer || 'No answer' }}</span>
+                  <span>Expected: {{ question.acceptedAnswers.join(', ') }}</span>
+                </div>
+                <span>{{ result.correct ? 'Correct' : 'Incorrect' }}</span>
+              </article>
+            }
+          }
+        </div>
+      }
+
+      <app-action-btn title="Back to quizzes" [action]="goToQuizMenu" />
+    </section>
+  } @else if (quizFacade.currentQuestion(); as question) {
+    <section class="quiz-card">
+      <header class="quiz-header">
+        <div>
+          <p class="quiz-eyebrow">{{ config()?.mode }}</p>
+          <h1>Character quiz</h1>
+        </div>
+        <span class="quiz-progress">
+          {{ quizFacade.currentIndex() + 1 }} / {{ quizFacade.questions().length }}
+        </span>
+      </header>
+
+      <p class="quiz-prompt">{{ question.prompt }}</p>
+
+      @if (config()?.answerType === 'multiple') {
+        <div class="quiz-options">
+          @for (option of question.options ?? []; track option.value) {
+            <button
+              type="button"
+              class="quiz-option"
+              [class.quiz-option--correct]="
+                isPractice() &&
+                quizFacade.hasAnswered() &&
+                question.acceptedAnswers.includes(option.value)
+              "
+              [class.quiz-option--wrong]="
+                isPractice() &&
+                quizFacade.hasAnswered() &&
+                !question.acceptedAnswers.includes(option.value)
+              "
+              [disabled]="quizFacade.hasAnswered()"
+              (click)="submitAnswer(option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="quiz-open-answer">
+          <app-input
+            label="Your answer"
+            [value]="answer()"
+            [disabled]="quizFacade.hasAnswered()"
+            (valueChange)="answer.set($event)"
+          />
+          @if (!quizFacade.hasAnswered()) {
+            <app-action-btn title="Submit" [action]="submitOpenAnswer" />
+          }
+        </div>
+      }
+
+      @if (quizFacade.hasAnswered() && isPractice()) {
+        <p
+          class="quiz-feedback"
+          [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()"
+        >
+          @if (quizFacade.lastAnswerCorrect()) {
+            Correct
+          } @else {
+            Incorrect. Accepted answer: {{ question.acceptedAnswers[0] }}
+          }
+        </p>
+      }
+
+      @if (quizFacade.hasAnswered()) {
+        <app-action-btn title="Next" [action]="nextQuestion" />
+      }
+    </section>
+  }
+</main>
+
+<app-confirmation
+  [open]="quizFacade.emptyList()"
+  title="Empty quiz list"
+  message="This list has no characters to practice. Choose another list to start a quiz."
+  confirmText="Back to quizzes"
+  cancelText="Stay here"
+  [confirmAction]="goToQuizMenu"
+  [cancelAction]="quizFacade.dismissEmptyList"
+/> 

@@ -5,6 +5,8 @@ import { CharacterInfo } from './features/characters/pages/character-info/charac
 import { Home } from './features/home/pages/home/home';
 import { Lists } from './features/lists/pages/lists/lists';
 import { ViewList } from './features/lists/pages/view-list/view-list';
+import { Quizes } from './features/quizes/pages/quizes/quizes';
+import { CharacterQuiz } from './features/quizes/pages/character-quiz/character-quiz';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -12,6 +14,8 @@ export const routes: Routes = [
   { path: 'characters/info/:type/:unicode', component: CharacterInfo },
   { path: 'lists', component: Lists },
   { path: 'lists/edit/:id', component: ViewList },
+  { path: 'quizes', component: Quizes },
+  { path: 'quizes/:mode/:listId', component: CharacterQuiz },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];

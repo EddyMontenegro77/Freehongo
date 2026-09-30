@@ -1,0 +1,9 @@
+<main class="quizes-page">
+  <header class="quizes-header">
+    <p class="quizes-eyebrow">Practice</p>
+    <h1>Take a quiz</h1>
+    <p>Choose one of your lists to start practicing.</p>
+  </header>
+
+  <app-lists-display mode="quiz" (quizSelected)="takeQuiz($event)" />
+</main>
