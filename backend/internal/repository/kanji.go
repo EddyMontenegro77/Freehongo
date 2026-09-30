@@ -20,6 +20,7 @@ func GetKanji(db *sql.DB, unicode string) (*models.Kanji, error) {
 				SELECT kr.unicode, rt.name, jsonb_agg(kr.value) AS values
 				FROM japanese.kanji_reading kr
 				JOIN japanese.reading_type rt ON rt.id = kr.reading_type_id
+				WHERE rt.name IN ('ja_on', 'ja_kun')
 				GROUP BY kr.unicode, rt.name
 			) kr
 			JOIN japanese.reading_type rt ON rt.name = kr.name
@@ -30,6 +31,7 @@ func GetKanji(db *sql.DB, unicode string) (*models.Kanji, error) {
 			FROM (
 				SELECT km.unicode, km.language, jsonb_agg(km.value) AS values
 				FROM japanese.kanji_meaning km
+				WHERE km.language = 'en'
 				GROUP BY km.unicode, km.language
 			) km
 			GROUP BY km.unicode
