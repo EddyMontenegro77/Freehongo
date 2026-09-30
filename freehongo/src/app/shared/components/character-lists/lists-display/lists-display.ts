@@ -29,7 +29,7 @@ import { LoadingState } from '../../app-state/loading-state/loading-state';
 import { ErrorState } from '../../app-state/error-state/error-state';
 import { Confirmation } from '../../confirmation/confirmation';
 
-export type ListsDisplayMode = 'manage' | 'select';
+export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
 
 @Component({
   selector: 'app-lists-display',
@@ -57,6 +57,7 @@ export class ListsDisplay {
   compact = input(false);
   listSelected = output<string>();
   listCreated = output<string>();
+  quizSelected = output<string>();
 
   lists = this.listsFacade.lists;
   filteredLists = this.listsFacade.filteredLists;

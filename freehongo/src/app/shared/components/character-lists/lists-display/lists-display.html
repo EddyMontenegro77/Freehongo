@@ -91,6 +91,11 @@
                 iconSrc="/add_icon_dark.svg"
                 [action]="() => listSelected.emit(list.listId)"
               />
+            } @else if (mode() === 'quiz') {
+              <app-action-btn
+                title="Take quiz"
+                [action]="() => quizSelected.emit(list.listId)"
+              />
             } @else {
               <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
               <app-action-btn title="Delete" [action]="() => requestDeleteList(list.listId)" />
