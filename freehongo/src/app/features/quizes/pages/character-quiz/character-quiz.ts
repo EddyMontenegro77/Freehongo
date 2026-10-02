@@ -6,9 +6,9 @@ import { LoadingState } from '../../../../shared/components/app-state/loading-st
 import { Confirmation } from '../../../../shared/components/confirmation/confirmation';
 import { InputField } from '../../../../shared/components/input/input';
 import {
-  AnswerType,
   CharacterQuizConfig,
   CharacterQuizType,
+  ImplementedAnswerType,
   QuizMode,
   QuizOrder,
 } from '../../../../shared/models/quizes/quizes.interface';
@@ -79,7 +79,7 @@ export class CharacterQuiz {
     return value === 'list' ? 'list' : 'random';
   }
 
-  private readAnswerType(value: string | null): AnswerType {
+  private readAnswerType(value: string | null): ImplementedAnswerType {
     return value === 'open' ? 'open' : 'multiple';
   }
 

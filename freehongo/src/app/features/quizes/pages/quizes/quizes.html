@@ -5,5 +5,7 @@
     <p>Choose one of your lists to start practicing.</p>
   </header>
 
-  <app-lists-display mode="quiz" (quizSelected)="takeQuiz($event)" />
+  <app-lists-display mode="quiz" (quizSelected)="openQuizConfig($event)" />
 </main>
+
+<app-quiz-config-window (configSubmitted)="takeQuiz($event)" />

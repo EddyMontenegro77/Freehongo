@@ -28,6 +28,13 @@ export class QuizQuestionService {
     pool: Character[],
     quizType: CharacterQuizType,
   ): CharacterQuizQuestion[] {
+    if (
+      (quizType === 'characterToMeaning' || quizType === 'meaningToCharacter') &&
+      character.kind !== 'kanji'
+    ) {
+      return [];
+    }
+
     const answers = this.getAnswers(character, quizType);
 
     if (answers.length === 0) {

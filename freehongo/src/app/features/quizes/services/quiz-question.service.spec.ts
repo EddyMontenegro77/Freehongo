@@ -61,6 +61,33 @@ describe('QuizQuestionService', () => {
     expect(questions[0].prompt).toContain('学');
   });
 
+  it('skips kana characters for meaning quizzes in mixed pools', () => {
+    const characters = [
+      {
+        kind: 'kana' as const,
+        unicode: '3042',
+        literal: 'あ',
+        type: 'hiragana',
+        stroke_count: 3,
+        reading: 'a',
+      },
+      {
+        kind: 'kanji' as const,
+        unicode: '5B66',
+        literal: '学',
+        stroke_count: 8,
+        readings: { onyomi: ['ガク'] },
+        meanings: { en: ['study'] },
+        nanori: [],
+      },
+    ];
+
+    const questions = service.createQuestions(characters, 'meaningToCharacter', 'list');
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].characterUnicode).toBe('5B66');
+  });
+
   it('uses the reading or meaning as the prompt for reverse questions', () => {
     const character = {
       kind: 'kanji' as const,

@@ -13,12 +13,17 @@ export type AnswerType = 'multiple' | 'open' | 'flashcard' | 'keyBoardWriting' |
 export type QuizMode = 'practice' | 'evaluation';
 export type QuizOrder = 'random' | 'list';
 
-export interface CharacterQuizConfig {
-  listId: string;
+export type ImplementedAnswerType = Extract<AnswerType, 'multiple' | 'open'>;
+
+export interface QuizSettings {
   characterQuizType: CharacterQuizType;
-  answerType: AnswerType;
+  answerType: ImplementedAnswerType;
   mode: QuizMode;
   order: QuizOrder;
+}
+
+export interface CharacterQuizConfig extends QuizSettings {
+  listId: string;
 }
 
 export interface CharacterQuizQuestion {

@@ -123,6 +123,36 @@ describe('CharacterQuizFacade', () => {
     expect(facade.score()).toBe(1);
   });
 
+  it('accepts romaji when the expected answer is a Japanese reading', () => {
+    facade.questions.set([
+      {
+        prompt: 'Answer',
+        acceptedAnswers: ['がく'],
+        characterUnicode: '5B66',
+      },
+    ]);
+
+    facade.submitAnswer('gaku');
+
+    expect(facade.lastAnswerCorrect()).toBe(true);
+    expect(facade.score()).toBe(1);
+  });
+
+  it('does not convert English meanings to Japanese readings', () => {
+    facade.questions.set([
+      {
+        prompt: 'Answer',
+        acceptedAnswers: ['study'],
+        characterUnicode: '5B66',
+      },
+    ]);
+
+    facade.submitAnswer('スタディ');
+
+    expect(facade.lastAnswerCorrect()).toBe(false);
+    expect(facade.score()).toBe(0);
+  });
+
   it('saves results only when an evaluation is completed', async () => {
     listsFacade.getListById.mockResolvedValue({
       listId: 'list-1',

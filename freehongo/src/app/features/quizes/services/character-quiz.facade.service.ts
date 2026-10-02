@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { toHiragana, toKana } from 'wanakana';
 import { JapaneseService } from '../../../shared/services/japanese/japanese.service';
 import { Character } from '../../../shared/models/japanese/character.model';
 import { getCharacterTypeFromUnicode } from '../../../shared/models/japanese/character.helper';
@@ -93,9 +94,8 @@ export class CharacterQuizFacade {
       return;
     }
 
-    const normalizedAnswer = this.normalizeAnswer(answer);
     const correct = question.acceptedAnswers.some(
-      (acceptedAnswer) => this.normalizeAnswer(acceptedAnswer) === normalizedAnswer,
+      (acceptedAnswer) => this.answersMatch(answer, acceptedAnswer),
     );
 
     this.hasAnswered.set(true);
@@ -171,9 +171,20 @@ export class CharacterQuizFacade {
     );
   }
 
-  /** Makes equivalent answers comparable, including hiragana and katakana. */
-  private normalizeAnswer(answer: string): string {
-    return Array.from(answer.trim().normalize('NFKC').toLocaleLowerCase())
+  /** Compares an answer using the format expected by the question. */
+  private answersMatch(answer: string, expectedAnswer: string): boolean {
+    return (
+      this.normalizeAnswer(answer, expectedAnswer) ===
+      this.normalizeAnswer(expectedAnswer, expectedAnswer)
+    );
+  }
+
+  /**
+   * Normalizes Japanese readings to hiragana so kana and romaji answers match.
+   * Other answers, such as English meanings or kanji, remain plain text.
+   */
+  private normalizeAnswer(answer: string, expectedAnswer: string): string {
+    const normalized = Array.from(answer.trim().normalize('NFKC').toLocaleLowerCase())
       .map((character) => {
         const codePoint = character.codePointAt(0) ?? 0;
 
@@ -182,6 +193,16 @@ export class CharacterQuizFacade {
           : character;
       })
       .join('');
+
+    if (this.isJapaneseReading(expectedAnswer)) {
+      return toHiragana(toKana(normalized));
+    }
+
+    return normalized.replace(/\s+/g, ' ');
+  }
+
+  private isJapaneseReading(value: string): boolean {
+    return /^[\u3040-\u30ffー・.\s]+$/u.test(value);
   }
 
   /** Persists results only in evaluation mode; practice remains transient. */
