@@ -1,0 +1,26 @@
+<section class="summary" aria-label="quiz-summary">
+  <h2 class="summary-title">
+    {{ mode() === 'evaluation' ? 'Evaluation complete' : 'Practice complete' }}
+  </h2>
+
+  <p class="summary-score" aria-live="polite">
+    <span class="summary-score-value">{{ overall().correct }} / {{ overall().total }}</span>
+    <span class="summary-score-percentage">({{ overall().percentage }}%)</span>
+  </p>
+
+  @if (overall().notAttempted > 0) {
+    <p class="summary-note">
+      {{ overall().notAttempted }} not attempted — characters count as correct only after
+      validating.
+    </p>
+  }
+
+  @if (mode() === 'evaluation') {
+    <app-table [headers]="columns" [rows]="rows()" tableAlignment="left" />
+  }
+
+  <div class="summary-actions">
+    <app-action-btn title="Try again" [action]="retry" />
+    <app-action-btn title="Back to quizzes" [action]="exit" />
+  </div>
+</section>

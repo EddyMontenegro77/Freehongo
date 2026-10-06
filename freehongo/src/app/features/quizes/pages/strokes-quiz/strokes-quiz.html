@@ -1,6 +1,40 @@
-<div>Strokes</div>
-<app-writing-practice
-  [unicode]="currentCharacter()"
-  [type]="type()"
-  (validationCompleted)="onValidationCompleted($event)"
-/>
+<main class="strokes-quiz">
+  @if (isFinished()) {
+    <app-stroke-quiz-summary
+      [mode]="mode()"
+      [results]="orderedResults()"
+      (retryRequested)="retry()"
+      (exitRequested)="exit()"
+    />
+  } @else if (isReady()) {
+    <header class="quiz-header">
+      <h1 class="prompt-instruction">
+        Write the next character in the canvas:
+        <strong class="current-character">{{ currentCharacter() | unicodeCharacter }}</strong>
+      </h1>
+      <p class="quiz-progress" aria-live="polite">{{ progressLabel() }}</p>
+    </header>
+
+    <app-writing-practice
+      [unicode]="currentCharacter()"
+      [ui]="writingUi()"
+      [type]="type()"
+      (validationCompleted)="onValidationCompleted($event)"
+    />
+
+    <section class="quiz-actions" aria-label="quiz-actions">
+      @if (mode() === 'practice') {
+        <app-action-btn
+          title="Previous"
+          [action]="previousCharacter"
+          [disabled]="isFirstCharacter()"
+        />
+      }
+      @if (isLastCharacter()) {
+        <app-action-btn title="Finish" [action]="finish" />
+      } @else {
+        <app-action-btn title="Next" [action]="nextCharacter" />
+      }
+    </section>
+  }
+</main>

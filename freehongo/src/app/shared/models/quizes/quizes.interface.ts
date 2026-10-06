@@ -64,13 +64,11 @@ export interface WritingValidationEvent {
 export interface WritingUiOptions {
   showExpectedPreview: boolean;
   showValidationResults: boolean;
-  showUndoRedo: boolean;
-  showReset: boolean;
+  showValidateButton: boolean;
 }
 
 export const DEFAULT_WRITING_UI: WritingUiOptions = {
   showExpectedPreview: true,
   showValidationResults: true,
-  showUndoRedo: true,
-  showReset: true,
+  showValidateButton: true,
 };

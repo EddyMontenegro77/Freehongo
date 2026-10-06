@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  inject,
   input,
   output,
   signal,
@@ -17,7 +18,11 @@ import { StrokeValidationResult } from '../../models/stroke-validation-result.in
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { WritingValidation } from '../writing-validation/writing-validation';
-import { WritingValidationEvent } from '../../../../shared/models/quizes/quizes.interface';
+import {
+  DEFAULT_WRITING_UI,
+  WritingUiOptions,
+  WritingValidationEvent,
+} from '../../../../shared/models/quizes/quizes.interface';
 
 @Component({
   selector: 'app-writing-canvas',
@@ -47,11 +52,11 @@ export class WritingCanvas {
   hasValidationResults = false;
   strokeResults: StrokeValidationResult[] = [];
 
-  constructor(
-    private strokeService: StrokeService,
-    private canvasRenderService: CanvasRenderService,
-    private strokeValidationService: StrokeValidationService,
-  ) {}
+  readonly ui = input<WritingUiOptions>(DEFAULT_WRITING_UI);
+
+  private strokeService = inject(StrokeService);
+  private canvasRenderService = inject(CanvasRenderService);
+  private strokeValidationService = inject(StrokeValidationService);
 
   ngAfterViewInit() {
     const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {

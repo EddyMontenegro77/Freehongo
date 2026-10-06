@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -18,7 +19,11 @@ import {
   isValidCharacterType,
   isValidUnicode,
 } from '../../../../shared/models/japanese/character.helper';
-import { WritingValidationEvent } from '../../../../shared/models/quizes/quizes.interface';
+import {
+  DEFAULT_WRITING_UI,
+  WritingUiOptions,
+  WritingValidationEvent,
+} from '../../../../shared/models/quizes/quizes.interface';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -36,6 +41,12 @@ export class WritingPractice {
   readonly height = 456;
   unicode = input.required<string>();
   type = input.required<CharacterType>();
+
+  readonly ui = input<Partial<WritingUiOptions>>({});
+  protected readonly options = computed<WritingUiOptions>(() => ({
+    ...DEFAULT_WRITING_UI,
+    ...this.ui(),
+  }));
 
   readonly validationCompleted = output<WritingValidationEvent>();
 
@@ -80,6 +91,10 @@ export class WritingPractice {
 
   retry = (): void => {
     this.loadPractice(this.unicode(), this.type());
+  };
+
+  validate = async (): Promise<void> => {
+    await this.writingCanvas.getSequenceValidationResults();
   };
 
   reset(): void {
