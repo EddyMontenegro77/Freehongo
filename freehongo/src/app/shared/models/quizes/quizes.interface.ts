@@ -1,3 +1,5 @@
+import { StrokeValidationResult } from '../../../features/writing/models/stroke-validation-result.interface';
+
 export type CharacterQuizType =
   | 'characterToReading'
   | 'readingToCharacter'
@@ -13,7 +15,7 @@ export type AnswerType = 'multiple' | 'open' | 'flashcard' | 'keyBoardWriting' |
 export type QuizMode = 'practice' | 'evaluation';
 export type QuizOrder = 'random' | 'list';
 
-export type ImplementedAnswerType = Extract<AnswerType, 'multiple' | 'open'>;
+export type ImplementedAnswerType = Extract<AnswerType, 'multiple' | 'open' | 'strokeWriting'>;
 
 export interface QuizSettings {
   characterQuizType: CharacterQuizType;
@@ -51,3 +53,24 @@ export interface QuizEvaluationResult {
   total: number;
   answers: QuizAnswerResult[];
 }
+
+export interface WritingValidationEvent {
+  unicode: string;
+  isValid: boolean;
+  sequenceError: string;
+  strokeResults: StrokeValidationResult[];
+}
+
+export interface WritingUiOptions {
+  showExpectedPreview: boolean;
+  showValidationResults: boolean;
+  showUndoRedo: boolean;
+  showReset: boolean;
+}
+
+export const DEFAULT_WRITING_UI: WritingUiOptions = {
+  showExpectedPreview: true,
+  showValidationResults: true,
+  showUndoRedo: true,
+  showReset: true,
+};

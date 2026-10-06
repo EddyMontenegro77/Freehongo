@@ -27,12 +27,20 @@ export class Quizes {
       return;
     }
 
-    await this.router.navigate(['/quizes', settings.mode, this.selectedListId], {
-      queryParams: {
-        type: settings.characterQuizType,
-        answerType: settings.answerType,
-        order: settings.order,
-      },
-    });
+    if (settings.answerType === 'strokeWriting') {
+      await this.router.navigate(['/quizes', 'strokes', settings.mode, this.selectedListId], {
+        queryParams: {
+          order: settings.order,
+        },
+      });
+    } else {
+      await this.router.navigate(['/quizes', settings.mode, this.selectedListId], {
+        queryParams: {
+          type: settings.characterQuizType,
+          answerType: settings.answerType,
+          order: settings.order,
+        },
+      });
+    }
   };
 }

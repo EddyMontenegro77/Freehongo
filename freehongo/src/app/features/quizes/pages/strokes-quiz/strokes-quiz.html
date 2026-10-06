@@ -1,0 +1,6 @@
+<div>Strokes</div>
+<app-writing-practice
+  [unicode]="currentCharacter()"
+  [type]="type()"
+  (validationCompleted)="onValidationCompleted($event)"
+/>

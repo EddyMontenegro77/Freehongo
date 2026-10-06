@@ -1,4 +1,4 @@
-import { Component, output, ViewChild } from '@angular/core';
+import { Component, output, signal, ViewChild } from '@angular/core';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { SelectField, SelectOption } from '../../../../shared/components/select/select';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
@@ -23,7 +23,7 @@ export class QuizConfigWindow {
 
   mode: QuizMode = 'practice';
   quizType: CharacterQuizType = 'characterToReading';
-  answerType: ImplementedAnswerType = 'multiple';
+  answerType = signal<ImplementedAnswerType>('multiple');
   order: QuizOrder = 'random';
 
   readonly modeOptions: SelectOption<QuizMode>[] = [
@@ -38,9 +38,10 @@ export class QuizConfigWindow {
     { label: 'Meaning to character', value: 'meaningToCharacter' },
   ];
 
-  readonly answerTypeOptions: SelectOption<'multiple' | 'open'>[] = [
+  readonly answerTypeOptions: SelectOption<'multiple' | 'open' | 'strokeWriting'>[] = [
     { label: 'Multiple choice', value: 'multiple' },
     { label: 'Open answer', value: 'open' },
+    { label: 'Stroke Writing', value: 'strokeWriting' },
   ];
 
   readonly orderOptions: SelectOption<QuizOrder>[] = [
@@ -60,7 +61,7 @@ export class QuizConfigWindow {
     this.configSubmitted.emit({
       mode: this.mode,
       characterQuizType: this.quizType,
-      answerType: this.answerType,
+      answerType: this.answerType(),
       order: this.order,
     });
     this.close();

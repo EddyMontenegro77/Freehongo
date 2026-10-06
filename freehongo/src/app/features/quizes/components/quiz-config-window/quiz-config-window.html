@@ -8,19 +8,21 @@
       (valueChange)="mode = $event"
     />
     <app-select
-      label="Quiz type"
-      [options]="quizTypeOptions"
-      [value]="quizType"
-      [required]="true"
-      (valueChange)="quizType = $event"
-    />
-    <app-select
       label="Answer type"
       [options]="answerTypeOptions"
-      [value]="answerType"
+      [value]="answerType()"
       [required]="true"
-      (valueChange)="answerType = $event"
+      (valueChange)="answerType.set($event)"
     />
+    @if (answerType() !== 'strokeWriting') {
+      <app-select
+        label="Quiz type"
+        [options]="quizTypeOptions"
+        [value]="quizType"
+        [required]="true"
+        (valueChange)="quizType = $event"
+      />
+    }
     <app-select
       label="Order"
       [options]="orderOptions"

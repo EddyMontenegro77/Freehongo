@@ -1,4 +1,12 @@
-import { Component, ElementRef, HostListener, input, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  input,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
 import { Point } from '../../../../shared/models/writing/point.interface';
@@ -9,6 +17,7 @@ import { StrokeValidationResult } from '../../models/stroke-validation-result.in
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { WritingValidation } from '../writing-validation/writing-validation';
+import { WritingValidationEvent } from '../../../../shared/models/quizes/quizes.interface';
 
 @Component({
   selector: 'app-writing-canvas',
@@ -26,6 +35,8 @@ export class WritingCanvas {
   type = input.required<CharacterType>();
   expectedStrokes = input.required<Stroke[]>();
   expectedUrl = input.required<string>();
+
+  readonly validationCompleted = output<WritingValidationEvent>();
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -142,6 +153,13 @@ export class WritingCanvas {
     this.sequenceError = sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
     this.strokeResults = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
+
+    this.validationCompleted.emit({
+      unicode: this.unicode(),
+      isValid: this.isValidSequence,
+      sequenceError: this.sequenceError,
+      strokeResults: this.strokeResults,
+    });
   };
 
   resetCanvas = (): void => {
