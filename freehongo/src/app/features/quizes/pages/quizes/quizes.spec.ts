@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { Quizes } from './quizes';
 import { ListsDisplay } from '../../../../shared/components/character-lists/lists-display/lists-display';
 import { QuizConfigWindow } from '../../components/quiz-config-window/quiz-config-window';
+import { shortenUuid } from '../../../../shared/utils/urls.utils';
 
 describe('Quizes', () => {
   let component: Quizes;
@@ -19,8 +20,7 @@ describe('Quizes', () => {
     await TestBed.configureTestingModule({
       imports: [Quizes],
       providers: [{ provide: Router, useValue: routerMock }],
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Quizes);
     component = fixture.componentInstance;
@@ -46,13 +46,11 @@ describe('Quizes', () => {
   });
 
   it('opens configuration when the real lists display emits a selected list', () => {
-    const configWindow = fixture.debugElement.query(
-      By.directive(QuizConfigWindow),
-    ).componentInstance as QuizConfigWindow;
+    const configWindow = fixture.debugElement.query(By.directive(QuizConfigWindow))
+      .componentInstance as QuizConfigWindow;
     const open = vi.spyOn(configWindow, 'open');
-    const listsDisplay = fixture.debugElement.query(
-      By.directive(ListsDisplay),
-    ).componentInstance as ListsDisplay;
+    const listsDisplay = fixture.debugElement.query(By.directive(ListsDisplay))
+      .componentInstance as ListsDisplay;
 
     listsDisplay.quizSelected.emit('list-1');
 
@@ -70,7 +68,7 @@ describe('Quizes', () => {
     });
 
     expect(routerMock.navigate).toHaveBeenCalledWith(
-      ['/quizes', 'evaluation', 'list-1'],
+      ['/quizes', 'evaluation', shortenUuid('list-1')],
       {
         queryParams: {
           type: 'readingToCharacter',

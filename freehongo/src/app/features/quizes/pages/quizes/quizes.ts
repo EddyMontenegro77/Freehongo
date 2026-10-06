@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ListsDisplay } from '../../../../shared/components/character-lists/lists-display/lists-display';
 import { QuizConfigWindow } from '../../components/quiz-config-window/quiz-config-window';
 import { QuizSettings } from '../../../../shared/models/quizes/quizes.interface';
+import { shortenUuid } from '../../../../shared/utils/urls.utils';
 
 @Component({
   selector: 'app-quizes',
@@ -28,13 +29,16 @@ export class Quizes {
     }
 
     if (settings.answerType === 'strokeWriting') {
-      await this.router.navigate(['/quizes', 'strokes', settings.mode, this.selectedListId], {
-        queryParams: {
-          order: settings.order,
+      await this.router.navigate(
+        ['/quizes', 'strokes', settings.mode, shortenUuid(this.selectedListId)],
+        {
+          queryParams: {
+            order: settings.order,
+          },
         },
-      });
+      );
     } else {
-      await this.router.navigate(['/quizes', settings.mode, this.selectedListId], {
+      await this.router.navigate(['/quizes', settings.mode, shortenUuid(this.selectedListId)], {
         queryParams: {
           type: settings.characterQuizType,
           answerType: settings.answerType,

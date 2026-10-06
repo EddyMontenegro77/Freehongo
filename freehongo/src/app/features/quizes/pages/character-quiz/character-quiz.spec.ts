@@ -3,6 +3,9 @@ import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { CharacterQuiz } from './character-quiz';
 import { CharacterQuizFacade } from '../../services/character-quiz.facade.service';
+import { shortenUuid } from '../../../../shared/utils/urls.utils';
+
+const LIST_UUID = '481476ec-b9a1-4fc9-b5a7-ff67b4c756e8';
 
 describe('CharacterQuiz', () => {
   let component: CharacterQuiz;
@@ -36,7 +39,10 @@ describe('CharacterQuiz', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({ mode: 'practice', listId: 'list-1' }),
+              paramMap: convertToParamMap({
+                mode: 'practice',
+                listId: shortenUuid(LIST_UUID),
+              }),
               queryParamMap: convertToParamMap({
                 type: 'characterToReading',
                 answerType: 'open',
@@ -57,7 +63,7 @@ describe('CharacterQuiz', () => {
 
   it('loads quiz configuration from the route', () => {
     expect(facadeMock.load).toHaveBeenCalledWith({
-      listId: 'list-1',
+      listId: LIST_UUID,
       characterQuizType: 'characterToReading',
       answerType: 'open',
       mode: 'practice',
@@ -74,11 +80,13 @@ describe('CharacterQuiz', () => {
   });
 
   it('shows immediate feedback during practice', async () => {
-    facadeMock.questions.set([{
-      prompt: 'What is the reading?',
-      acceptedAnswers: ['gaku'],
-      characterUnicode: '5B66',
-    }]);
+    facadeMock.questions.set([
+      {
+        prompt: 'What is the reading?',
+        acceptedAnswers: ['gaku'],
+        characterUnicode: '5B66',
+      },
+    ]);
     facadeMock.hasAnswered.set(true);
     facadeMock.lastAnswerCorrect.set(false);
     await fixture.whenStable();
@@ -89,21 +97,23 @@ describe('CharacterQuiz', () => {
 
   it('does not reveal answer feedback during evaluation', async () => {
     component.config.set({
-      listId: 'list-1',
+      listId: LIST_UUID,
       characterQuizType: 'characterToReading',
       answerType: 'multiple',
       mode: 'evaluation',
       order: 'list',
     });
-    facadeMock.questions.set([{
-      prompt: 'What is the reading?',
-      acceptedAnswers: ['gaku'],
-      characterUnicode: '5B66',
-      options: [
-        { value: 'gaku', label: 'gaku' },
-        { value: 'manabu', label: 'manabu' },
-      ],
-    }]);
+    facadeMock.questions.set([
+      {
+        prompt: 'What is the reading?',
+        acceptedAnswers: ['gaku'],
+        characterUnicode: '5B66',
+        options: [
+          { value: 'gaku', label: 'gaku' },
+          { value: 'manabu', label: 'manabu' },
+        ],
+      },
+    ]);
     facadeMock.hasAnswered.set(true);
     facadeMock.lastAnswerCorrect.set(true);
     await fixture.whenStable();
@@ -115,7 +125,7 @@ describe('CharacterQuiz', () => {
 
   it('shows the answer review after an evaluation', () => {
     component.config.set({
-      listId: 'list-1',
+      listId: LIST_UUID,
       characterQuizType: 'characterToReading',
       answerType: 'open',
       mode: 'evaluation',
@@ -130,9 +140,7 @@ describe('CharacterQuiz', () => {
         characterUnicode: '5B66',
       },
     ]);
-    facadeMock.answers.set([
-      { characterUnicode: '5B66', answer: 'manabu', correct: false },
-    ]);
+    facadeMock.answers.set([{ characterUnicode: '5B66', answer: 'manabu', correct: false }]);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Evaluation complete');

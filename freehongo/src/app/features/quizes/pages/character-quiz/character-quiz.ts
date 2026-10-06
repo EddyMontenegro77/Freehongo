@@ -13,6 +13,7 @@ import {
   QuizOrder,
 } from '../../../../shared/models/quizes/quizes.interface';
 import { CharacterQuizFacade } from '../../services/character-quiz.facade.service';
+import { expandUuid } from '../../../../shared/utils/urls.utils';
 
 @Component({
   selector: 'app-character-quiz',
@@ -63,12 +64,20 @@ export class CharacterQuiz {
 
   private readConfig(): CharacterQuizConfig {
     return {
-      listId: this.route.snapshot.paramMap.get('listId') ?? '',
+      listId: this.readListId(this.route.snapshot.paramMap.get('listId')),
       mode: this.readMode(this.route.snapshot.paramMap.get('mode')),
       characterQuizType: this.readQuizType(this.route.snapshot.queryParamMap.get('type')),
       answerType: this.readAnswerType(this.route.snapshot.queryParamMap.get('answerType')),
       order: this.readOrder(this.route.snapshot.queryParamMap.get('order')),
     };
+  }
+
+  private readListId(value: string | null): string {
+    try {
+      return expandUuid(value ?? '');
+    } catch {
+      return '';
+    }
   }
 
   private readMode(value: string | null): QuizMode {

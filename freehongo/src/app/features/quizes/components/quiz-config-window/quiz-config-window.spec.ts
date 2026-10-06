@@ -8,9 +8,8 @@ describe('QuizConfigWindow', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QuizConfigWindow]
-    })
-    .compileComponents();
+      imports: [QuizConfigWindow],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuizConfigWindow);
     component = fixture.componentInstance;
@@ -24,7 +23,7 @@ describe('QuizConfigWindow', () => {
   it('exposes the supported quiz configuration options', () => {
     expect(component.modeOptions).toHaveLength(2);
     expect(component.quizTypeOptions).toHaveLength(4);
-    expect(component.answerTypeOptions).toHaveLength(2);
+    expect(component.answerTypeOptions).toHaveLength(3);
     expect(component.orderOptions).toHaveLength(2);
   });
 
@@ -34,7 +33,7 @@ describe('QuizConfigWindow', () => {
     (component as any).modal = { close: vi.fn() };
     component.mode = 'evaluation';
     component.quizType = 'readingToCharacter';
-    component.answerType = 'open';
+    component.answerType.set('open');
     component.order = 'list';
 
     component.submit();

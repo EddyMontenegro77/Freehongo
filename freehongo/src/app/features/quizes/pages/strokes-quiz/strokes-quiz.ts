@@ -11,6 +11,7 @@ import {
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { getCharacterTypeFromUnicode } from '../../../../shared/models/japanese/character.helper';
 import { shuffleCharacters } from '../../../../shared/models/lists/list.model';
+import { expandUuid } from '../../../../shared/utils/urls.utils';
 
 @Component({
   selector: 'app-strokes-quiz',
@@ -34,7 +35,7 @@ export class StrokesQuiz {
 
   async ngOnInit(): Promise<void> {
     const mode = this.route.snapshot.paramMap.get('mode');
-    const listId = this.route.snapshot.paramMap.get('listId');
+    const shortenListId = this.route.snapshot.paramMap.get('listId');
     const order = this.route.snapshot.queryParamMap.get('order');
 
     if (mode !== 'practice' && mode !== 'evaluation') {
@@ -42,11 +43,11 @@ export class StrokesQuiz {
       return;
     }
 
-    if (!listId) {
+    if (!shortenListId) {
       console.warn('sin listId');
       return;
     }
-
+    const listId = expandUuid(shortenListId);
     const list = await this.listService.getListById(listId);
 
     if (!list || list.characters.length < 2) {
