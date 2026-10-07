@@ -18,6 +18,7 @@ import { StrokeValidationResult } from '../../models/stroke-validation-result.in
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { WritingValidation } from '../writing-validation/writing-validation';
+import { WritingStrokeGuide } from '../writing-stroke-guide/writing-stroke-guide';
 import {
   DEFAULT_WRITING_UI,
   WritingUiOptions,
@@ -27,12 +28,13 @@ import {
 @Component({
   selector: 'app-writing-canvas',
   standalone: true,
-  imports: [ActionBtn, WritingValidation],
+  imports: [ActionBtn, WritingValidation, WritingStrokeGuide],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(WritingStrokeGuide) private strokeGuide?: WritingStrokeGuide;
 
   width = input.required<number>();
   height = input.required<number>();
@@ -42,6 +44,8 @@ export class WritingCanvas {
   expectedUrl = input.required<string>();
 
   readonly validationCompleted = output<WritingValidationEvent>();
+
+  readonly showPreview = signal(false);
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -195,5 +199,14 @@ export class WritingCanvas {
     if (!this.canvasRenderService.redoCanvasSnapshot()) {
       this.canvasRenderService.renderAllStrokes(this.strokeService.getStrokes());
     }
+  };
+
+  togglePreview = (): void => {
+    this.showPreview.update((visible) => !visible);
+  };
+
+  /** Restarts the stroke-order animation of the guide. */
+  replayGuide = (): void => {
+    this.strokeGuide?.play();
   };
 }

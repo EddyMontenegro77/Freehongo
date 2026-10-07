@@ -1,25 +1,51 @@
 <div class="writing-canvas-container">
   <section class="canvas-section" aria-label="canvas-section">
-    <canvas
-      #writingCanvas
-      (pointerdown)="onPointerDown($event)"
-      (pointerup)="onPointerUp($event)"
-      (pointermove)="onPointerMove($event)"
-      [width]="width()"
-      [height]="height()"
-    >
-    </canvas>
-    <section class="canvas-btns" aria-label="canvas-buttons">
-      @if (ui().showValidateButton) {
-        <app-action-btn title="Validate" [action]="getSequenceValidationResults" />
+    <div class="canvas-stage">
+      <canvas
+        #writingCanvas
+        (pointerdown)="onPointerDown($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointermove)="onPointerMove($event)"
+        [width]="width()"
+        [height]="height()"
+      >
+      </canvas>
+
+      @if (ui().showExpectedPreview && showPreview()) {
+        <app-writing-stroke-guide
+          class="canvas-overlay"
+          [strokes]="expectedStrokes()"
+          [width]="width()"
+          [height]="height()"
+        />
       }
-      <app-action-btn title="Reset" [action]="resetCanvas" />
+    </div>
+
+    <section class="canvas-tools" aria-label="canvas-tools">
       <app-action-btn title="Undo" [action]="undoStroke" />
       <app-action-btn title="Redo" [action]="redoStroke" />
+      <app-action-btn title="Reset" [action]="resetCanvas" />
+      @if (ui().showExpectedPreview) {
+        <app-action-btn
+          [title]="showPreview() ? 'Hide guide' : 'Show guide'"
+          [action]="togglePreview"
+        />
+        @if (showPreview()) {
+          <app-action-btn title="Replay" [action]="replayGuide" />
+        }
+      }
     </section>
+
+    @if (ui().showValidateButton) {
+      <app-action-btn
+        class="validate-btn"
+        title="Validate"
+        [action]="getSequenceValidationResults"
+      />
+    }
   </section>
 
-  @if (ui().showExpectedPreview || ui().showValidationResults) {
+  @if (ui().showValidationResults) {
     <app-writing-validation
       [expectedUrl]="expectedUrl()"
       [hasValidationResults]="hasValidationResults"

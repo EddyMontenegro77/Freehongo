@@ -12,7 +12,28 @@
         Write the next character in the canvas:
         <strong class="current-character">{{ currentCharacter() | unicodeCharacter }}</strong>
       </h1>
-      <p class="quiz-progress" aria-live="polite">{{ progressLabel() }}</p>
+
+      <nav class="quiz-nav" aria-label="quiz-navigation">
+        <div class="quiz-nav__prev">
+          @if (mode() === 'practice') {
+            <app-action-btn
+              title="Previous"
+              [action]="previousCharacter"
+              [disabled]="isFirstCharacter()"
+            />
+          }
+        </div>
+
+        <span class="quiz-progress" aria-live="polite">{{ progressLabel() }}</span>
+
+        <div class="quiz-nav__next">
+          @if (isLastCharacter()) {
+            <app-action-btn title="Finish" [action]="finish" />
+          } @else {
+            <app-action-btn title="Next" [action]="nextCharacter" />
+          }
+        </div>
+      </nav>
     </header>
 
     <app-writing-practice
@@ -21,20 +42,5 @@
       [type]="type()"
       (validationCompleted)="onValidationCompleted($event)"
     />
-
-    <section class="quiz-actions" aria-label="quiz-actions">
-      @if (mode() === 'practice') {
-        <app-action-btn
-          title="Previous"
-          [action]="previousCharacter"
-          [disabled]="isFirstCharacter()"
-        />
-      }
-      @if (isLastCharacter()) {
-        <app-action-btn title="Finish" [action]="finish" />
-      } @else {
-        <app-action-btn title="Next" [action]="nextCharacter" />
-      }
-    </section>
   }
 </main>
