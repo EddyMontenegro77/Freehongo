@@ -2,6 +2,10 @@ import { Point } from '../../../shared/models/writing/point.interface';
 import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 /**
+ * Normalizes every stroke on its own: each one is moved to the origin and scaled
+ * to its own box. Good to compare SHAPE and DIRECTION, but it throws away where
+ * the stroke was and how big it was relative to the others.
+ *
  * @param strokes:Stroke[]
  * @returns normalizedStrokes:Stroke[]
  */
@@ -14,6 +18,46 @@ export function normalizeStrokes(strokes: Stroke[]): Stroke[] {
     normalizedStrokes.push(strokeCopy);
   }
   return normalizedStrokes;
+}
+
+/**
+ * Normalizes all strokes TOGETHER: each one is resampled, then the whole character
+ * is moved and scaled once, into a single targetSize box. The relative position and
+ * size of the strokes survive, so similar strokes (parallel lines, repeated shapes)
+ * can still be told apart. Needed to check stroke ORDER.
+ *
+ * @param strokes
+ * @param targetCount Points per stroke after resampling.
+ * @param targetSize Size of the box that holds the whole character.
+ * @returns New strokes, the originals are not modified.
+ */
+
+export function normalizeStrokeSet(
+  strokes: Stroke[],
+  targetCount = 32,
+  targetSize = 100,
+): Stroke[] {
+  const resampled = strokes.map((stroke) => resampleStroke(stroke.getPoints(), targetCount));
+  const scaled = scaleToBox(resampled.flat(), targetSize);
+
+  let offset = 0;
+
+  return strokes.map((stroke, index) => {
+    const count = resampled[index].length;
+    const strokeCopy = stroke.cloneStroke();
+
+    strokeCopy.setPoints(scaled.slice(offset, offset + count));
+    offset += count;
+
+    return strokeCopy;
+  });
+}
+
+function resampleStroke(points: Point[], targetCount: number): Point[] {
+  if (points.length === 0) return [];
+  if (points.length === 1) return Array.from({ length: targetCount }, () => ({ ...points[0] }));
+
+  return resamplePoints(points, targetCount);
 }
 
 /**

@@ -18,9 +18,10 @@ import {
 
 @Component({ selector: 'app-writing-validation', template: '' })
 class StubWritingValidation {
+  readonly expectedUrl = input<string>('');
   readonly hasValidationResults = input<boolean>(false);
   readonly isValidSequence = input<boolean>(false);
-  readonly sequenceError = input<string>('none');
+  readonly sequenceError = input<string>('');
   readonly strokeResults = input<unknown[]>([]);
 }
 
@@ -223,6 +224,8 @@ describe('WritingCanvas', () => {
 
     it('passes the validation state to the validation panel', () => {
       component.getSequenceValidationResults();
+      // Plain fields do not notify a zoneless view, so mark it by hand.
+      fixture.componentRef.changeDetectorRef.markForCheck();
       fixture.detectChanges();
 
       const panel: StubWritingValidation = fixture.debugElement.query(
