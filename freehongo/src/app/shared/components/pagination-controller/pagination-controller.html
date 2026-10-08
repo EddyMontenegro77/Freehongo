@@ -1,5 +1,10 @@
 <div class="pagination__wrapper">
-  <app-action-btn title="Previous" [action]="previousPage" [disabled]="currentPage() <= 1" />
+  <app-action-btn
+    title="Previous"
+    [action]="previousPage"
+    [disabled]="currentPage() <= 1"
+    variant="primary"
+  />
 
   <label class="pagination__field">
     <span class="pagination__label">Page</span>
@@ -14,7 +19,7 @@
     />
   </label>
 
-  <app-action-btn title="Go" [action]="selectPage" [disabled]="!canSelectPage()" />
+  <app-action-btn title="Go" [action]="selectPage" [disabled]="!canSelectPage()" variant="accent" />
 
-  <app-action-btn title="Next" [action]="nextPage" />
+  <app-action-btn title="Next" [action]="nextPage" variant="light" />
 </div>

@@ -41,7 +41,7 @@
         </div>
       }
 
-      <app-action-btn title="Back to quizzes" [action]="goToQuizMenu" />
+      <app-action-btn title="Back to quizzes" [action]="goToQuizMenu" variant="secondary" />
     </section>
   } @else if (quizFacade.currentQuestion(); as question) {
     <section class="quiz-card">
@@ -89,16 +89,13 @@
             (valueChange)="answer.set($event)"
           />
           @if (!quizFacade.hasAnswered()) {
-            <app-action-btn title="Submit" [action]="submitOpenAnswer" />
+            <app-action-btn title="Submit" [action]="submitOpenAnswer" variant="light" />
           }
         </div>
       }
 
       @if (quizFacade.hasAnswered() && isPractice()) {
-        <p
-          class="quiz-feedback"
-          [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()"
-        >
+        <p class="quiz-feedback" [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()">
           @if (quizFacade.lastAnswerCorrect()) {
             Correct
           } @else {
@@ -108,7 +105,7 @@
       }
 
       @if (quizFacade.hasAnswered()) {
-        <app-action-btn title="Next" [action]="nextQuestion" />
+        <app-action-btn title="Next" [action]="nextQuestion" variant="accent" />
       }
     </section>
   }
@@ -122,4 +119,4 @@
   cancelText="Stay here"
   [confirmAction]="goToQuizMenu"
   [cancelAction]="quizFacade.dismissEmptyList"
-/> 
+/>

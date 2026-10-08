@@ -22,16 +22,17 @@
     </div>
 
     <section class="canvas-tools" aria-label="canvas-tools">
-      <app-action-btn title="Undo" [action]="undoStroke" />
-      <app-action-btn title="Redo" [action]="redoStroke" />
-      <app-action-btn title="Reset" [action]="resetCanvas" />
+      <app-action-btn title="Undo" [action]="undoStroke" variant="primary" />
+      <app-action-btn title="Reset" [action]="resetCanvas" variant="danger" />
+      <app-action-btn title="Redo" [action]="redoStroke" variant="primary" />
       @if (ui().showExpectedPreview) {
         <app-action-btn
           [title]="showPreview() ? 'Hide guide' : 'Show guide'"
           [action]="togglePreview"
+          variant="light"
         />
         @if (showPreview()) {
-          <app-action-btn title="Replay" [action]="replayGuide" />
+          <app-action-btn title="Replay" [action]="replayGuide" variant="light" />
         }
       }
     </section>
@@ -41,6 +42,7 @@
         class="validate-btn"
         title="Validate"
         [action]="getSequenceValidationResults"
+        variant="accent"
       />
     }
   </section>

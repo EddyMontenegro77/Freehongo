@@ -26,7 +26,7 @@
           <h1>{{ currentList.name }}</h1>
           <span>Type: {{ currentList.type }}</span>
         </div>
-        <app-action-btn title="Edit" [action]="enterEditMode" />
+        <app-action-btn title="Edit" [action]="enterEditMode" variant="primary" />
       }
 
       @if (saveError(); as error) {
@@ -69,8 +69,18 @@
     </div>
     @if (editMode) {
       <div class="edit-actions">
-        <app-action-btn title="Cancel" [action]="cancelChanges" [disabled]="isSaving()" />
-        <app-action-btn title="Save" [action]="saveChanges" [disabled]="isSaving()" />
+        <app-action-btn
+          title="Cancel"
+          [action]="cancelChanges"
+          [disabled]="isSaving()"
+          variant="danger"
+        />
+        <app-action-btn
+          title="Save"
+          [action]="saveChanges"
+          [disabled]="isSaving()"
+          variant="success"
+        />
       </div>
     }
   }

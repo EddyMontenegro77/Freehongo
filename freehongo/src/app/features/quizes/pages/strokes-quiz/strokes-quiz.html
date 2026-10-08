@@ -20,6 +20,7 @@
               title="Previous"
               [action]="previousCharacter"
               [disabled]="isFirstCharacter()"
+              variant="primary"
             />
           }
         </div>
@@ -28,9 +29,9 @@
 
         <div class="quiz-nav__next">
           @if (isLastCharacter()) {
-            <app-action-btn title="Finish" [action]="finish" />
+            <app-action-btn title="Finish" [action]="finish" variant="light" />
           } @else {
-            <app-action-btn title="Next" [action]="nextCharacter" />
+            <app-action-btn title="Next" [action]="nextCharacter" variant="accent" />
           }
         </div>
       </nav>
