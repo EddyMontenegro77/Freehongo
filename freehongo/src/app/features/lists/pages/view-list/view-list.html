@@ -20,11 +20,18 @@
             [required]="true"
             (valueChange)="updateType($event)"
           />
+          <app-toggle-button
+            label="Public list"
+            [checked]="currentList.isPublic"
+            (checkedChange)="updatePublic($event)"
+          />
         </div>
       } @else {
         <div>
           <h1>{{ currentList.name }}</h1>
-          <span>Type: {{ currentList.type }}</span>
+          <span
+            >Type: {{ currentList.type }} · {{ currentList.isPublic ? 'Public' : 'Private' }}</span
+          >
         </div>
         <app-action-btn title="Edit" [action]="enterEditMode" variant="primary" />
       }

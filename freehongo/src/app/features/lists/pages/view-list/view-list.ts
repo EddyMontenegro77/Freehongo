@@ -15,6 +15,8 @@ import { LoadingState } from '../../../../shared/components/app-state/loading-st
 import { ErrorState } from '../../../../shared/components/app-state/error-state/error-state';
 import { Confirmation } from '../../../../shared/components/confirmation/confirmation';
 import { DatePipe } from '@angular/common';
+import { nowIso } from '../../../../shared/utils/date.utils';
+import { ToggleButton } from '../../../../shared/components/toggle-button/toggle-button';
 
 @Component({
   selector: 'app-view-list',
@@ -29,6 +31,7 @@ import { DatePipe } from '@angular/common';
     ErrorState,
     Confirmation,
     DatePipe,
+    ToggleButton,
   ],
   templateUrl: './view-list.html',
   styleUrl: './view-list.scss',
@@ -42,6 +45,7 @@ export class ViewList {
   modifiedList = signal<CharacterList | undefined>(undefined);
   editMode: boolean = false;
   isSaving = signal(false);
+  isListPublic = signal(false);
   saveError = signal<string | null>(null);
   isLoading = signal(true);
   loadError = signal<string | null>(null);
@@ -92,6 +96,14 @@ export class ViewList {
       return;
     }
     this.modifiedList.set({ ...list, name });
+  };
+
+  updatePublic = (isPublic: boolean): void => {
+    const list = this.modifiedList();
+
+    if (list) {
+      this.modifiedList.set({ ...list, isPublic });
+    }
   };
 
   updateType = (type: string): void => {
@@ -155,13 +167,15 @@ export class ViewList {
       await this.listsFacade.updateList(list.listId, {
         name: list.name.trim(),
         type: list.type,
+        isPublic: list.isPublic,
         characters: list.characters,
       });
 
-      const savedList = {
+      const savedList: CharacterList = {
         ...list,
         name: list.name.trim(),
-        updatedAt: new Date(),
+        updatedAt: nowIso(),
+        syncStatus: 'pending',
       };
 
       this.originalList.set(structuredClone(savedList));

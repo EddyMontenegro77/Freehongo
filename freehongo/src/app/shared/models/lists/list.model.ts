@@ -1,3 +1,4 @@
+import { nowIso } from '../../utils/date.utils';
 import { Character } from '../japanese/character.model';
 
 export type CharacterListType = 'hiragana' | 'katakana' | 'kanji' | 'mixed';
@@ -5,11 +6,13 @@ export type CharacterListType = 'hiragana' | 'katakana' | 'kanji' | 'mixed';
 export class CharacterList {
   listId: string = '';
   name: string = '';
+  isPublic: boolean = false;
   type: CharacterListType = 'mixed';
   characters: string[] = []; // unicodes
-  createdAt?: Date;
-  updatedAt?: Date;
-  syncStatus?: 'synced' | 'pending' | 'local-only' = 'local-only';
+  createdAt: string = nowIso();
+  deletedAt?: string;
+  updatedAt: string = nowIso();
+  syncStatus: 'synced' | 'pending' = 'pending';
 }
 
 export class ResolvedCharacterList {
