@@ -3,20 +3,32 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { WritingPractice } from '../../../writing/components/writing-practice/writing-practice';
 import { ListService } from '../../../lists/services/list.service';
+import { QuizEvaluationStorageService } from '../../services/quiz-evaluation-storage.service';
 import { CharacterResult, fromValidation, notAttempted } from '../../utils/stroke-quiz-results';
 
 import {
   QuizMode,
+  WritingAnswerResult,
+  WritingQuizResult,
   WritingUiOptions,
   WritingValidationEvent,
+  toWritingAttempt,
 } from '../../../../shared/models/quizes/quizes.interface';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { getCharacterTypeFromUnicode } from '../../../../shared/models/japanese/character.helper';
 import { shuffleCharacters } from '../../../../shared/models/lists/list.model';
 import { expandUuid } from '../../../../shared/utils/urls.utils';
+import { nowIso } from '../../../../shared/utils/date.utils';
 import { UnicodeCharacterPipe } from '../../../../shared/pipes/unicode.pipe';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokesQuizSummary } from '../../components/stroke-quiz-summary/stroke-quiz-summary';
+import { newId } from '../../../../shared/utils/uuid.utils';
+
+interface RecordedAttempt {
+  event: WritingValidationEvent;
+  responseTimeMs: number;
+  answeredAt: string;
+}
 
 @Component({
   selector: 'app-strokes-quiz',
@@ -31,11 +43,13 @@ export class StrokesQuiz {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly listService = inject(ListService);
+  private readonly evaluationStorage = inject(QuizEvaluationStorageService);
 
   readonly mode = signal<QuizMode>('practice');
   readonly currentCharacter = signal<string>('');
   readonly type = signal<CharacterType>('kana');
   readonly isFinished = signal(false);
+  readonly saveFailed = signal(false);
 
   private readonly characters = signal<string[]>([]);
   private readonly currentIndex = signal(0);
@@ -43,6 +57,12 @@ export class StrokesQuiz {
 
   private sourceCharacters: string[] = [];
   private shuffle = false;
+
+  // Data needed to persist an evaluation.
+  private listId = '';
+  private startedAt: Date | null = null;
+  private characterShownAt = 0;
+  private readonly attempts = new Map<string, RecordedAttempt>();
 
   readonly isReady = computed(() => this.characters().length > 0);
   readonly isFirstCharacter = computed(() => this.currentIndex() === 0);
@@ -70,6 +90,7 @@ export class StrokesQuiz {
     const mode = this.route.snapshot.paramMap.get('mode');
     const shortListId = this.route.snapshot.paramMap.get('listId');
     const order = this.route.snapshot.queryParamMap.get('order');
+    const quizType = this.route.snapshot.queryParamMap.get('type');
 
     if (mode !== 'practice' && mode !== 'evaluation') {
       console.warn('mode inválido', mode);
@@ -97,6 +118,7 @@ export class StrokesQuiz {
       return;
     }
 
+    this.listId = listId;
     this.sourceCharacters = list.characters;
     this.shuffle = order === 'random';
     this.startSession();
@@ -124,8 +146,14 @@ export class StrokesQuiz {
   };
 
   finish = async (): Promise<void> => {
+    if (this.isFinished()) {
+      return;
+    }
+
     await this.validateIfEvaluating();
+    // Show the summary first so the UI doesn't wait for the save.
     this.isFinished.set(true);
+    await this.saveEvaluation();
   };
 
   retry(): void {
@@ -141,6 +169,12 @@ export class StrokesQuiz {
     this.results.update((results) =>
       new Map(results).set(validation.unicode, fromValidation(validation)),
     );
+
+    this.attempts.set(validation.unicode, {
+      event: validation,
+      responseTimeMs: Math.max(0, Date.now() - this.characterShownAt),
+      answeredAt: nowIso(),
+    });
   }
 
   /** The Validate button is hidden in evaluation, so advancing has to validate the drawing. */
@@ -150,13 +184,62 @@ export class StrokesQuiz {
     }
   }
 
+  private async saveEvaluation(): Promise<void> {
+    // Practice sessions are not stored: the database has no column for the mode.
+    if (this.mode() !== 'evaluation' || !this.startedAt) {
+      return;
+    }
+
+    const answers = this.characters().flatMap((unicode): WritingAnswerResult[] => {
+      const attempt = this.attempts.get(unicode);
+
+      if (!attempt) {
+        return [];
+      }
+
+      return [
+        {
+          characterUnicode: unicode,
+          expectedAnswer: unicode,
+          correct: attempt.event.isValid,
+          responseTimeMs: attempt.responseTimeMs,
+          answeredAt: attempt.answeredAt,
+          // Replace the second argument with the real number of strokes the character has.
+          writing: toWritingAttempt(attempt.event, attempt.event.strokeResults.length),
+        },
+      ];
+    });
+
+    const result: WritingQuizResult = {
+      id: newId(),
+      listId: this.listId,
+      order: this.shuffle ? 'random' : 'list',
+      startedAt: this.startedAt.toISOString(),
+      completedAt: nowIso(),
+      score: answers.filter((answer) => answer.correct).length,
+      total: answers.length,
+      answerType: 'strokeWriting',
+      answers,
+    };
+
+    try {
+      await this.evaluationStorage.saveEvaluation(result);
+    } catch (error) {
+      console.error('Could not save the quiz evaluation', error);
+      this.saveFailed.set(true);
+    }
+  }
+
   private startSession(): void {
     this.characters.set(
       this.shuffle ? shuffleCharacters(this.sourceCharacters) : [...this.sourceCharacters],
     );
     this.currentIndex.set(0);
     this.results.set(new Map());
+    this.attempts.clear();
     this.isFinished.set(false);
+    this.saveFailed.set(false);
+    this.startedAt = new Date();
     this.setCurrentCharacter();
   }
 
@@ -176,5 +259,6 @@ export class StrokesQuiz {
 
     this.currentCharacter.set(character);
     this.type.set(type);
+    this.characterShownAt = Date.now();
   }
 }

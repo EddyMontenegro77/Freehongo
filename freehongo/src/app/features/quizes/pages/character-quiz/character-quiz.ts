@@ -6,9 +6,9 @@ import { LoadingState } from '../../../../shared/components/app-state/loading-st
 import { Confirmation } from '../../../../shared/components/confirmation/confirmation';
 import { InputField } from '../../../../shared/components/input/input';
 import {
+  AnswerType,
   CharacterQuizConfig,
   CharacterQuizType,
-  ImplementedAnswerType,
   QuizMode,
   QuizOrder,
 } from '../../../../shared/models/quizes/quizes.interface';
@@ -50,8 +50,13 @@ export class CharacterQuiz {
 
   isPractice = (): boolean => this.config()?.mode === 'practice';
 
-  getAnswerResult = (characterUnicode: string) =>
-    this.quizFacade.answers().find((answer) => answer.characterUnicode === characterUnicode);
+  getAnswerResult = (characterUnicode: string) => {
+    const result = this.quizFacade
+      .answers()
+      .find((answer) => answer.characterUnicode === characterUnicode);
+
+    return result && 'answer' in result ? result : undefined;
+  };
 
   goToQuizMenu = async (): Promise<void> => {
     await this.router.navigate(['/quizes']);
@@ -88,7 +93,7 @@ export class CharacterQuiz {
     return value === 'list' ? 'list' : 'random';
   }
 
-  private readAnswerType(value: string | null): ImplementedAnswerType {
+  private readAnswerType(value: string | null): AnswerType {
     return value === 'open' ? 'open' : 'multiple';
   }
 

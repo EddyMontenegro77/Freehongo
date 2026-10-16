@@ -3,8 +3,8 @@ import { Modal } from '../../../../shared/components/modal/modal';
 import { SelectField, SelectOption } from '../../../../shared/components/select/select';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import {
+  AnswerType,
   CharacterQuizType,
-  ImplementedAnswerType,
   QuizMode,
   QuizOrder,
   QuizSettings,
@@ -23,7 +23,7 @@ export class QuizConfigWindow {
 
   mode: QuizMode = 'practice';
   quizType: CharacterQuizType = 'characterToReading';
-  answerType = signal<ImplementedAnswerType>('multiple');
+  answerType = signal<AnswerType>('multiple');
   order: QuizOrder = 'random';
 
   readonly modeOptions: SelectOption<QuizMode>[] = [

@@ -5,16 +5,24 @@ import { JapaneseService } from '../../../shared/services/japanese/japanese.serv
 import { Character } from '../../../shared/models/japanese/character.model';
 import { getCharacterTypeFromUnicode } from '../../../shared/models/japanese/character.helper';
 import {
-  QuizAnswerResult,
   CharacterQuizConfig,
   CharacterQuizQuestion,
+  ChoiceAnswerResult,
+  QuizEvaluationResult,
+  WritingAnswerResult,
+  WritingValidationEvent,
+  toWritingAttempt,
 } from '../../../shared/models/quizes/quizes.interface';
+import { nowIso } from '../../../shared/utils/date.utils';
 import { ListsFacade } from '../../lists/services/lists.facade.service';
 import { QuizQuestionService } from './quiz-question.service';
 import { QuizEvaluationStorageService } from './quiz-evaluation-storage.service';
+import { newId } from '../../../shared/utils/uuid.utils';
 
 const MIN_CHARACTERS_AMOUNT = 2;
 const SUPPORTED_ANSWER_TYPES: readonly string[] = ['multiple', 'open', 'strokeWriting'];
+
+type AnswerResult = ChoiceAnswerResult | WritingAnswerResult;
 
 // ─────────────────────────────────────────────────────────────
 // Pure helpers
@@ -93,9 +101,12 @@ export class CharacterQuizFacade {
   readonly hasAnswered = signal(false);
   readonly lastAnswerCorrect = signal<boolean | null>(null);
   readonly isFinished = signal(false);
-  readonly answers = signal<QuizAnswerResult[]>([]);
+  readonly answers = signal<AnswerResult[]>([]);
+  readonly saveFailed = signal(false);
+
   private activeConfig: CharacterQuizConfig | null = null;
   private startedAt: Date | null = null;
+  private questionShownAt = 0;
 
   /** Returns the question currently being displayed, if the quiz has started. */
   currentQuestion = (): CharacterQuizQuestion | undefined => this.questions()[this.currentIndex()];
@@ -123,6 +134,10 @@ export class CharacterQuizFacade {
 
       const characters = await this.loadCharacters(list.characters);
       this.questions.set(this.buildQuestions(characters, config));
+
+      // Timing starts once the first question is ready, not while loading.
+      this.startedAt = new Date();
+      this.questionShownAt = Date.now();
     } catch (error) {
       console.error(error);
       this.error.set(error instanceof Error ? error.message : 'Could not load the quiz.');
@@ -131,7 +146,7 @@ export class CharacterQuizFacade {
     }
   }
 
-  /** Records one answer and compares it after normalizing its format. */
+  /** Records a multiple-choice or open answer, comparing it after normalizing its format. */
   submitAnswer(answer: string): void {
     const question = this.currentQuestion();
 
@@ -139,17 +154,30 @@ export class CharacterQuizFacade {
       return;
     }
 
-    this.registerAnswer(question, answer, isAnswerCorrect(answer, question));
+    this.registerAnswer(question, isAnswerCorrect(answer, question), { answer });
+  }
+
+  /** Records a stroke-writing answer from the validation event of the writing component. */
+  submitWritingAnswer(event: WritingValidationEvent, expectedStrokeCount: number): void {
+    const question = this.currentQuestion();
+
+    if (!question || this.hasAnswered()) {
+      return;
+    }
+
+    this.registerAnswer(question, event.isValid, {
+      writing: toWritingAttempt(event, expectedStrokeCount),
+    });
   }
 
   /** Advances after an answer and persists the session when it finishes. */
   nextQuestion(): void {
-    if (!this.hasAnswered()) {
+    if (!this.hasAnswered() || this.isFinished()) {
       return;
     }
 
     if (this.isLastQuestion()) {
-      this.finishQuiz();
+      void this.finishQuiz();
       return;
     }
 
@@ -165,6 +193,9 @@ export class CharacterQuizFacade {
     this.lastAnswerCorrect.set(null);
     this.answers.set([]);
     this.isFinished.set(false);
+    this.saveFailed.set(false);
+    this.startedAt = null;
+    this.questionShownAt = 0;
   }
 
   dismissEmptyList = (): void => {
@@ -179,7 +210,6 @@ export class CharacterQuizFacade {
     this.emptyList.set(false);
     this.resetSession();
     this.activeConfig = config;
-    this.startedAt = new Date();
   }
 
   private buildQuestions(
@@ -226,12 +256,23 @@ export class CharacterQuizFacade {
 
   // ── Answering and progress ──────────────────────────────────
 
-  private registerAnswer(question: CharacterQuizQuestion, answer: string, correct: boolean): void {
+  private registerAnswer(
+    question: CharacterQuizQuestion,
+    correct: boolean,
+    extra: Pick<ChoiceAnswerResult, 'answer'> | Pick<WritingAnswerResult, 'writing'>,
+  ): void {
     this.hasAnswered.set(true);
     this.lastAnswerCorrect.set(correct);
     this.answers.update((answers) => [
       ...answers,
-      { characterUnicode: question.characterUnicode, answer, correct },
+      {
+        characterUnicode: question.characterUnicode,
+        expectedAnswer: question.acceptedAnswers[0],
+        correct,
+        responseTimeMs: Date.now() - this.questionShownAt,
+        answeredAt: nowIso(),
+        ...extra,
+      },
     ]);
 
     if (correct) {
@@ -247,36 +288,63 @@ export class CharacterQuizFacade {
     this.currentIndex.update((index) => index + 1);
     this.hasAnswered.set(false);
     this.lastAnswerCorrect.set(null);
-  }
-
-  private finishQuiz(): void {
-    this.isFinished.set(true);
-    this.saveEvaluation();
+    this.questionShownAt = Date.now();
   }
 
   // ── Persistence ─────────────────────────────────────────────
 
-  /** Persists results only in evaluation mode; practice remains transient. */
-  private saveEvaluation(): void {
-    if (this.activeConfig?.mode !== 'evaluation' || !this.startedAt) {
+  private async finishQuiz(): Promise<void> {
+    // Show the result first so the UI doesn't wait for the save.
+    this.isFinished.set(true);
+
+    const config = this.activeConfig;
+    const startedAt = this.startedAt;
+
+    // Practice sessions are not stored: the database has no column for the mode.
+    if (!config || !startedAt || config.mode !== 'evaluation') {
       return;
     }
 
-    this.evaluationStorage.save(this.buildEvaluation(this.activeConfig, this.startedAt));
+    try {
+      await this.evaluationStorage.saveEvaluation(this.buildResult(config, startedAt));
+    } catch (error) {
+      console.error('Could not save the quiz evaluation', error);
+      this.saveFailed.set(true);
+    }
   }
 
-  private buildEvaluation(config: CharacterQuizConfig, startedAt: Date) {
-    return {
-      id: crypto.randomUUID(),
+  private buildResult(config: CharacterQuizConfig, startedAt: Date): QuizEvaluationResult {
+    const base = {
+      id: newId(),
       listId: config.listId,
-      characterQuizType: config.characterQuizType,
-      answerType: config.answerType,
       order: config.order,
       startedAt: startedAt.toISOString(),
-      completedAt: new Date().toISOString(),
+      completedAt: nowIso(),
       score: this.score(),
       total: this.questions().length,
-      answers: this.answers(),
+    };
+    const answers = this.answers();
+
+    if (config.answerType === 'strokeWriting') {
+      if (
+        config.characterQuizType !== 'readingToCharacter' &&
+        config.characterQuizType !== 'meaningToCharacter'
+      ) {
+        throw new Error('Stroke writing needs a character-target quiz type.');
+      }
+
+      return {
+        ...base,
+        answerType: 'strokeWriting',
+        answers: answers as WritingAnswerResult[],
+      };
+    }
+
+    return {
+      ...base,
+      answerType: config.answerType,
+      characterQuizType: config.characterQuizType,
+      answers: answers as ChoiceAnswerResult[],
     };
   }
 }

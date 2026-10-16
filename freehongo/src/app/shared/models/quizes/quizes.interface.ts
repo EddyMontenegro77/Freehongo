@@ -11,15 +11,13 @@ export interface QuizOption {
   label: string;
 }
 
-export type AnswerType = 'multiple' | 'open' | 'flashcard' | 'keyBoardWriting' | 'strokeWriting';
+export type AnswerType = 'multiple' | 'open' | 'strokeWriting';
 export type QuizMode = 'practice' | 'evaluation';
 export type QuizOrder = 'random' | 'list';
 
-export type ImplementedAnswerType = Extract<AnswerType, 'multiple' | 'open' | 'strokeWriting'>;
-
 export interface QuizSettings {
   characterQuizType: CharacterQuizType;
-  answerType: ImplementedAnswerType;
+  answerType: AnswerType;
   mode: QuizMode;
   order: QuizOrder;
 }
@@ -35,30 +33,32 @@ export interface CharacterQuizQuestion {
   options?: QuizOption[];
 }
 
-export interface QuizAnswerResult {
-  characterUnicode: string;
-  answer: string;
-  correct: boolean;
+// ---------- Writing ----------
+
+export interface WritingAttemptResult {
+  strokeCountCorrect: boolean;
+  orderCorrect: boolean;
+  strokeResults: StrokeValidationResult[];
 }
 
-export interface QuizEvaluationResult {
-  id: string;
-  listId: string;
-  characterQuizType: CharacterQuizType;
-  answerType: AnswerType;
-  order: QuizOrder;
-  startedAt: string;
-  completedAt: string;
-  score: number;
-  total: number;
-  answers: QuizAnswerResult[];
-}
-
+/** UI Event: Emitted by writing component. Not saved. */
 export interface WritingValidationEvent {
   unicode: string;
   isValid: boolean;
   sequenceError: string;
   strokeResults: StrokeValidationResult[];
+}
+
+/** Converts UI event in what is intended to be saved. Call where expected strokes number is known*/
+export function toWritingAttempt(
+  e: WritingValidationEvent,
+  expectedStrokeCount: number,
+): WritingAttemptResult {
+  return {
+    strokeCountCorrect: e.strokeResults.length === expectedStrokeCount,
+    orderCorrect: e.sequenceError === '',
+    strokeResults: e.strokeResults,
+  };
 }
 
 export interface WritingUiOptions {
@@ -72,3 +72,47 @@ export const DEFAULT_WRITING_UI: WritingUiOptions = {
   showValidationResults: true,
   showValidateButton: true,
 };
+
+// ---------- Answers ----------
+
+interface BaseAnswerResult {
+  characterUnicode: string;
+  expectedAnswer: string;
+  correct: boolean;
+  responseTimeMs: number;
+  answeredAt: string; // ISO
+}
+
+export interface ChoiceAnswerResult extends BaseAnswerResult {
+  answer: string;
+  confusedWith?: string;
+}
+
+export interface WritingAnswerResult extends BaseAnswerResult {
+  writing: WritingAttemptResult;
+}
+
+// ---------- Eval results ----------
+
+interface BaseQuizResult {
+  id: string;
+  listId: string;
+  order: QuizOrder;
+  startedAt: string; // ISO
+  completedAt: string; // ISO
+  score: number;
+  total: number;
+}
+
+export interface ChoiceQuizResult extends BaseQuizResult {
+  answerType: 'multiple' | 'open';
+  characterQuizType: CharacterQuizType;
+  answers: ChoiceAnswerResult[];
+}
+
+export interface WritingQuizResult extends BaseQuizResult {
+  answerType: 'strokeWriting';
+  answers: WritingAnswerResult[];
+}
+
+export type QuizEvaluationResult = ChoiceQuizResult | WritingQuizResult;
