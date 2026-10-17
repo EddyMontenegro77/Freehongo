@@ -16,6 +16,8 @@ body {
   --color-accent: #a5def1;
   --color-light: #ebf7fd;
 
+  --canvas-bg: #cbd9e3;
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -97,4 +99,46 @@ body {
 
   background-color: var(--bg);
   color: var(--text);
+}
+
+button.primary {
+  --action-btn-bg: var(--color-primary);
+  --action-btn-text: var(--color-light);
+  --action-btn-hover-bg: var(--color-dark);
+  --action-btn-hover-text: var(--color-accent);
+}
+
+button.secondary {
+  --action-btn-bg: var(--color-dark);
+  --action-btn-text: var(--color-accent);
+  --action-btn-hover-bg: var(--color-accent);
+  --action-btn-hover-text: var(--color-dark);
+}
+
+button.light {
+  --action-btn-bg: var(--color-light);
+  --action-btn-text: var(--color-dark);
+  --action-btn-hover-bg: var(--color-accent);
+  --action-btn-hover-text: var(--color-dark);
+}
+
+button.accent {
+  --action-btn-bg: var(--color-accent);
+  --action-btn-text: var(--color-dark);
+  --action-btn-hover-bg: var(--color-light);
+  --action-btn-hover-text: var(--color-darkest);
+}
+
+button.danger {
+  --action-btn-bg: #dc2626;
+  --action-btn-text: #ffffff;
+  --action-btn-hover-bg: #b91c1c;
+  --action-btn-hover-text: #ffffff;
+}
+
+button.success {
+  --action-btn-bg: #15803d;
+  --action-btn-text: #ffffff;
+  --action-btn-hover-bg: #166534;
+  --action-btn-hover-text: #ffffff;
 }

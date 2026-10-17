@@ -20,13 +20,20 @@
             [required]="true"
             (valueChange)="updateType($event)"
           />
+          <app-toggle-button
+            label="Public list"
+            [checked]="currentList.isPublic"
+            (checkedChange)="updatePublic($event)"
+          />
         </div>
       } @else {
         <div>
           <h1>{{ currentList.name }}</h1>
-          <span>Type: {{ currentList.type }}</span>
+          <span
+            >Type: {{ currentList.type }} · {{ currentList.isPublic ? 'Public' : 'Private' }}</span
+          >
         </div>
-        <app-action-btn title="Edit" [action]="enterEditMode" />
+        <app-action-btn title="Edit" [action]="enterEditMode" variant="primary" />
       }
 
       @if (saveError(); as error) {
@@ -69,8 +76,18 @@
     </div>
     @if (editMode) {
       <div class="edit-actions">
-        <app-action-btn title="Cancel" [action]="cancelChanges" [disabled]="isSaving()" />
-        <app-action-btn title="Save" [action]="saveChanges" [disabled]="isSaving()" />
+        <app-action-btn
+          title="Cancel"
+          [action]="cancelChanges"
+          [disabled]="isSaving()"
+          variant="danger"
+        />
+        <app-action-btn
+          title="Save"
+          [action]="saveChanges"
+          [disabled]="isSaving()"
+          variant="success"
+        />
       </div>
     }
   }

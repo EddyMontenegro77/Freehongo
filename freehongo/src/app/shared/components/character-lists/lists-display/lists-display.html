@@ -5,7 +5,7 @@
       <h2>My lists</h2>
     </div>
     @if (!creatingList()) {
-      <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+      <app-action-btn title="Create a new list" [action]="toggleCreatingList" variant="accent" />
     }
   </header>
 
@@ -42,8 +42,8 @@
         (valueChange)="newListType.setValue($event)"
       />
       <div class="create-actions">
-        <app-action-btn title="Create" [action]="createList" />
-        <app-action-btn title="Cancel" [action]="toggleCreatingList" />
+        <app-action-btn title="Create" [action]="createList" variant="success" />
+        <app-action-btn title="Cancel" [action]="toggleCreatingList" variant="danger" />
       </div>
     </div>
   }
@@ -91,9 +91,15 @@
                 iconSrc="/add_icon_dark.svg"
                 [action]="() => listSelected.emit(list.listId)"
               />
+            } @else if (mode() === 'quiz') {
+              <app-action-btn title="Take quiz" [action]="() => quizSelected.emit(list.listId)" />
             } @else {
               <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
-              <app-action-btn title="Delete" [action]="() => requestDeleteList(list.listId)" />
+              <app-action-btn
+                title="Delete"
+                [action]="() => requestDeleteList(list.listId)"
+                variant="danger"
+              />
             }
           </div>
         </div>
@@ -101,13 +107,16 @@
         <div class="empty-state">
           <p>Lists not found</p>
           @if (!creatingList()) {
-            <app-action-btn title="Create a new list" [action]="toggleCreatingList" />
+            <app-action-btn
+              title="Create a new list"
+              [action]="toggleCreatingList"
+              variant="accent"
+            />
           }
         </div>
       }
     </div>
   }
-
 </div>
 
 <app-confirmation

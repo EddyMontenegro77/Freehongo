@@ -1,4 +1,13 @@
-import { Component, ElementRef, HostListener, input, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  input,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
 import { Point } from '../../../../shared/models/writing/point.interface';
@@ -9,16 +18,23 @@ import { StrokeValidationResult } from '../../models/stroke-validation-result.in
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
 import { WritingValidation } from '../writing-validation/writing-validation';
+import { WritingStrokeGuide } from '../writing-stroke-guide/writing-stroke-guide';
+import {
+  DEFAULT_WRITING_UI,
+  WritingUiOptions,
+  WritingValidationEvent,
+} from '../../../../shared/models/quizes/quizes.interface';
 
 @Component({
   selector: 'app-writing-canvas',
   standalone: true,
-  imports: [ActionBtn, WritingValidation],
+  imports: [ActionBtn, WritingValidation, WritingStrokeGuide],
   templateUrl: './writing-canvas.html',
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(WritingStrokeGuide) private strokeGuide?: WritingStrokeGuide;
 
   width = input.required<number>();
   height = input.required<number>();
@@ -26,6 +42,10 @@ export class WritingCanvas {
   type = input.required<CharacterType>();
   expectedStrokes = input.required<Stroke[]>();
   expectedUrl = input.required<string>();
+
+  readonly validationCompleted = output<WritingValidationEvent>();
+
+  readonly showPreview = signal(false);
 
   currentStroke: Stroke = new Stroke();
   lastPoint: Point = { x: -1, y: -1 };
@@ -36,11 +56,11 @@ export class WritingCanvas {
   hasValidationResults = false;
   strokeResults: StrokeValidationResult[] = [];
 
-  constructor(
-    private strokeService: StrokeService,
-    private canvasRenderService: CanvasRenderService,
-    private strokeValidationService: StrokeValidationService,
-  ) {}
+  readonly ui = input<WritingUiOptions>(DEFAULT_WRITING_UI);
+
+  private strokeService = inject(StrokeService);
+  private canvasRenderService = inject(CanvasRenderService);
+  private strokeValidationService = inject(StrokeValidationService);
 
   ngAfterViewInit() {
     const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {
@@ -142,6 +162,13 @@ export class WritingCanvas {
     this.sequenceError = sequenceErrorLabel(sequenceValidationResults.sequenceErrorType);
     this.strokeResults = sequenceValidationResults.strokeResults;
     this.hasValidationResults = true;
+
+    this.validationCompleted.emit({
+      unicode: this.unicode(),
+      isValid: this.isValidSequence,
+      sequenceError: this.sequenceError,
+      strokeResults: this.strokeResults,
+    });
   };
 
   resetCanvas = (): void => {
@@ -172,5 +199,14 @@ export class WritingCanvas {
     if (!this.canvasRenderService.redoCanvasSnapshot()) {
       this.canvasRenderService.renderAllStrokes(this.strokeService.getStrokes());
     }
+  };
+
+  togglePreview = (): void => {
+    this.showPreview.update((visible) => !visible);
+  };
+
+  /** Restarts the stroke-order animation of the guide. */
+  replayGuide = (): void => {
+    this.strokeGuide?.play();
   };
 }

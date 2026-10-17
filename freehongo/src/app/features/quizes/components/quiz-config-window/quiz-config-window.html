@@ -1,0 +1,38 @@
+<app-modal #modal title="Quiz Configuration">
+  <div modal-body>
+    <app-select
+      label="Quiz mode"
+      [options]="modeOptions"
+      [value]="mode"
+      [required]="true"
+      (valueChange)="mode = $event"
+    />
+    <app-select
+      label="Answer type"
+      [options]="answerTypeOptions"
+      [value]="answerType()"
+      [required]="true"
+      (valueChange)="answerType.set($event)"
+    />
+    @if (answerType() !== 'strokeWriting') {
+      <app-select
+        label="Quiz type"
+        [options]="quizTypeOptions"
+        [value]="quizType"
+        [required]="true"
+        (valueChange)="quizType = $event"
+      />
+    }
+    <app-select
+      label="Order"
+      [options]="orderOptions"
+      [value]="order"
+      [required]="true"
+      (valueChange)="order = $event"
+    />
+  </div>
+  <div modal-footer class="quiz-config-actions">
+    <app-action-btn title="Cancel" [action]="close" variant="secondary" />
+    <app-action-btn title="Start quiz" [action]="submit" variant="accent" />
+  </div>
+</app-modal>

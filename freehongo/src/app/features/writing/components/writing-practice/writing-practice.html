@@ -8,18 +8,20 @@
       title="Could not load practice"
       [message]="loadError()!"
       actionTitle="Retry"
-      [action]="loadPractice"
+      [action]="retry"
     />
   </section>
 } @else {
   <section class="writing-practice">
     <app-writing-canvas
+      [ui]="options()"
       [width]="width"
       [height]="height"
       [unicode]="unicode()"
       [type]="type()"
       [expectedStrokes]="expectedStrokes()"
       [expectedUrl]="expectedUrl()"
+      (validationCompleted)="validationCompleted.emit($event)"
     />
   </section>
 }
