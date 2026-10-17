@@ -1,11 +1,27 @@
 import { TestBed } from '@angular/core/testing';
+import { CharacterList } from '../../../shared/models/lists/list.model';
 import { ListService } from './list.service';
 import { ListsFacade } from './lists.facade.service';
+
+function makeList(overrides: Partial<CharacterList> = {}): CharacterList {
+  return {
+    listId: 'list-1',
+    name: 'Kana',
+    isPublic: false,
+    type: 'hiragana',
+    characters: [],
+    createdAt: '2026-10-16T10:00:00.000Z',
+    updatedAt: '2026-10-16T10:00:00.000Z',
+    syncStatus: 'pending',
+    ...overrides,
+  };
+}
 
 describe('ListsFacade', () => {
   let facade: ListsFacade;
   let listService: {
     getAllLists: ReturnType<typeof vi.fn>;
+    getListById: ReturnType<typeof vi.fn>;
     createList: ReturnType<typeof vi.fn>;
     addCharacterToList: ReturnType<typeof vi.fn>;
     updateList: ReturnType<typeof vi.fn>;
@@ -15,6 +31,7 @@ describe('ListsFacade', () => {
   beforeEach(() => {
     listService = {
       getAllLists: vi.fn(),
+      getListById: vi.fn(),
       createList: vi.fn(),
       addCharacterToList: vi.fn(),
       updateList: vi.fn(),
@@ -22,19 +39,20 @@ describe('ListsFacade', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        ListsFacade,
-        { provide: ListService, useValue: listService },
-      ],
+      providers: [ListsFacade, { provide: ListService, useValue: listService }],
     });
 
     facade = TestBed.inject(ListsFacade);
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('loads and filters lists', async () => {
     const lists = [
-      { listId: '1', name: 'Basic kanji', type: 'kanji', characters: [] },
-      { listId: '2', name: 'Hiragana', type: 'hiragana', characters: [] },
+      makeList({ listId: '1', name: 'Basic kanji', type: 'kanji' }),
+      makeList({ listId: '2', name: 'Hiragana', type: 'hiragana' }),
     ];
     listService.getAllLists.mockResolvedValue(lists);
 
@@ -47,6 +65,31 @@ describe('ListsFacade', () => {
     expect(facade.filteredLists()).toEqual([lists[0]]);
     expect(facade.isLoading()).toBe(false);
     expect(facade.loadError()).toBeNull();
+  });
+
+  it('filters by name ignoring case and surrounding spaces', async () => {
+    const lists = [
+      makeList({ listId: '1', name: 'Basic kanji', type: 'kanji' }),
+      makeList({ listId: '2', name: 'Hiragana', type: 'hiragana' }),
+    ];
+    listService.getAllLists.mockResolvedValue(lists);
+    await facade.loadLists();
+
+    facade.filterLists('  HIRA ', 'any');
+
+    expect(facade.filteredLists()).toEqual([lists[1]]);
+  });
+
+  it('clears the lists and reports an error when loading fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    listService.getAllLists.mockRejectedValue(new Error('db unavailable'));
+
+    await facade.loadLists();
+
+    expect(facade.lists()).toEqual([]);
+    expect(facade.filteredLists()).toEqual([]);
+    expect(facade.loadError()).toBe('Could not load lists.');
+    expect(facade.isLoading()).toBe(false);
   });
 
   it('delegates list mutations to the service', async () => {
@@ -63,12 +106,7 @@ describe('ListsFacade', () => {
   });
 
   it('updates loaded lists after adding a character', async () => {
-    const list = {
-      listId: 'list-1',
-      name: 'Kana',
-      type: 'hiragana' as const,
-      characters: [],
-    };
+    const list = makeList({ listId: 'list-1', characters: [] });
     facade.lists.set([list]);
     facade.filteredLists.set([list]);
     listService.addCharacterToList.mockResolvedValue(true);
@@ -79,8 +117,19 @@ describe('ListsFacade', () => {
     expect(facade.filteredLists()[0].characters).toEqual(['3042']);
   });
 
+  it('leaves the loaded lists untouched when the character was already there', async () => {
+    const list = makeList({ listId: 'list-1', characters: ['3042'] });
+    facade.lists.set([list]);
+    facade.filteredLists.set([list]);
+    listService.addCharacterToList.mockResolvedValue(false);
+
+    await expect(facade.addCharacterToList('list-1', '3042')).resolves.toBe(false);
+
+    expect(facade.lists()[0].characters).toEqual(['3042']);
+  });
+
   it('delegates list updates to the service', async () => {
-    const changes = { name: 'Updated name', characters: ['3042'] };
+    const changes = { name: 'Updated name', isPublic: true, characters: ['3042'] };
 
     await facade.updateList('list-1', changes);
 
@@ -91,5 +140,14 @@ describe('ListsFacade', () => {
     await facade.deleteList('list-1');
 
     expect(listService.deleteList).toHaveBeenCalledWith('list-1');
+  });
+
+  it('delegates the lookup of a list by id to the service', async () => {
+    const list = makeList({ listId: 'list-9' });
+    listService.getListById.mockResolvedValue(list);
+
+    await expect(facade.getListById('list-9')).resolves.toBe(list);
+
+    expect(listService.getListById).toHaveBeenCalledWith('list-9');
   });
 });

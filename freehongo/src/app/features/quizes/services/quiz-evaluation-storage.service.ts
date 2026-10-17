@@ -5,7 +5,7 @@ import {
   StoredQuizAnswer,
   StoredQuizSession,
 } from '../../../shared/models/quizes/quizes-storage.interface';
-import { db } from '../../../core/db/db';
+import { db, FreeHongoDB } from '../../../core/db/db';
 
 const MIN_QUESTIONS = 2;
 
@@ -81,6 +81,8 @@ function assertValid(r: QuizEvaluationResult): void {
 
 @Injectable({ providedIn: 'root' })
 export class QuizEvaluationStorageService {
+  protected database: FreeHongoDB = db;
+
   /**
    * Stores the session, its answers and the updated character stats in a single
    * transaction, so a session can never be saved without its answers.
@@ -91,11 +93,17 @@ export class QuizEvaluationStorageService {
     const session = toStoredQuizSession(result);
     const answers = toStoredAnswers(result);
 
-    await db.transaction('rw', db.quizSessions, db.quizAnswers, db.characterStats, async () => {
-      await db.quizSessions.add(session);
-      await db.quizAnswers.bulkAdd(answers);
-      await this.updateStats(result);
-    });
+    await this.database.transaction(
+      'rw',
+      this.database.quizSessions,
+      this.database.quizAnswers,
+      this.database.characterStats,
+      async () => {
+        await this.database.quizSessions.add(session);
+        await this.database.quizAnswers.bulkAdd(answers);
+        await this.updateStats(result);
+      },
+    );
   }
 
   /** One answer per character per session (guaranteed by assertValid), so one step each. */
@@ -103,7 +111,7 @@ export class QuizEvaluationStorageService {
     const keys = result.answers.map(
       (a) => [a.characterUnicode, result.answerType] as [string, string],
     );
-    const existing = await db.characterStats.bulkGet(keys);
+    const existing = await this.database.characterStats.bulkGet(keys);
 
     const updated: StoredCharacterStat[] = result.answers.map((a, i) => {
       const prev = existing[i];
@@ -121,6 +129,6 @@ export class QuizEvaluationStorageService {
       };
     });
 
-    await db.characterStats.bulkPut(updated);
+    await this.database.characterStats.bulkPut(updated);
   }
 }

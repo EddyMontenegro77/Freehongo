@@ -14,13 +14,13 @@ describe('CharacterQuizFacade', () => {
     getKanji: ReturnType<typeof vi.fn>;
   };
   let questionService: { createQuestions: ReturnType<typeof vi.fn> };
-  let evaluationStorage: { save: ReturnType<typeof vi.fn> };
+  let evaluationStorage: { saveEvaluation: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     listsFacade = { getListById: vi.fn() };
     japaneseService = { getKana: vi.fn(), getKanji: vi.fn() };
     questionService = { createQuestions: vi.fn() };
-    evaluationStorage = { save: vi.fn() };
+    evaluationStorage = { saveEvaluation: vi.fn().mockResolvedValue(undefined) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -34,6 +34,35 @@ describe('CharacterQuizFacade', () => {
 
     facade = TestBed.inject(CharacterQuizFacade);
   });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  /** Loads a one-question quiz in the given mode, ready to be answered. */
+  async function loadQuiz(mode: 'practice' | 'evaluation'): Promise<void> {
+    listsFacade.getListById.mockResolvedValue({
+      listId: 'list-1',
+      name: 'Kana',
+      type: 'hiragana',
+      characters: ['3042', '3044'],
+    });
+    japaneseService.getKana.mockReturnValue(
+      of({ unicode: '3042', literal: 'あ', type: 'hiragana', stroke_count: 3, reading: 'a' }),
+    );
+    questionService.createQuestions.mockReturnValue([
+      { prompt: 'Question', acceptedAnswers: ['a'], characterUnicode: '3042' },
+    ]);
+
+    await facade.load({
+      listId: 'list-1',
+      characterQuizType: 'characterToReading',
+      answerType: 'multiple',
+      mode,
+      order: 'list',
+    });
+  }
 
   it('loads a list and generates questions', async () => {
     listsFacade.getListById.mockResolvedValue({
@@ -88,6 +117,7 @@ describe('CharacterQuizFacade', () => {
   });
 
   it('rejects a quiz list with fewer than two characters', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     listsFacade.getListById.mockResolvedValue({
       listId: 'short',
       name: 'Short list',
@@ -153,32 +183,78 @@ describe('CharacterQuizFacade', () => {
     expect(facade.score()).toBe(0);
   });
 
-  it('saves results only when an evaluation is completed', async () => {
-    listsFacade.getListById.mockResolvedValue({
-      listId: 'list-1',
-      name: 'Kana',
-      type: 'hiragana',
-      characters: ['3042', '3044'],
-    });
-    japaneseService.getKana.mockReturnValue(
-      of({ unicode: '3042', literal: 'あ', type: 'hiragana', stroke_count: 3, reading: 'a' }),
-    );
-    questionService.createQuestions.mockReturnValue([
-      { prompt: 'Question', acceptedAnswers: ['a'], characterUnicode: '3042' },
-    ]);
+  it('records the expected answer and the time taken for each answer', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-16T10:00:00.000Z'));
+    await loadQuiz('evaluation');
 
-    await facade.load({
-      listId: 'list-1',
-      characterQuizType: 'characterToReading',
-      answerType: 'multiple',
-      mode: 'evaluation',
-      order: 'list',
+    vi.setSystemTime(new Date('2026-10-16T10:00:01.500Z'));
+    facade.submitAnswer('a');
+
+    expect(facade.answers()[0]).toMatchObject({
+      characterUnicode: '3042',
+      answer: 'a',
+      expectedAnswer: 'a',
+      correct: true,
+      responseTimeMs: 1500,
+      answeredAt: '2026-10-16T10:00:01.500Z',
     });
+  });
+
+  it('saves the result when an evaluation is completed', async () => {
+    await loadQuiz('evaluation');
     facade.submitAnswer('a');
     facade.nextQuestion();
 
-    expect(evaluationStorage.save).toHaveBeenCalledWith(
-      expect.objectContaining({ listId: 'list-1', score: 1, total: 1 }),
-    );
+    expect(facade.isFinished()).toBe(true);
+    expect(evaluationStorage.saveEvaluation).toHaveBeenCalledTimes(1);
+
+    const saved = evaluationStorage.saveEvaluation.mock.calls[0][0];
+    expect(saved).toMatchObject({
+      listId: 'list-1',
+      answerType: 'multiple',
+      characterQuizType: 'characterToReading',
+      order: 'list',
+      score: 1,
+      total: 1,
+    });
+    expect(saved.id).toEqual(expect.any(String));
+    expect(saved.answers[0]).toMatchObject({
+      characterUnicode: '3042',
+      answer: 'a',
+      expectedAnswer: 'a',
+      correct: true,
+    });
+  });
+
+  it('does not save a practice session', async () => {
+    await loadQuiz('practice');
+    facade.submitAnswer('a');
+    facade.nextQuestion();
+
+    expect(facade.isFinished()).toBe(true);
+    expect(evaluationStorage.saveEvaluation).not.toHaveBeenCalled();
+  });
+
+  it('does not save the same evaluation twice', async () => {
+    await loadQuiz('evaluation');
+    facade.submitAnswer('a');
+    facade.nextQuestion();
+    facade.nextQuestion();
+
+    expect(evaluationStorage.saveEvaluation).toHaveBeenCalledTimes(1);
+  });
+
+  it('flags a failed save without hiding the result', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    evaluationStorage.saveEvaluation.mockRejectedValue(new Error('disk full'));
+
+    await loadQuiz('evaluation');
+    facade.submitAnswer('a');
+    facade.nextQuestion();
+
+    await vi.waitFor(() => expect(facade.saveFailed()).toBe(true));
+    expect(facade.isFinished()).toBe(true);
+    expect(facade.error()).toBeNull();
   });
 });
