@@ -1,27 +1,59 @@
 <div class="writing-canvas-container">
   <section class="canvas-section" aria-label="canvas-section">
-    <canvas
-      #writingCanvas
-      (pointerdown)="onPointerDown($event)"
-      (pointerup)="onPointerUp($event)"
-      (pointermove)="onPointerMove($event)"
-      [width]="width()"
-      [height]="height()"
-    >
-    </canvas>
-    <section class="canvas-btns" aria-label="canvas-buttons">
-      <app-action-btn title="Validate" [action]="getSequenceValidationResults" />
-      <app-action-btn title="Reset" [action]="resetCanvas" />
-      <app-action-btn title="Undo" [action]="undoStroke" />
-      <app-action-btn title="Redo" [action]="redoStroke" />
+    <div class="canvas-stage">
+      <canvas
+        #writingCanvas
+        (pointerdown)="onPointerDown($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointermove)="onPointerMove($event)"
+        [width]="width()"
+        [height]="height()"
+      >
+      </canvas>
+
+      @if (ui().showExpectedPreview && showPreview()) {
+        <app-writing-stroke-guide
+          class="canvas-overlay"
+          [strokes]="expectedStrokes()"
+          [width]="width()"
+          [height]="height()"
+        />
+      }
+    </div>
+
+    <section class="canvas-tools" aria-label="canvas-tools">
+      <app-action-btn title="Undo" [action]="undoStroke" variant="primary" />
+      <app-action-btn title="Reset" [action]="resetCanvas" variant="danger" />
+      <app-action-btn title="Redo" [action]="redoStroke" variant="primary" />
+      @if (ui().showExpectedPreview) {
+        <app-action-btn
+          [title]="showPreview() ? 'Hide guide' : 'Show guide'"
+          [action]="togglePreview"
+          variant="light"
+        />
+        @if (showPreview()) {
+          <app-action-btn title="Replay" [action]="replayGuide" variant="light" />
+        }
+      }
     </section>
+
+    @if (ui().showValidateButton) {
+      <app-action-btn
+        class="validate-btn"
+        title="Validate"
+        [action]="getSequenceValidationResults"
+        variant="accent"
+      />
+    }
   </section>
 
-  <app-writing-validation
-    [expectedUrl]="expectedUrl()"
-    [hasValidationResults]="hasValidationResults"
-    [isValidSequence]="isValidSequence"
-    [sequenceError]="sequenceError"
-    [strokeResults]="strokeResults"
-  />
+  @if (ui().showValidationResults) {
+    <app-writing-validation
+      [expectedUrl]="expectedUrl()"
+      [hasValidationResults]="hasValidationResults"
+      [isValidSequence]="isValidSequence"
+      [sequenceError]="sequenceError"
+      [strokeResults]="strokeResults"
+    />
+  }
 </div>

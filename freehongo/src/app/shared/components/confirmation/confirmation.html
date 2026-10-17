@@ -1,17 +1,12 @@
 @if (open()) {
   <div class="confirmation-backdrop" role="presentation">
-    <section
-      class="confirmation"
-      role="alertdialog"
-      aria-modal="true"
-      [attr.aria-label]="title()"
-    >
+    <section class="confirmation" role="alertdialog" aria-modal="true" [attr.aria-label]="title()">
       <h2>{{ title() }}</h2>
       <p>{{ message() }}</p>
 
       <div class="confirmation__actions">
-        <app-action-btn [title]="cancelText()" [action]="cancelAction()" />
-        <app-action-btn [title]="confirmText()" [action]="confirmAction()" />
+        <app-action-btn [title]="cancelText()" [action]="cancelAction()" variant="danger" />
+        <app-action-btn [title]="confirmText()" [action]="confirmAction()" variant="success" />
       </div>
     </section>
   </div>

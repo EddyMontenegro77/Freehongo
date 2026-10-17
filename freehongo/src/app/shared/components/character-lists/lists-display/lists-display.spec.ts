@@ -58,6 +58,30 @@ describe('ListsDisplay', () => {
     expect(selected).toHaveBeenCalledWith('list-1');
   });
 
+  it('emits the selected list id in quiz mode', () => {
+    listsFacadeMock.filteredLists.set([
+      {
+        listId: 'list-1',
+        name: 'Basic kana',
+        type: 'hiragana',
+        characters: ['3042'],
+      },
+    ]);
+    fixture.componentRef.setInput('mode', 'quiz');
+
+    const selected = vi.fn();
+    component.quizSelected.subscribe(selected);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      '.list-display app-action-btn button',
+    ) as HTMLButtonElement;
+    button.click();
+
+    expect(selected).toHaveBeenCalledWith('list-1');
+    expect(fixture.nativeElement.querySelector('app-navigation-btn')).toBeNull();
+  });
+
   it('uses the compact layout only when requested', () => {
     expect(fixture.nativeElement.querySelector('.lists-container--compact')).toBeNull();
 

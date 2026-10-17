@@ -1,4 +1,4 @@
-import { Component, ViewChild, input } from '@angular/core';
+import { Component, ViewChild, inject, input } from '@angular/core';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { Modal } from '../../../../shared/components/modal/modal';
@@ -39,7 +39,7 @@ export class WritingValidation {
     },
   ];
 
-  constructor(public themeService: ThemeService) {}
+  themeService = inject(ThemeService);
 
   openExpectedModal = (): void => {
     this.expectedModal.open();

@@ -1,0 +1,20 @@
+<svg #svg class="guide" [attr.viewBox]="viewBox()" aria-hidden="true" focusable="false">
+  @for (stroke of guideStrokes(); track stroke.label) {
+    <path class="guide-stroke" [attr.d]="stroke.d" [attr.stroke-width]="strokeWidth()" />
+  }
+
+  @for (stroke of guideStrokes(); track stroke.label) {
+    <g class="guide-start">
+      <circle [attr.cx]="stroke.start.x" [attr.cy]="stroke.start.y" [attr.r]="markerRadius()" />
+      <text
+        [attr.x]="stroke.start.x"
+        [attr.y]="stroke.start.y"
+        [attr.font-size]="markerFont()"
+        text-anchor="middle"
+        dominant-baseline="central"
+      >
+        {{ stroke.label }}
+      </text>
+    </g>
+  }
+</svg>

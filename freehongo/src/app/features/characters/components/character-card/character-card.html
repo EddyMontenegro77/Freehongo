@@ -7,8 +7,16 @@
       <p class="char__literal">{{ literal() }}</p>
     </div>
     <div card-footer class="open__btns">
-      <app-action-btn title="Practice" [action]="openWritingPractice"></app-action-btn>
-      <app-action-btn title="Details" [action]="openCharacterDetails"></app-action-btn>
+      <app-action-btn
+        title="Practice"
+        [action]="openWritingPractice"
+        variant="light"
+      ></app-action-btn>
+      <app-action-btn
+        title="Details"
+        [action]="openCharacterDetails"
+        variant="accent"
+      ></app-action-btn>
     </div>
   </app-card>
 </div>

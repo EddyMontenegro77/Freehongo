@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Point } from '../../../shared/models/writing/point.interface';
 import { Stroke } from '../../../shared/models/writing/stroke.model';
 import {
   SequenceErrorType,
@@ -7,12 +6,26 @@ import {
   StrokeErrorType,
   StrokeValidationResult,
 } from '../models/stroke-validation-result.interface';
-import { normalizeStrokes } from '../utils/stroke-normalization.util';
+import { normalizeStrokes, normalizeStrokeSet } from '../utils/stroke-normalization.util';
 import {
   buildVectors,
   calculateAverageDistanceAB,
   vectorComparison,
 } from '../utils/stroke-geometry.util';
+
+/**
+ * Maximum average distance for an input stroke to count as "the same shape" as an
+ * expected one. Strokes are normalized one by one, so position and size do not count.
+ */
+const SHAPE_THRESHOLD = 12;
+
+/**
+ * Maximum average distance for an input stroke to count as "the same stroke" as an
+ * expected one when checking order. Strokes are normalized together in a shared
+ * 0-100 box, so the distance includes position and is looser than the shape one.
+ * Starting value: tune it by logging the distance matrix.
+ */
+const ORDER_THRESHOLD = 20;
 
 @Injectable({
   providedIn: 'root',
@@ -36,9 +49,12 @@ export class StrokeValidationService {
       normalizedExpectedStrokes,
     );
 
+    // Order needs positions, which per-stroke normalization throws away (every
+    // parallel line would look identical), so it is checked on strokes normalized
+    // together in one shared box.
     const sequenceValidationResult = this.resolveSequenceError(
-      normalizedInputStrokes,
-      normalizedExpectedStrokes,
+      normalizeStrokeSet(inputStrokes),
+      normalizeStrokeSet(expectedStrokes),
     );
 
     const isValidSequence = sequenceValidationResult === 'none' && !hasInvalidStroke;
@@ -193,7 +209,7 @@ export class StrokeValidationService {
   private validateStrokeShape(
     inputStroke: Stroke,
     expectedStroke: Stroke,
-    shapeThreshold = 12,
+    shapeThreshold = SHAPE_THRESHOLD,
   ): StrokeErrorType {
     const inputPoints = inputStroke.getPoints();
     const expectedPoints = expectedStroke.getPoints();
@@ -213,79 +229,91 @@ export class StrokeValidationService {
   }
 
   /**
-   * Validates stroke order by matching each input stroke to the closest
-   * non-used expected stroke (greedy by average shape distance).
-   * After matching, order is valid only if matched expected indices
-   * are strictly increasing.
+   * Validates stroke order. Expects strokes normalized together (normalizeStrokeSet),
+   * so the distance between two strokes includes where they are in the character.
+   *
+   * 1. If every input stroke already fits the expected stroke of its own position,
+   *    the order is right. Ties between similar strokes (parallel lines, repeated
+   *    shapes) are therefore always resolved in favour of the expected order.
+   * 2. Otherwise the order is wrong only when the strokes do fit the expected ones
+   *    in a different order (a perfect matching under the threshold exists).
+   * 3. If they do not fit in any order, the problem is in the strokes themselves
+   *    (shape or direction). That is reported per stroke, not as 'wrong-order'.
    *
    * Returns:
    * - 'wrong-amount' if stroke counts differ
-   * - 'wrong-order' if no valid match exists or matched order is not increasing
+   * - 'wrong-order' if the strokes are right but drawn in another order
    * - 'none' otherwise
    *
    * @param inputStrokes
    * @param expectedStrokes
+   * @param matchThreshold
    * @returns SequenceErrorType
    */
 
   private validateStrokeOrder(
     inputStrokes: Stroke[],
     expectedStrokes: Stroke[],
+    matchThreshold = ORDER_THRESHOLD,
   ): SequenceErrorType {
     if (inputStrokes.length !== expectedStrokes.length) return 'wrong-amount';
     if (inputStrokes.length === 0) return 'none';
 
-    const matchedExpectedIndices: number[] = [];
-    const usedExpected = new Set<number>();
+    const distances = this.buildDistanceMatrix(inputStrokes, expectedStrokes);
 
-    for (let inputIndex = 0; inputIndex < inputStrokes.length; inputIndex++) {
-      const inputNormalized = inputStrokes[inputIndex];
-      const inputNormalizedPoints = inputNormalized.getPoints();
+    const fitsOwnPosition = distances.every((row, index) => row[index] <= matchThreshold);
+    if (fitsOwnPosition) return 'none';
 
-      const bestMatchIndex = this.findBestExpectedMatch(
-        inputNormalizedPoints,
-        expectedStrokes,
-        usedExpected,
-      );
-
-      if (bestMatchIndex === -1) return 'wrong-order';
-      usedExpected.add(bestMatchIndex);
-      matchedExpectedIndices.push(bestMatchIndex);
-    }
-
-    const isOrdered = matchedExpectedIndices.every(
-      (value, i) => i === 0 || value > matchedExpectedIndices[i - 1],
-    );
-
-    return isOrdered ? 'none' : 'wrong-order';
+    return this.hasPerfectMatch(distances, matchThreshold) ? 'wrong-order' : 'none';
   }
 
-  private findBestExpectedMatch(
-    inputPoints: Point[],
-    expectedStrokes: Stroke[],
-    usedExpected: Set<number>,
-  ): number {
-    let bestMatchIndex = -1;
-    let bestMatchScore = Infinity;
+  /**
+   * distances[i][j] is the average distance between input stroke i and expected stroke j.
+   */
+  private buildDistanceMatrix(inputStrokes: Stroke[], expectedStrokes: Stroke[]): number[][] {
+    return inputStrokes.map((inputStroke) => {
+      const inputPoints = inputStroke.getPoints();
 
-    for (let expectedIndex = 0; expectedIndex < expectedStrokes.length; expectedIndex++) {
-      if (usedExpected.has(expectedIndex)) continue;
+      return expectedStrokes.map((expectedStroke) => {
+        const expectedPoints = expectedStroke.getPoints();
+        const length = Math.min(inputPoints.length, expectedPoints.length);
 
-      const expectedStroke = expectedStrokes[expectedIndex];
-      const expectedPoints = expectedStroke.getPoints();
+        if (length === 0) return Infinity;
 
-      const score = calculateAverageDistanceAB(
-        inputPoints,
-        expectedPoints,
-        Math.min(inputPoints.length, expectedPoints.length),
-      );
+        return calculateAverageDistanceAB(inputPoints, expectedPoints, length);
+      });
+    });
+  }
 
-      // Less score means better approach to expected stroke
-      if (score < bestMatchScore) {
-        bestMatchScore = score;
-        bestMatchIndex = expectedIndex;
+  /**
+   * True when every input stroke can be paired with a different expected stroke
+   * whose distance is within the threshold (bipartite matching with augmenting paths).
+   * Unlike a greedy match, an early stroke cannot "steal" the expected stroke
+   * that a later one needs.
+   */
+  private hasPerfectMatch(distances: number[][], threshold: number): boolean {
+    const size = distances.length;
+    const inputOfExpected: number[] = new Array(size).fill(-1);
+
+    const tryAssign = (input: number, visited: boolean[]): boolean => {
+      for (let expected = 0; expected < size; expected++) {
+        if (distances[input][expected] > threshold || visited[expected]) continue;
+
+        visited[expected] = true;
+
+        if (inputOfExpected[expected] === -1 || tryAssign(inputOfExpected[expected], visited)) {
+          inputOfExpected[expected] = input;
+          return true;
+        }
       }
+
+      return false;
+    };
+
+    for (let input = 0; input < size; input++) {
+      if (!tryAssign(input, new Array<boolean>(size).fill(false))) return false;
     }
-    return bestMatchIndex;
+
+    return true;
   }
 }

@@ -58,3 +58,24 @@ CREATE TABLE kanji_nanori (
     unicode VARCHAR REFERENCES kanji(unicode),
     value   VARCHAR
 );
+
+
+-- Japanese.characters unification for japanese.kana and japanese.kanji
+CREATE TABLE japanese.characters ( 
+    unicode VARCHAR PRIMARY KEY,
+    kind VARCHAR NOT NULL
+    CHECK (kind IN ('hiragana', 'katakana', 'kanji'))
+    
+);
+
+INSERT INTO japanese.characters (unicode, kind) 
+SELECT unicode, type FROM japanese.kana
+UNION ALL SELECT unicode, 'kanji' FROM japanese.kanji;
+
+ALTER TABLE japanese.kana
+ADD CONSTRAINT fk_kana_character
+FOREIGN KEY (unicode) REFERENCES japanese.characters (unicode); 
+
+ALTER TABLE japanese.kanji
+ADD CONSTRAINT fk_kanji_character
+FOREIGN KEY (unicode) REFERENCES japanese.characters (unicode);

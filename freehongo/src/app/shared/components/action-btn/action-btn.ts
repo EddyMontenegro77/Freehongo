@@ -1,5 +1,7 @@
 import { Component, input, signal } from '@angular/core';
 
+type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
+
 @Component({
   selector: 'app-action-btn',
   standalone: true,
@@ -10,6 +12,7 @@ import { Component, input, signal } from '@angular/core';
 export class ActionBtn {
   title = input.required<string>();
   action = input.required<() => void | Promise<void>>();
+  variant = input<ButtonVariant>('light');
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);
 

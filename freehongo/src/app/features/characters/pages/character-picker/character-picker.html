@@ -107,8 +107,18 @@
   </form>
 
   <div class="picker__actions">
-    <app-action-btn title="Reset filters" [action]="resetFilters" [disabled]="isLoading()" />
-    <app-action-btn title="Filter" [action]="applyFilters" [disabled]="isLoading()" />
+    <app-action-btn
+      title="Reset filters"
+      [action]="resetFilters"
+      [disabled]="isLoading()"
+      variant="secondary"
+    />
+    <app-action-btn
+      title="Filter"
+      [action]="applyFilters"
+      [disabled]="isLoading()"
+      variant="light"
+    />
   </div>
 
   <section class="character__results">
