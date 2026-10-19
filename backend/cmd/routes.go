@@ -18,4 +18,7 @@ func SetupRoutes(router *gin.Engine, db *sql.DB){
 	api.GET("/kanji/:unicode", handlers.GetKanji(db))
 	api.GET("/kanji/writing/:unicode", handlers.GetKanjiWriting(db))
 	api.GET("/kanji/display", handlers.GetKanjiDisplay(db))
+
+	// Auth Endpoints
+	api.POST("/auth/google", handlers.PostGoogleAuth())
 }
