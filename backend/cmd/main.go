@@ -21,6 +21,7 @@ func main(){
 		AllowOrigins: []string{"http://127.0.0.1:4300"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders: []string{"Content-Type"},
+		AllowCredentials: true,
 	}))
 	SetupRoutes(router, database)
 	
