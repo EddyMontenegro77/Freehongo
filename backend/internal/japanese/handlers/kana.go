@@ -3,8 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"freehongo-api/internal/models"
-	"freehongo-api/internal/repository"
+	"freehongo-api/internal/japanese/models"
+	"freehongo-api/internal/japanese/repository"
 	"net/http"
 	"os"
 

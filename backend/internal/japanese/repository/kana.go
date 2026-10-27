@@ -3,8 +3,24 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"freehongo-api/internal/models"
+	"freehongo-api/internal/japanese/models"
 )
+
+type KanaRepository struct{ db *sql.DB }
+
+func NewKanaRepository(db *sql.DB) *KanaRepository { return &KanaRepository{db: db} }
+
+func (r *KanaRepository) Find(unicode string) (*models.Kana, error) {
+	return GetKana(r.db, unicode)
+}
+
+func (r *KanaRepository) FindWriting(unicode string) (*models.KanaWriting, error) {
+	return GetKanaWriting(r.db, unicode)
+}
+
+func (r *KanaRepository) FindDisplay(search *models.KanaSearch, offset int) (*models.KanaDisplayPage, error) {
+	return GetKanaDisplay(r.db, search, offset)
+}
 
 func GetKana(db *sql.DB, unicode string) (*models.Kana, error) {
 	row := db.QueryRow(`
