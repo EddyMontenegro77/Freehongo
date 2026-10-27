@@ -1,5 +1,7 @@
-import { Component, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from '../../../../../environments/environments';
+import { AuthService } from '../../../../shared/services/auth/auth.service';
 declare const google: any;
 
 @Component({
@@ -10,6 +12,8 @@ declare const google: any;
   styleUrl: './google-login-btn.scss',
 })
 export class GoogleLoginBtn {
+  private auth = inject(AuthService);
+  private router = inject(Router);
   @ViewChild('googleLoginBtn', { static: true }) googleLoginBtn!: ElementRef<HTMLButtonElement>;
 
   ngAfterViewInit() {
@@ -17,14 +21,12 @@ export class GoogleLoginBtn {
       google.accounts.id.initialize({
         client_id: environment.googleClientID,
         callback: async (resp: { credential: string }) => {
-          console.log('credential:', resp.credential);
-          const res = await fetch(`${environment.apiUrl}/auth/google`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ Credential: resp.credential }),
-          });
-          console.log(res.status, await res.json());
+          try {
+            await this.auth.googleAuth(resp.credential);
+            await this.router.navigate(['/']);
+          } catch {
+            // AuthService exposes the backend error to the auth screen.
+          }
         },
       });
       google.accounts.id.renderButton(this.googleLoginBtn.nativeElement, {
