@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 
@@ -18,10 +20,26 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func mustGetenv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("missing required environment variable: %s", key)
+	}
+	return value
+}
+
 func main() {
 	if err := godotenv.Load("../.env"); err != nil {
-		fmt.Println("dotenv error:", err)
+		if errors.Is(err, fs.ErrNotExist) {
+			fmt.Println("dotenv: .env file not found, using process environment")
+		} else {
+			log.Fatalf("dotenv error: %v", err)
+		}
 	}
+
+	apiHost := mustGetenv("API_HOST")
+	apiAllowedOrigin := mustGetenv("API_ALLOWED_ORIGIN")
+	apiPort := mustGetenv("API_PORT")
 
 	database := db.Connect()
 
@@ -49,7 +67,7 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://127.0.0.1:4300"},
+		AllowOrigins:     []string{apiAllowedOrigin},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type"},
 		AllowCredentials: true,
@@ -63,19 +81,21 @@ func main() {
 		JapaneseService: japaneseService,
 	})
 
-	if os.Getenv("APP_ENV") == "development" {
-		certFile := os.Getenv("TLS_CERT_FILE")
-		keyFile := os.Getenv("TLS_KEY_FILE")
+	addr := ":" + apiPort
 
-		fmt.Println("Freehongo API Running on https://127.0.0.1:2582")
-		if err := router.RunTLS(":2582", certFile, keyFile); err != nil {
+	if os.Getenv("APP_ENV") == "development" {
+		certFile := mustGetenv("TLS_CERT_FILE")
+		keyFile := mustGetenv("TLS_KEY_FILE")
+
+		fmt.Printf("Freehongo API Running on %s:%s\n", apiHost, apiPort)
+		if err := router.RunTLS(addr, certFile, keyFile); err != nil {
 			log.Fatal(err)
 		}
 		return
 	}
 
-	fmt.Println("Freehongo API Running on :2582")
-	if err := router.Run(":2582"); err != nil {
+	fmt.Printf("Freehongo API Running on %s\n", addr)
+	if err := router.Run(addr); err != nil {
 		log.Fatal(err)
 	}
 }
