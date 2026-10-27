@@ -1,1 +1,22 @@
 <p>profile works!</p>
+<div class="profile__wrapper">
+  <img [src]="pictureUrl()" class="user__picture" alt="User profile picture" />
+  <div class="user__info">
+    <div class="user__field">
+      <label>Username</label>
+      <span>{{ username() }}</span>
+    </div>
+    <div class="user__field">
+      <label>Email</label>
+      <span>{{ email() }}</span>
+      @if (verified()) {
+        <span class="verified">Verified</span>
+      } @else {
+        <div class="not__verified">
+          <span>Not verified</span>
+          <app-action-btn title="Verify Email" [action]="verifyEmail" />
+        </div>
+      }
+    </div>
+  </div>
+</div>
