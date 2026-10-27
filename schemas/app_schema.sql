@@ -36,7 +36,10 @@ CREATE TABLE app.user_tokens (
     token_hash TEXT NOT NULL UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     expires_at TIMESTAMPTZ NOT NULL,
-    revoked_at TIMESTAMPTZ
+    revoked_at TIMESTAMPTZ,
+    token_type TEXT NOT NULL DEFAULT 'session',
+    last_used_at TIMESTAMPTZ,
+    CHECK (token_type IN ('session', 'password_reset', 'email_verification'))
 );
 
 -- LISTS

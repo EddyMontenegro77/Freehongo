@@ -26,12 +26,23 @@ ALTER TABLE app.user_identities
 -- app.user_tokens
 -- ============================================================
 ALTER TABLE app.user_tokens
-    ADD COLUMN token_type TEXT NOT NULL DEFAULT 'session',
-    ADD COLUMN last_used_at TIMESTAMPTZ;
+    ADD COLUMN IF NOT EXISTS token_type TEXT NOT NULL DEFAULT 'session',
+    ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ;
 
-ALTER TABLE app.user_tokens
-    ADD CONSTRAINT ck_user_tokens_type
-    CHECK (token_type IN ('session', 'password_reset', 'email_verification'));
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'ck_user_tokens_type'
+          AND conrelid = 'app.user_tokens'::regclass
+    ) THEN
+        ALTER TABLE app.user_tokens
+            ADD CONSTRAINT ck_user_tokens_type
+            CHECK (token_type IN ('session', 'password_reset', 'email_verification'));
+    END IF;
+END;
+$$;
 
 -- Active (non-revoked) tokens
 CREATE INDEX ix_user_tokens_active
