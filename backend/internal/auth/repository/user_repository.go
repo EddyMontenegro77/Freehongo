@@ -38,34 +38,34 @@ func IsUniqueViolation(err error) bool {
 type UserQueries struct{ tx *sql.Tx }
 
 func (q *UserQueries) FetchUserProfile(
-    ctx context.Context,
-    userID string,
+	ctx context.Context,
+	userID string,
 ) (models.UserProfile, error) {
-    var profile models.UserProfile
-    var emailVerifiedAt sql.NullTime
-    var pictureURL sql.NullString
+	var profile models.UserProfile
+	var emailVerifiedAt sql.NullTime
+	var pictureURL sql.NullString
 
-    err := q.tx.QueryRowContext(ctx, `
+	err := q.tx.QueryRowContext(ctx, `
         SELECT username, email, email_verified_at, picture_url
         FROM app.users
         WHERE user_id = $1
           AND deleted_at IS NULL
     `, userID).Scan(
-        &profile.Name,
-        &profile.Email,
-        &emailVerifiedAt,
-        &pictureURL,
-    )
-    if err != nil {
-        return models.UserProfile{}, err
-    }
+		&profile.Name,
+		&profile.Email,
+		&emailVerifiedAt,
+		&pictureURL,
+	)
+	if err != nil {
+		return models.UserProfile{}, err
+	}
 
-    profile.Verified = emailVerifiedAt.Valid
-    if pictureURL.Valid {
-        profile.PictureUrl = pictureURL.String
-    }
+	profile.Verified = emailVerifiedAt.Valid
+	if pictureURL.Valid {
+		profile.PictureUrl = pictureURL.String
+	}
 
-    return profile, nil
+	return profile, nil
 }
 
 func (q *UserQueries) FindUserIDByGoogleSub(ctx context.Context, sub string) (id string, found bool, err error) {

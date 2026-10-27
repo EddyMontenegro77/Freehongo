@@ -17,10 +17,10 @@ type GoogleIdentity struct {
 }
 
 type UserProfile struct {
-	Email      string
-	Name       string
-	Verified   bool
-	PictureUrl string
+	Email      string `json:"email"`
+	Name       string `json:"name"`
+	Verified   bool   `json:"verified"`
+	PictureUrl string `json:"pictureUrl,omitempty"`
 }
 
 type ExistingUser struct {
