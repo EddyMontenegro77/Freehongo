@@ -1,34 +1,44 @@
 <div class="signup-form">
-  <app-input
-    label="Name"
-    [required]="true"
-    placeholder="John Doe"
-    (valueChange)="updateUsername($event)"
-  />
+  @if (auth.lastError(); as error) {
+    <p class="auth-error" role="alert">{{ error }}</p>
+  }
 
-  <app-input
-    label="Email"
-    [required]="true"
-    placeholder="JohnDoe@mail.com"
-    (valueChange)="updateEmail($event)"
-  />
-  <app-input
-    label="Password"
-    type="password"
-    placeholder="Type your password"
-    min="8"
-    [required]="true"
-    (valueChange)="updatePassword($event)"
-  />
-  <app-input
-    label="Password Confirmation"
-    type="password"
-    min="8"
-    placeholder="Type your password again"
-    [required]="true"
-    (valueChange)="updatePasswordConfirmation($event)"
-  />
-  <input type="file" />
-  <app-action-btn title="Submit" [action]="submitUser" variant="accent" />
+  @if (auth.isProcessing()) {
+    <app-loading-state message="Creando cuenta..." />
+  } @else {
+    <app-input
+      label="Name"
+      [required]="true"
+      placeholder="John Doe"
+      (valueChange)="updateUsername($event)"
+    />
+
+    <app-input
+      label="Email"
+      [required]="true"
+      placeholder="JohnDoe@mail.com"
+      (valueChange)="updateEmail($event)"
+    />
+    <app-input
+      label="Password"
+      type="password"
+      placeholder="Type your password"
+      min="8"
+      [required]="true"
+      (valueChange)="updatePassword($event)"
+    />
+    <app-input
+      label="Password Confirmation"
+      type="password"
+      min="8"
+      placeholder="Type your password again"
+      [required]="true"
+      (valueChange)="updatePasswordConfirmation($event)"
+    />
+    <input type="file" />
+    <app-action-btn title="Submit" [action]="submitUser" variant="accent" />
+  }
 </div>
-<app-google-login-btn />
+@if (!auth.isProcessing()) {
+  <app-google-login-btn />
+}
