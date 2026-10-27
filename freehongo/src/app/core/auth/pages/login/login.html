@@ -1,0 +1,18 @@
+<div class="signup-form">
+  <app-input
+    label="Email"
+    [required]="true"
+    placeholder="JohnDoe@mail.com"
+    (valueChange)="updateEmail($event)"
+  />
+  <app-input
+    label="Password"
+    type="password"
+    placeholder="Type your password"
+    min="8"
+    [required]="true"
+    (valueChange)="updatePassword($event)"
+  />
+  <app-action-btn title="Submit" [action]="submitUser" variant="accent" />
+</div>
+<app-google-login-btn />

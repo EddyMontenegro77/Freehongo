@@ -8,7 +8,9 @@ import { ViewList } from './features/lists/pages/view-list/view-list';
 import { Quizes } from './features/quizes/pages/quizes/quizes';
 import { CharacterQuiz } from './features/quizes/pages/character-quiz/character-quiz';
 import { StrokesQuiz } from './features/quizes/pages/strokes-quiz/strokes-quiz';
-import { Signup } from './core/auth/components/signup/signup';
+import { Signup } from './core/auth/pages/signup/signup';
+import { Login } from './core/auth/pages/login/login';
+import { Profile } from './core/auth/pages/profile/profile';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -20,6 +22,8 @@ export const routes: Routes = [
   { path: 'quizes/:mode/:listId', component: CharacterQuiz },
   { path: 'quizes/strokes/:mode/:listId', component: StrokesQuiz },
   { path: 'auth/signup', component: Signup },
+  { path: 'auth/login', component: Login },
+  { path: 'user/profile', component: Profile },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];
