@@ -1,14 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { signal } from '@angular/core';
+import { AuthService } from '../../../../shared/services/auth/auth.service';
 
 import { Login } from './login';
 
 describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
+  const authMock = {
+    isAuth: signal(false).asReadonly(),
+    lastError: signal<string | null>(null),
+    isProcessing: signal(false).asReadonly(),
+    login: vi.fn().mockResolvedValue(undefined),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login]
+      ,providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => null } } } },
+        { provide: AuthService, useValue: authMock },
+      ]
     })
     .compileComponents();
 
@@ -19,5 +35,17 @@ describe('Login', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('navigates to the return url after a successful login', async () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    component.userEmail.set('user@example.com');
+    component.password.set('password123');
+
+    await component.submitUser();
+
+    expect(authMock.login).toHaveBeenCalledWith('user@example.com', 'password123');
+    expect(navigate).toHaveBeenCalledWith('/');
   });
 });
