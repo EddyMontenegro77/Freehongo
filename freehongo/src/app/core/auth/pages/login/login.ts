@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { InputField } from '../../../../shared/components/input/input';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { GoogleLoginBtn } from '../../components/google-login-btn/google-login-btn';
@@ -7,6 +7,7 @@ import { GoogleLoginBtn } from '../../components/google-login-btn/google-login-b
   selector: 'app-login',
   imports: [InputField, ActionBtn, GoogleLoginBtn],
   templateUrl: './login.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.scss',
 })
 export class Login {

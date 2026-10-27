@@ -7,6 +7,7 @@ import {
   computed,
   inject,
   input,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { gsap } from 'gsap';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
@@ -50,6 +51,7 @@ const MARKER_FONT_PX = 12;
   selector: 'app-writing-stroke-guide',
   standalone: true,
   templateUrl: './writing-stroke-guide.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './writing-stroke-guide.scss',
 })
 export class WritingStrokeGuide implements AfterViewInit {

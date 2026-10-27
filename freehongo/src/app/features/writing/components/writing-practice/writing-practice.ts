@@ -8,6 +8,7 @@ import {
   signal,
   untracked,
   ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { WritingCanvas } from '../writing-canvas/writing-canvas';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
@@ -31,6 +32,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [WritingCanvas, LoadingState, ErrorState],
   templateUrl: './writing-practice.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './writing-practice.scss',
 })
 export class WritingPractice {

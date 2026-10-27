@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { environment } from '../../../../../environments/environments';
 declare const google: any;
 
@@ -6,6 +6,7 @@ declare const google: any;
   selector: 'app-google-login-btn',
   imports: [],
   templateUrl: './google-login-btn.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './google-login-btn.scss',
 })
 export class GoogleLoginBtn {

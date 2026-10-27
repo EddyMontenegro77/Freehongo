@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ListsFacade } from '../../services/lists.facade.service';
 import { CharacterList } from '../../../../shared/models/lists/list.model';
@@ -34,6 +34,7 @@ import { ToggleButton } from '../../../../shared/components/toggle-button/toggle
     ToggleButton,
   ],
   templateUrl: './view-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './view-list.scss',
 })
 export class ViewList {

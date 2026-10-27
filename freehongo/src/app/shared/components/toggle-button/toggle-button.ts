@@ -1,9 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-toggle-button',
   standalone: true,
   templateUrl: './toggle-button.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toggle-button.scss',
 })
 export class ToggleButton {

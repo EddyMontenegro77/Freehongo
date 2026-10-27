@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 type InputType =
   | 'text'
@@ -16,6 +16,7 @@ type InputType =
   selector: 'app-input',
   standalone: true,
   templateUrl: './input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './input.scss',
 })
 export class InputField {

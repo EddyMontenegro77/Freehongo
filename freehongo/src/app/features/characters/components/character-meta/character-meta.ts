@@ -1,4 +1,4 @@
-import { Component, input, ViewChild } from '@angular/core';
+import { Component, input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { Card } from '../../../../shared/components/card/card';
@@ -14,6 +14,7 @@ import { ThemeService } from '../../../../shared/services/theme/theme.service';
   standalone: true,
   imports: [Card, ActionBtn, Chip, ChipGroup, Modal, IconBtn],
   templateUrl: './character-meta.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-meta.scss',
 })
 export class CharacterMeta {

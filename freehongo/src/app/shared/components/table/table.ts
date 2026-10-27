@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { TableColumn, TableRow } from './interface/table.interface';
 
 export type TableAlignment = 'left' | 'center' | 'right';
@@ -7,6 +7,7 @@ export type TableAlignment = 'left' | 'center' | 'right';
   selector: 'app-table',
   imports: [],
   templateUrl: './table.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './table.scss',
 })
 export class Table {

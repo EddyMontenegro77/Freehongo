@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { Table } from '../../../../shared/components/table/table';
 import { QuizMode } from '../../../../shared/models/quizes/quizes.interface';
@@ -15,6 +15,7 @@ import { TableColumn } from '../../../../shared/components/table/interface/table
   selector: 'app-stroke-quiz-summary',
   imports: [ActionBtn, Table],
   templateUrl: './stroke-quiz-summary.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stroke-quiz-summary.scss',
 })
 export class StrokesQuizSummary {

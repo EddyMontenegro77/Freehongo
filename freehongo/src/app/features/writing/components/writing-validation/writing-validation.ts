@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject, input } from '@angular/core';
+import { Component, ViewChild, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { Modal } from '../../../../shared/components/modal/modal';
@@ -17,6 +17,7 @@ import { List } from '../../../../shared/components/list/list';
   standalone: true,
   imports: [ActionBtn, Table, Modal, IconBtn, List],
   templateUrl: './writing-validation.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './writing-validation.scss',
 })
 export class WritingValidation {

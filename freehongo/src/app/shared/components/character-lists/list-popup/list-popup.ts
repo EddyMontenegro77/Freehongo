@@ -1,4 +1,4 @@
-import { Component, inject, input, ViewChild } from '@angular/core';
+import { Component, inject, input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Modal } from '../../modal/modal';
 import { ListsDisplay } from '../lists-display/lists-display';
 import { ListsFacade } from '../../../../features/lists/services/lists.facade.service';
@@ -8,6 +8,7 @@ import { FeedbackToast } from '../../feedback-toast/feedback-toast';
   selector: 'app-list-popup',
   imports: [Modal, ListsDisplay, FeedbackToast],
   templateUrl: './list-popup.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './list-popup.scss',
 })
 export class ListPopup {

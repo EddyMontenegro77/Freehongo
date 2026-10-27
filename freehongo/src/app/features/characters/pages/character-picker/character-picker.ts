@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PaginationController } from '../../../../shared/components/pagination-controller/pagination-controller';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { InputField } from '../../../../shared/components/input/input';
@@ -42,6 +42,7 @@ import { ListPopup } from '../../../../shared/components/character-lists/list-po
     ListPopup,
   ],
   templateUrl: './character-picker.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-picker.scss',
 })
 export class CharacterPicker {

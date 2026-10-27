@@ -1,10 +1,11 @@
-import { Component, OnDestroy, input, signal } from '@angular/core';
+import { Component, OnDestroy, input, signal, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-feedback-toast',
   standalone: true,
   imports: [],
   templateUrl: './feedback-toast.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './feedback-toast.scss',
 })
 export class FeedbackToast implements OnDestroy {

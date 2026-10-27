@@ -1,10 +1,11 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navigation-btn',
   imports: [],
   templateUrl: './navigation-btn.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './navigation-btn.scss',
 })
 export class NavigationBtn {

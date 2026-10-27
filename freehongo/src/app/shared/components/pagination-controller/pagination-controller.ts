@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActionBtn } from '../action-btn/action-btn';
 
 @Component({
@@ -6,6 +6,7 @@ import { ActionBtn } from '../action-btn/action-btn';
   standalone: true,
   imports: [ActionBtn],
   templateUrl: './pagination-controller.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pagination-controller.scss',
 })
 export class PaginationController {

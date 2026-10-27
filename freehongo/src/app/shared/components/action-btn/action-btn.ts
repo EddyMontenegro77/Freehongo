@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, ChangeDetectionStrategy } from '@angular/core';
 
 type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
 
@@ -7,6 +7,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | '
   standalone: true,
   imports: [],
   templateUrl: './action-btn.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './action-btn.scss',
 })
 export class ActionBtn {

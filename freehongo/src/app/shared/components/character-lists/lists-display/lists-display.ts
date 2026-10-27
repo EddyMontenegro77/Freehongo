@@ -7,6 +7,7 @@ import {
   output,
   signal,
   ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl } from '@angular/forms';
@@ -47,6 +48,7 @@ export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
     Confirmation,
   ],
   templateUrl: './lists-display.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lists-display.scss',
 })
 export class ListsDisplay {

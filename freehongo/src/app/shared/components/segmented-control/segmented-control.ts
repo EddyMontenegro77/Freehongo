@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 export type SegmentedOption<T = string> = {
   label: string;
@@ -10,6 +10,7 @@ export type SegmentedOption<T = string> = {
   selector: 'app-segmented-control',
   standalone: true,
   templateUrl: './segmented-control.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './segmented-control.scss',
 })
 export class SegmentedControl<T = string> {
