@@ -4,4 +4,4 @@ backend:
 	cd backend && air
 
 frontend:
-	cd ./Freehongo && ng serve
+	cd ./freehongo && ng serve
