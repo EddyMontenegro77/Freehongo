@@ -25,7 +25,7 @@ func RequireAuth(users *repository.UserRepository) gin.HandlerFunc {
 
 		tokenHash := utils.HashSessionToken(rawToken)
 		var userID string
-		err = users.InTx(c.Request.Context(), func(q *repository.UserQueries) error {
+		err = users.InTx(c.Request.Context(), "", func(q *repository.UserQueries) error {
 			id, found, err := q.FindActiveSessionUser(c.Request.Context(), tokenHash)
 			if err != nil {
 				return err
@@ -35,6 +35,9 @@ func RequireAuth(users *repository.UserRepository) gin.HandlerFunc {
 			}
 
 			userID = id
+			if err := q.SetCurrentUserID(c.Request.Context(), userID); err != nil {
+				return err
+			}
 			return q.TouchSession(c.Request.Context(), tokenHash)
 		})
 
@@ -43,6 +46,12 @@ func RequireAuth(users *repository.UserRepository) gin.HandlerFunc {
 			return
 		}
 		if err != nil {
+			if errors.Is(err, models.ErrRLSPolicyViolation) {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error": "rls_policy_violation",
+				})
+				return
+			}
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "internal_server_error",
 			})
