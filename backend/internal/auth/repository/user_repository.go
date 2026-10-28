@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"freehongo-api/internal/auth/models"
@@ -17,17 +19,24 @@ type UserRepository struct{ db *sql.DB }
 
 func NewUserRepository(db *sql.DB) *UserRepository { return &UserRepository{db: db} }
 
-func (r *UserRepository) InTx(ctx context.Context, fn func(q *UserQueries) error) error {
+func (r *UserRepository) InTx(ctx context.Context, userID string, fn func(q *UserQueries) error) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := fn(&UserQueries{tx: tx}); err != nil {
-		return err
+	q := &UserQueries{tx: tx}
+	if userID != "" {
+		if err := q.SetCurrentUserID(ctx, userID); err != nil {
+			return translateDatabaseError(err)
+		}
 	}
-	return tx.Commit()
+
+	if err := fn(q); err != nil {
+		return translateDatabaseError(err)
+	}
+	return translateDatabaseError(tx.Commit())
 }
 
 func IsUniqueViolation(err error) bool {
@@ -36,6 +45,31 @@ func IsUniqueViolation(err error) bool {
 }
 
 type UserQueries struct{ tx *sql.Tx }
+
+func (q *UserQueries) SetCurrentUserID(ctx context.Context, userID string) error {
+	_, err := q.tx.ExecContext(ctx,
+		`SELECT set_config('app.current_user_id', $1, true)`, userID)
+	return err
+}
+
+func translateDatabaseError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "42501" {
+		return fmt.Errorf("%w: %w", models.ErrRLSPolicyViolation, err)
+	}
+	return err
+}
+
+func NewUUIDv7() (string, error) {
+	value, err := uuid.NewV7()
+	if err != nil {
+		return "", err
+	}
+	return value.String(), nil
+}
 
 func (q *UserQueries) FetchUserProfile(
 	ctx context.Context,
@@ -68,33 +102,64 @@ func (q *UserQueries) FetchUserProfile(
 	return profile, nil
 }
 
+func (q *UserQueries) UpdateUsername(ctx context.Context, userID, username string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.users
+		SET username = $1
+		WHERE user_id = $2 AND deleted_at IS NULL`, username, userID)
+	return err
+}
+
+func (q *UserQueries) UpdatePictureURL(ctx context.Context, userID, pictureURL string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.users
+		SET picture_url = $1
+		WHERE user_id = $2 AND deleted_at IS NULL`, pictureURL, userID)
+	return err
+}
+
+func (q *UserQueries) SoftDeleteUser(ctx context.Context, userID string) error {
+	_, err := q.tx.ExecContext(ctx, `SELECT app.soft_delete_user($1)`, userID)
+	return err
+}
+
 func (q *UserQueries) FindUserIDByGoogleSub(ctx context.Context, sub string) (id string, found bool, err error) {
+	var value sql.NullString
 	err = q.tx.QueryRowContext(ctx, `
-		SELECT u.user_id
-		FROM app.user_identities i
-		JOIN app.users u ON u.user_id = i.user_id
-		WHERE i.identity_provider = 'google'
-		  AND i.provider_user_id = $1
-		  AND u.deleted_at IS NULL`, sub).Scan(&id)
-	return id, err == nil, ignoreNoRows(err)
+		SELECT app.find_user_by_identity('google', $1)`, sub).Scan(&value)
+	if err != nil {
+		return "", false, err
+	}
+	if !value.Valid {
+		return "", false, nil
+	}
+	return value.String, true, nil
+}
+
+func (q *UserQueries) FindUserByEmailForPasswordLogin(ctx context.Context, email string) (u models.PasswordUser, found bool, err error) {
+	var hash sql.NullString
+	var verifiedAt sql.NullTime
+	err = q.tx.QueryRowContext(ctx, `
+		SELECT user_id, password_hash, email_verified_at
+		FROM app.find_user_by_email_for_login($1)`, email).Scan(&u.ID, &hash, &verifiedAt)
+	u.PasswordHash = hash.String
+	return u, err == nil, ignoreNoRows(err)
 }
 
 func (q *UserQueries) FindActiveUserByEmailForUpdate(ctx context.Context, email string) (user models.ExistingUser, found bool, err error) {
 	var verifiedAt sql.NullTime
 	err = q.tx.QueryRowContext(ctx, `
 		SELECT user_id, email_verified_at
-		FROM app.users
-		WHERE lower(email) = lower($1) AND deleted_at IS NULL
-		FOR UPDATE`, email).Scan(&user.ID, &verifiedAt)
+		FROM app.find_user_by_email_for_login($1)`, email).Scan(&user.ID, &verifiedAt)
 	user.EmailVerified = verifiedAt.Valid
 	return user, err == nil, ignoreNoRows(err)
 }
 
-func (q *UserQueries) InsertVerifiedUser(ctx context.Context, username, email, pictureURL string) (id string, err error) {
-	err = q.tx.QueryRowContext(ctx, `
-		INSERT INTO app.users (username, email, email_verified_at, picture_url, last_login_at)
-		VALUES ($1, $2, now(), $3, now())
-			RETURNING user_id`, username, email, pictureURL).Scan(&id)
+func (q *UserQueries) InsertVerifiedUser(ctx context.Context, id, username, email, pictureURL string) (string, error) {
+	err := q.tx.QueryRowContext(ctx, `
+		INSERT INTO app.users (user_id, username, email, email_verified_at, picture_url, last_login_at)
+		VALUES ($1, $2, $3, now(), $4, now())
+			RETURNING user_id`, id, username, email, pictureURL).Scan(&id)
 	return id, err
 }
 
@@ -126,22 +191,16 @@ func (q *UserQueries) RevokeAllTokens(ctx context.Context, userID string) error 
 	return err
 }
 
-func (q *UserQueries) InsertUserWithPassword(ctx context.Context, username, email, passwordHash string) (id string, err error) {
-	err = q.tx.QueryRowContext(ctx, `
-		INSERT INTO app.users (username, email, password_hash)
-		VALUES ($1, $2, $3)
-			RETURNING user_id`, username, email, passwordHash).Scan(&id)
+func (q *UserQueries) InsertUserWithPassword(ctx context.Context, id, username, email, passwordHash string) (string, error) {
+	err := q.tx.QueryRowContext(ctx, `
+		INSERT INTO app.users (user_id, username, email, password_hash)
+		VALUES ($1, $2, $3, $4)
+			RETURNING user_id`, id, username, email, passwordHash).Scan(&id)
 	return id, err
 }
 
 func (q *UserQueries) FindActiveUserForPasswordLogin(ctx context.Context, email string) (u models.PasswordUser, found bool, err error) {
-	var hash sql.NullString
-	err = q.tx.QueryRowContext(ctx, `
-		SELECT user_id, password_hash
-		FROM app.users
-		WHERE lower(email) = lower($1) AND deleted_at IS NULL`, email).Scan(&u.ID, &hash)
-	u.PasswordHash = hash.String
-	return u, err == nil, ignoreNoRows(err)
+	return q.FindUserByEmailForPasswordLogin(ctx, email)
 }
 
 func (q *UserQueries) InsertSessionToken(ctx context.Context, userID, tokenHash string, expiresAt time.Time) error {
@@ -152,16 +211,16 @@ func (q *UserQueries) InsertSessionToken(ctx context.Context, userID, tokenHash 
 }
 
 func (q *UserQueries) FindActiveSessionUser(ctx context.Context, tokenHash string) (userID string, found bool, err error) {
+	var value sql.NullString
 	err = q.tx.QueryRowContext(ctx, `
-		SELECT t.user_id
-		FROM app.user_tokens t
-		JOIN app.users u ON u.user_id = t.user_id
-		WHERE t.token_hash = $1
-		  AND t.token_type = 'session'
-		  AND t.revoked_at IS NULL
-		  AND t.expires_at > now()
-		  AND u.deleted_at IS NULL`, tokenHash).Scan(&userID)
-	return userID, err == nil, ignoreNoRows(err)
+		SELECT app.validate_token($1)`, tokenHash).Scan(&value)
+	if err != nil {
+		return "", false, err
+	}
+	if !value.Valid {
+		return "", false, nil
+	}
+	return value.String, true, nil
 }
 
 func (q *UserQueries) TouchSession(ctx context.Context, tokenHash string) error {
