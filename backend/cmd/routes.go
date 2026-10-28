@@ -6,15 +6,18 @@ import (
 	"freehongo-api/internal/auth/services"
 	japaneseHandlers "freehongo-api/internal/japanese/handlers"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	"freehongo-api/internal/storage"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Deps struct {
-	UserRepo     *repository.UserRepository
-	PasswordAuth *services.FreeHongoAuthService
-	GoogleAuth   gin.HandlerFunc
-	RequireAuth  gin.HandlerFunc
+	UserRepo       *repository.UserRepository
+	PasswordAuth   *services.FreeHongoAuthService
+	ProfileService authHandlers.ProfileAuthService
+	ProfileStorage *storage.SupabaseStorage
+	GoogleAuth     gin.HandlerFunc
+	RequireAuth    gin.HandlerFunc
 
 	JapaneseService *japaneseServices.JapaneseService
 }
@@ -26,6 +29,9 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 
 	// Auth PROTECTED
 	authProtected.GET("/auth/me", authHandlers.GetMe(d.UserRepo))
+	authProtected.PATCH("/auth/profile", authHandlers.PatchProfile(d.ProfileService, d.UserRepo))
+	authProtected.POST("/auth/profile/picture", authHandlers.PostProfilePicture(d.ProfileService))
+	authProtected.DELETE("/auth/profile", authHandlers.DeleteProfile(d.ProfileService))
 
 	// Japanese Endpoints
 	public.GET("/kana/:unicode", japaneseHandlers.GetKanaFromService(d.JapaneseService))

@@ -14,6 +14,7 @@ import (
 	"freehongo-api/internal/db"
 	japaneseRepository "freehongo-api/internal/japanese/repository"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	"freehongo-api/internal/storage"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -51,10 +52,15 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepository(database)
+	objectStorage := storage.NewSupabaseStorage(
+		mustGetenv("SUPABASE_URL"),
+		mustGetenv("SUPABASE_SERVICE_KEY"),
+	)
 	googleSignInService := authServices.NewGoogleSignInService(
 		userRepo,
 	)
-	freehongoAuthService := authServices.NewFreeHongoAuthService(userRepo)
+	profileService := authServices.NewProfileService(userRepo, objectStorage)
+	freehongoAuthService := authServices.NewFreeHongoAuthService(userRepo, profileService)
 	googleAuthHandler := authHandlers.PostGoogleAuth(
 		verifier,
 		googleSignInService,
@@ -75,6 +81,8 @@ func main() {
 
 	SetupRoutes(router, Deps{
 		UserRepo:        userRepo,
+		ProfileService:  profileService,
+		ProfileStorage:  objectStorage,
 		PasswordAuth:    freehongoAuthService,
 		GoogleAuth:      googleAuthHandler,
 		RequireAuth:     authMiddleware,
