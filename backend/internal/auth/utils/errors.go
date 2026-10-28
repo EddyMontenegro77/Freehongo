@@ -48,6 +48,21 @@ func HandleAuthError(c *gin.Context, err error) {
 	case errors.Is(err, auth.ErrEmailTaken):
 		c.JSON(http.StatusConflict, gin.H{"error": "email_already_registered"})
 
+	case errors.Is(err, auth.ErrInvalidUsername):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_username"})
+
+	case errors.Is(err, auth.ErrImageTooLarge):
+		c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "image_too_large"})
+
+	case errors.Is(err, auth.ErrUnsupportedImage):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported_image"})
+
+	case errors.Is(err, auth.ErrInvalidImage):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_image"})
+
+	case errors.Is(err, auth.ErrRLSPolicyViolation):
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "rls_policy_violation"})
+
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal_server_error",
