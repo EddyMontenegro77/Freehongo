@@ -16,11 +16,16 @@ const sessionTTL = 30 * 24 * time.Hour
 var dummyHash, _ = utils.HashPassword("dummy-password-for-timing")
 
 type FreeHongoAuthService struct {
-	users *repository.UserRepository
+	users   *repository.UserRepository
+	profile *ProfileService
 }
 
-func NewFreeHongoAuthService(users *repository.UserRepository) *FreeHongoAuthService {
-	return &FreeHongoAuthService{users: users}
+func NewFreeHongoAuthService(users *repository.UserRepository, profiles ...*ProfileService) *FreeHongoAuthService {
+	var profile *ProfileService
+	if len(profiles) > 0 {
+		profile = profiles[0]
+	}
+	return &FreeHongoAuthService{users: users, profile: profile}
 }
 
 func (s *FreeHongoAuthService) SignUp(ctx context.Context, req models.RegisterRequest) (models.Session, error) {
@@ -42,13 +47,29 @@ func (s *FreeHongoAuthService) SignUp(ctx context.Context, req models.RegisterRe
 	}
 
 	var session models.Session
-	err = s.users.InTx(ctx, func(q *repository.UserQueries) error {
-		userID, err := q.InsertUserWithPassword(ctx, req.Name, email, passwordHash)
+	userID, err := repository.NewUUIDv7()
+	if err != nil {
+		return models.Session{}, err
+	}
+	err = s.users.InTx(ctx, userID, func(q *repository.UserQueries) error {
+		userID, err := q.InsertUserWithPassword(ctx, userID, req.Name, email, passwordHash)
 		if err != nil {
 			if repository.IsUniqueViolation(err) {
 				return models.ErrEmailTaken
 			}
 			return err
+		}
+		if req.Picture != nil {
+			if s.profile == nil {
+				return models.ErrInvalidImage
+			}
+			pictureURL, err := s.profile.UploadPicture(ctx, userID, req.PictureName, req.PictureSize, req.Picture)
+			if err != nil {
+				return err
+			}
+			if err := q.UpdatePictureURL(ctx, userID, pictureURL); err != nil {
+				return err
+			}
 		}
 		if err := q.TouchLastLogin(ctx, userID); err != nil {
 			return err
@@ -66,7 +87,7 @@ func (s *FreeHongoAuthService) SignIn(ctx context.Context, req models.LoginReque
 	}
 
 	var session models.Session
-	err := s.users.InTx(ctx, func(q *repository.UserQueries) error {
+	err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
 		user, found, err := q.FindActiveUserForPasswordLogin(ctx, email)
 		if err != nil {
 			return err
@@ -84,6 +105,9 @@ func (s *FreeHongoAuthService) SignIn(ctx context.Context, req models.LoginReque
 		if !found || user.PasswordHash == "" || !passwordMatches {
 			return models.ErrInvalidCredentials
 		}
+		if err := q.SetCurrentUserID(ctx, user.ID); err != nil {
+			return err
+		}
 
 		session, err = createSession(ctx, q, user.ID)
 		return err
@@ -97,7 +121,14 @@ func (s *FreeHongoAuthService) Logout(ctx context.Context, token string) error {
 	}
 
 	tokenHash := utils.HashSessionToken(token)
-	return s.users.InTx(ctx, func(q *repository.UserQueries) error {
+	return s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
+		userID, found, err := q.FindActiveSessionUser(ctx, tokenHash)
+		if err != nil || !found {
+			return err
+		}
+		if err := q.SetCurrentUserID(ctx, userID); err != nil {
+			return err
+		}
 		return q.RevokeSessionToken(ctx, tokenHash)
 	})
 }
