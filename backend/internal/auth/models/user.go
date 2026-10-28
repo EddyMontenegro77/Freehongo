@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 const SessionCookieName = "freehongo_session"
 
@@ -23,6 +26,11 @@ type UserProfile struct {
 	PictureUrl string `json:"pictureUrl,omitempty"`
 }
 
+type UpdateProfileRequest struct {
+	Username string `json:"username"`
+	Name     string `json:"name"`
+}
+
 type ExistingUser struct {
 	ID            string
 	EmailVerified bool
@@ -43,10 +51,13 @@ type SignInResult struct {
 }
 
 type RegisterRequest struct {
-	Name       string  `json:"name" binding:"required"`
-	Email      string  `json:"email" binding:"required,email"`
-	Password   string  `json:"password" binding:"required,max=128"`
-	PictureUrl *string `json:"picture,omitempty"`
+	Name        string    `json:"name" binding:"required"`
+	Email       string    `json:"email" binding:"required,email"`
+	Password    string    `json:"password" binding:"required,max=128"`
+	PictureUrl  *string   `json:"picture,omitempty"`
+	Picture     io.Reader `json:"-"`
+	PictureName string    `json:"-"`
+	PictureSize int64     `json:"-"`
 }
 
 type LoginRequest struct {
