@@ -34,7 +34,7 @@ func (s *GoogleSignInService) SignIn(ctx context.Context, g models.GoogleIdentit
 
 func (s *GoogleSignInService) signInOnce(ctx context.Context, g models.GoogleIdentity) (models.SignInResult, error) {
 	var result models.SignInResult
-	err := s.users.InTx(ctx, func(q *repository.UserQueries) error {
+	err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
 		var err error
 		result, err = resolveGoogleUser(ctx, q, g)
 		return err
@@ -46,12 +46,18 @@ func resolveGoogleUser(ctx context.Context, q *repository.UserQueries, g models.
 	if userID, found, err := q.FindUserIDByGoogleSub(ctx, g.Subject); err != nil {
 		return models.SignInResult{}, err
 	} else if found {
+		if err := q.SetCurrentUserID(ctx, userID); err != nil {
+			return models.SignInResult{}, err
+		}
 		return loginReturningUser(ctx, q, userID)
 	}
 
 	if user, found, err := q.FindActiveUserByEmailForUpdate(ctx, g.Email); err != nil {
 		return models.SignInResult{}, err
 	} else if found {
+		if err := q.SetCurrentUserID(ctx, user.ID); err != nil {
+			return models.SignInResult{}, err
+		}
 		return linkGoogleToExistingUser(ctx, q, user, g)
 	}
 
@@ -97,7 +103,14 @@ func registerNewGoogleUser(ctx context.Context, q *repository.UserQueries, g mod
 	if g.Name == "" {
 		username = utils.GenerateUsername(g.Email)
 	}
-	userID, err := q.InsertVerifiedUser(ctx, username, g.Email, g.PictureUrl)
+	userID, err := repository.NewUUIDv7()
+	if err != nil {
+		return models.SignInResult{}, err
+	}
+	if err := q.SetCurrentUserID(ctx, userID); err != nil {
+		return models.SignInResult{}, err
+	}
+	userID, err = q.InsertVerifiedUser(ctx, userID, username, g.Email, g.PictureUrl)
 	if err != nil {
 		return models.SignInResult{}, err
 	}
