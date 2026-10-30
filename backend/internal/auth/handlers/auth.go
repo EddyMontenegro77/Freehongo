@@ -12,6 +12,7 @@ import (
 	"freehongo-api/internal/auth/models"
 	"freehongo-api/internal/auth/repository"
 	"freehongo-api/internal/auth/utils"
+	"freehongo-api/internal/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -153,7 +154,7 @@ func PostLogout(auth PasswordAuthService) gin.HandlerFunc {
 	}
 }
 
-func GetMe(users *repository.UserRepository) gin.HandlerFunc {
+func GetMe(users *repository.UserRepository, objectStorage *storage.SupabaseStorage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, ok := middleware.UserID(c)
 		if !ok {
@@ -175,11 +176,12 @@ func GetMe(users *repository.UserRepository) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal_server_error"})
 			return
 		}
+		profile.PictureUrl = objectStorage.PublicURL(profile.PictureUrl)
 		c.JSON(http.StatusOK, profile)
 	}
 }
 
-func PatchProfile(profileService ProfileAuthService, users *repository.UserRepository) gin.HandlerFunc {
+func PatchProfile(profileService ProfileAuthService, users *repository.UserRepository, objectStorage *storage.SupabaseStorage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, ok := middleware.UserID(c)
 		if !ok {
@@ -199,7 +201,7 @@ func PatchProfile(profileService ProfileAuthService, users *repository.UserRepos
 			utils.HandleAuthError(c, err)
 			return
 		}
-		writeCurrentProfile(c, users, userID)
+		writeCurrentProfile(c, users, objectStorage, userID)
 	}
 }
 
@@ -247,7 +249,7 @@ func DeleteProfile(profileService ProfileAuthService) gin.HandlerFunc {
 	}
 }
 
-func writeCurrentProfile(c *gin.Context, users *repository.UserRepository, userID string) {
+func writeCurrentProfile(c *gin.Context, users *repository.UserRepository, objectStorage *storage.SupabaseStorage, userID string) {
 	var profile models.UserProfile
 	err := users.InTx(c.Request.Context(), userID, func(q *repository.UserQueries) error {
 		var err error
@@ -258,6 +260,7 @@ func writeCurrentProfile(c *gin.Context, users *repository.UserRepository, userI
 		utils.HandleAuthError(c, err)
 		return
 	}
+	profile.PictureUrl = objectStorage.PublicURL(profile.PictureUrl)
 	c.JSON(http.StatusOK, profile)
 }
 
@@ -269,6 +272,3 @@ func setSessionCookie(c *gin.Context, session models.Session) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(models.SessionCookieName, session.Token, maxAge, "/", "", true, true)
 }
-
-// TODO: Add email verification once the email provider is available.
-// TODO: Add password recovery once the email provider is available.
