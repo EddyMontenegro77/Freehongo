@@ -1,0 +1,11 @@
+<section class="email-action">
+  @if (isProcessing()) {
+    <app-loading-state message="Verifying email..." />
+  } @else if (message(); as message) {
+    <p role="status">{{ message }}</p>
+    <app-action-btn title="Go home" [action]="goToHome" variant="accent" />
+  } @else if (error(); as error) {
+    <p role="alert">{{ error }}</p>
+    <app-action-btn title="Ir al login" [action]="goToLogin" />
+  }
+</section>
