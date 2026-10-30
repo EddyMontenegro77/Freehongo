@@ -89,20 +89,23 @@ export class FileUpload {
     const accepted: File[] = [];
     for (const file of incoming) {
       if (!this.isAccepted(file)) {
-        this.validationError.emit(`${file.name} no tiene un tipo permitido.`);
+        this.validationError.emit(`${file.name} type not allowed.`);
         continue;
       }
       if (this.maxSizeBytes() !== null && file.size > this.maxSizeBytes()!) {
-        this.validationError.emit(`${file.name} supera el tamaño máximo permitido.`);
+        this.validationError.emit(`${file.name} exceeds maximux file size.`);
         continue;
       }
       accepted.push(file);
     }
 
-    const nextFiles = this.multiple() ? [...this.items().map((item) => item.file), ...accepted] : accepted.slice(0, 1);
-    const limitedFiles = this.maxFiles() === null ? nextFiles : nextFiles.slice(0, this.maxFiles()!);
+    const nextFiles = this.multiple()
+      ? [...this.items().map((item) => item.file), ...accepted]
+      : accepted.slice(0, 1);
+    const limitedFiles =
+      this.maxFiles() === null ? nextFiles : nextFiles.slice(0, this.maxFiles()!);
     if (limitedFiles.length < nextFiles.length) {
-      this.validationError.emit(`Solo se permiten ${this.maxFiles()} archivos.`);
+      this.validationError.emit(`Only ${this.maxFiles()} files are admitted.`);
     }
 
     this.items().forEach((item) => {
