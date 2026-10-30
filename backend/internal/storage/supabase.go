@@ -38,12 +38,18 @@ func (s *SupabaseStorage) PublicURL(path string) string {
 	if path == "" {
 		return ""
 	}
+	if strings.HasPrefix(path, "https://") || strings.HasPrefix(path, "http://") {
+		return path
+	}
 	return fmt.Sprintf("%s/storage/v1/object/public/%s/%s", s.baseURL, profileBucket, escapeObjectPath(path))
 }
 
 func (s *SupabaseStorage) ObjectPath(publicURL string) (string, bool) {
 	prefix := fmt.Sprintf("%s/storage/v1/object/public/%s/", s.baseURL, profileBucket)
 	if !strings.HasPrefix(publicURL, prefix) {
+		if strings.HasPrefix(publicURL, "avatars/") {
+			return publicURL, true
+		}
 		return "", false
 	}
 	path, err := url.PathUnescape(strings.TrimPrefix(publicURL, prefix))
