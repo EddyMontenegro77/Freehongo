@@ -145,15 +145,3 @@ func createSession(ctx context.Context, q *repository.UserQueries, userID string
 	}
 	return models.Session{Token: token, ExpiresAt: expiresAt}, nil
 }
-
-func VerifyEmail() {
-
-}
-
-func PasswordRecovery() {
-
-}
-
-func DeleteUser() {
-	//Soft delete: pwhs null, revoke all tokens, delete identites
-}
