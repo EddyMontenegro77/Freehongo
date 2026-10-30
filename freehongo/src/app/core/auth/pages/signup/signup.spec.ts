@@ -38,28 +38,37 @@ describe('Signup', () => {
   });
 
   it('does not submit when passwords do not match', async () => {
-    component.username.set('User');
-    component.userEmail.set('user@example.com');
-    component.password.set('password123');
-    component.passwordConfirmation.set('different123');
+    component.signUpModel.set({
+      name: 'User',
+      email: 'user@example.com',
+      password: 'password123',
+      passwordConfirmation: 'different123',
+    });
 
     await component.submitUser();
 
     expect(authMock.signup).not.toHaveBeenCalled();
-    expect(authMock.lastError()).toBe('Las contraseñas no coinciden.');
+    expect(authMock.lastError()).toBe('Passwords do not match.');
   });
 
   it('navigates after a successful signup', async () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
-    component.username.set('User');
-    component.userEmail.set('user@example.com');
-    component.password.set('password123');
-    component.passwordConfirmation.set('password123');
+    component.signUpModel.set({
+      name: 'User',
+      email: 'user@example.com',
+      password: 'password123',
+      passwordConfirmation: 'password123',
+    });
 
     await component.submitUser();
 
-    expect(authMock.signup).toHaveBeenCalledWith('User', 'user@example.com', 'password123');
+    expect(authMock.signup).toHaveBeenCalledWith({
+      name: 'User',
+      email: 'user@example.com',
+      password: 'password123',
+      picture: undefined,
+    });
     expect(navigate).toHaveBeenCalledWith('/');
   });
 });
