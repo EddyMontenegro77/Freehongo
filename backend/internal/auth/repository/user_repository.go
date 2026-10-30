@@ -210,6 +210,45 @@ func (q *UserQueries) InsertSessionToken(ctx context.Context, userID, tokenHash 
 	return err
 }
 
+func (q *UserQueries) InsertActionToken(ctx context.Context, userID, tokenHash, tokenType string, expiresAt time.Time) error {
+	_, err := q.tx.ExecContext(ctx, `
+		INSERT INTO app.user_tokens (user_id, token_hash, token_type, expires_at)
+		VALUES ($1, $2, $3, $4)`, userID, tokenHash, tokenType, expiresAt)
+	return err
+}
+
+func (q *UserQueries) FindActiveActionTokenUser(ctx context.Context, tokenHash, tokenType string) (string, bool, error) {
+	var value sql.NullString
+	err := q.tx.QueryRowContext(ctx, `
+		SELECT app.validate_action_token($1, $2)`, tokenHash, tokenType).Scan(&value)
+	if err != nil {
+		return "", false, err
+	}
+	return value.String, value.Valid, nil
+}
+
+func (q *UserQueries) RevokeActionToken(ctx context.Context, tokenHash, tokenType string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.user_tokens
+		SET revoked_at = now()
+		WHERE token_hash = $1 AND token_type = $2 AND revoked_at IS NULL`, tokenHash, tokenType)
+	return err
+}
+
+func (q *UserQueries) MarkEmailVerified(ctx context.Context, userID string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.users SET email_verified_at = COALESCE(email_verified_at, now())
+		WHERE user_id = $1 AND deleted_at IS NULL`, userID)
+	return err
+}
+
+func (q *UserQueries) UpdatePassword(ctx context.Context, userID, passwordHash string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.users SET password_hash = $1
+		WHERE user_id = $2 AND deleted_at IS NULL`, passwordHash, userID)
+	return err
+}
+
 func (q *UserQueries) FindActiveSessionUser(ctx context.Context, tokenHash string) (userID string, found bool, err error) {
 	var value sql.NullString
 	err = q.tx.QueryRowContext(ctx, `
