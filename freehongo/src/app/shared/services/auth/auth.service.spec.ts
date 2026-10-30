@@ -76,12 +76,12 @@ describe('AuthService', () => {
     request.flush({ error: 'invalid_credentials' }, { status: 401, statusText: 'Unauthorized' });
 
     await expect(promise).rejects.toBeTruthy();
-    expect(service.lastError()).toBe('Email o contraseña incorrectos.');
+    expect(service.lastError()).toBe('Incorrect email or password.');
     expect(service.isProcessing()).toBe(false);
   });
 
   it('signs up with name, email and password', async () => {
-    const promise = service.signup('User', 'user@example.com', 'password123');
+    const promise = service.signup({ name: 'User', email: 'user@example.com', password: 'password123' });
     const signupRequest = httpMock.expectOne(`${environment.apiUrl}/auth/signup`);
 
     expect(signupRequest.request.body).toEqual({
@@ -97,6 +97,33 @@ describe('AuthService', () => {
     await promise;
 
     expect(service.user()?.name).toBe('User');
+  });
+
+  it('sends signup data as multipart when a picture is provided', async () => {
+    const picture = new File(['image'], 'avatar.png', { type: 'image/png' });
+    const promise = service.signup({
+      name: 'User',
+      email: 'user@example.com',
+      password: 'password123',
+      picture,
+    });
+    const signupRequest = httpMock.expectOne(`${environment.apiUrl}/auth/signup`);
+    expect(signupRequest.request.body).toBeInstanceOf(FormData);
+    expect((signupRequest.request.body as FormData).get('picture')).toBe(picture);
+    signupRequest.flush({ expiresAt: '2030-01-01T00:00:00Z' });
+    await Promise.resolve();
+
+    const sessionRequest = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
+    sessionRequest.flush({ name: 'User', email: 'user@example.com', verified: false });
+    await promise;
+  });
+
+  it('requests a password reset with the entered email', async () => {
+    const promise = service.requestPasswordReset('user@example.com');
+    const request = httpMock.expectOne(`${environment.apiUrl}/auth/password-reset/request`);
+    expect(request.request.body).toEqual({ email: 'user@example.com' });
+    request.flush({ message: 'password_reset_email_sent' });
+    await promise;
   });
 
   it('logs out and clears the local user', async () => {

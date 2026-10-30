@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environments';
+import { SignupRequest } from '../../models/auth/auth.models';
 
 export interface User {
   name: string;
@@ -73,14 +74,21 @@ export class AuthService {
     }
   }
 
-  async signup(name: string, email: string, password: string): Promise<void> {
+  async signup(signupReq: SignupRequest): Promise<void> {
     this.lastError.set(null);
     this.isProcessing.set(true);
     try {
+      const body = signupReq.picture
+        ? this.buildSignupFormData(signupReq)
+        : {
+            name: signupReq.name,
+            email: signupReq.email,
+            password: signupReq.password,
+          };
       await firstValueFrom(
         this.http.post(
           `${environment.apiUrl}/auth/signup`,
-          { name, email, password },
+          body,
           { withCredentials: true },
         ),
       );
@@ -93,6 +101,15 @@ export class AuthService {
     }
   }
 
+  private buildSignupFormData(signupReq: SignupRequest): FormData {
+    const formData = new FormData();
+    formData.append('name', signupReq.name);
+    formData.append('email', signupReq.email);
+    formData.append('password', signupReq.password);
+    formData.append('picture', signupReq.picture!);
+    return formData;
+  }
+
   async logout(): Promise<void> {
     try {
       await firstValueFrom(
@@ -100,6 +117,84 @@ export class AuthService {
       );
     } finally {
       this._user.set(null);
+    }
+  }
+
+  async requestEmailVerification(): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/auth/verify-email/request`, {}, { withCredentials: true }),
+      );
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.get(`${environment.apiUrl}/auth/verify-email`, { params: { token } }),
+      );
+      this._user.update((user) => (user ? { ...user, verified: true } : user));
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/auth/password-reset/request`, { email }),
+      );
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async requestPasswordResetForUser(): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post(
+          `${environment.apiUrl}/auth/profile/password-reset/request`,
+          {},
+          { withCredentials: true },
+        ),
+      );
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async deleteProfile(): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.delete(`${environment.apiUrl}/auth/profile`, { withCredentials: true }),
+      );
+      this._user.set(null);
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async resetPassword(token: string, password: string): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/auth/password-reset`, { token, password }),
+      );
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
     }
   }
 
@@ -111,15 +206,17 @@ export class AuthService {
   private getErrorMessage(error: unknown): string {
     const code = error instanceof HttpErrorResponse ? error.error?.error : null;
     const messages: Record<string, string> = {
-      invalid_credentials: 'Email o contraseña incorrectos.',
-      invalid_email: 'El email no es válido.',
-      password_too_short: 'La contraseña debe tener al menos 8 caracteres.',
-      password_too_long: 'La contraseña no puede superar 128 caracteres.',
-      email_already_registered: 'Este email ya está registrado.',
-      bad_request: 'Revisa los datos ingresados.',
-      internal_server_error: 'No se pudo completar la operación. Intenta de nuevo.',
+      invalid_credentials: 'Incorrect email or password.',
+      invalid_email: 'The email is invalid.',
+      password_too_short: 'The password must be at least 8 characters long.',
+      password_too_long: 'The password cannot exceed 128 characters.',
+      email_already_registered: 'This email is already registered.',
+      bad_request: 'Please check the entered information.',
+      email_not_found: 'No account exists with that email.',
+      invalid_or_expired_token: 'The link is invalid or has expired.',
+      internal_server_error: 'The operation could not be completed. Please try again.',
     };
 
-    return messages[code] ?? 'No se pudo completar la operación. Intenta de nuevo.';
+    return messages[code] ?? 'The operation could not be completed. Please try again.';
   }
 }
