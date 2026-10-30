@@ -12,6 +12,7 @@ import (
 	"freehongo-api/internal/auth/repository"
 	authServices "freehongo-api/internal/auth/services"
 	"freehongo-api/internal/db"
+	emailServices "freehongo-api/internal/emails/services"
 	japaneseRepository "freehongo-api/internal/japanese/repository"
 	japaneseServices "freehongo-api/internal/japanese/services"
 	"freehongo-api/internal/storage"
@@ -52,6 +53,11 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepository(database)
+	mailer, err := emailServices.NewMailer(mustGetenv("RESEND_API_KEY"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	emailFlows := authServices.NewEmailFlows(userRepo, mailer, apiAllowedOrigin)
 	objectStorage := storage.NewSupabaseStorage(
 		mustGetenv("SUPABASE_URL"),
 		mustGetenv("SUPABASE_SERVICE_KEY"),
@@ -74,7 +80,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{apiAllowedOrigin},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
 		AllowHeaders:     []string{"Content-Type"},
 		AllowCredentials: true,
 	}))
@@ -83,6 +89,7 @@ func main() {
 		UserRepo:        userRepo,
 		ProfileService:  profileService,
 		ProfileStorage:  objectStorage,
+		EmailFlows:      emailFlows,
 		PasswordAuth:    freehongoAuthService,
 		GoogleAuth:      googleAuthHandler,
 		RequireAuth:     authMiddleware,
