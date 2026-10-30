@@ -17,6 +17,7 @@ describe('Login', () => {
   };
 
   beforeEach(async () => {
+    authMock.login.mockClear();
     await TestBed.configureTestingModule({
       imports: [Login]
       ,providers: [
@@ -40,8 +41,7 @@ describe('Login', () => {
   it('navigates to the return url after a successful login', async () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
-    component.userEmail.set('user@example.com');
-    component.password.set('password123');
+    component.loginModel.set({ email: 'user@example.com', password: 'password123' });
 
     await component.submitUser();
 

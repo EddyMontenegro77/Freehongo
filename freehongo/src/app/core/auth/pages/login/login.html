@@ -1,4 +1,4 @@
-<div class="signup-form">
+<form class="signup-form" [formRoot]="loginForm">
   @if (auth.lastError(); as error) {
     <p class="auth-error" role="alert">{{ error }}</p>
   }
@@ -8,21 +8,24 @@
   } @else {
     <app-input
       label="Email"
-      [required]="true"
+      type="email"
       placeholder="JohnDoe@mail.com"
-      (valueChange)="updateEmail($event)"
+      [formField]="loginForm.email"
     />
     <app-input
       label="Password"
       type="password"
       placeholder="Type your password"
-      min="8"
-      [required]="true"
-      (valueChange)="updatePassword($event)"
+      [formField]="loginForm.password"
     />
-    <app-action-btn title="Submit" [action]="submitUser" variant="accent" />
+    <app-action-btn title="Submit" type="submit" variant="accent" />
+    <app-action-btn title="Forgot password?" [action]="requestPasswordReset" />
+    @if (resetMessage(); as message) {
+      <p class="auth-message" role="status">{{ message }}</p>
+    }
   }
-</div>
+</form>
+
 @if (!auth.isProcessing()) {
   <app-google-login-btn />
 }
