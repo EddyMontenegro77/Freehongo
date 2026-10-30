@@ -61,6 +61,21 @@ AS $$
      AND u.deleted_at IS NULL
 $$;
 
+CREATE OR REPLACE FUNCTION app.validate_action_token(p_token_hash text, p_token_type text)
+RETURNS uuid
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = app, pg_temp
+AS $$
+   SELECT t.user_id
+   FROM app.user_tokens t
+   JOIN app.users u ON u.user_id = t.user_id
+   WHERE t.token_hash = p_token_hash
+     AND t.token_type = p_token_type
+     AND t.revoked_at IS NULL
+     AND t.expires_at > now()
+     AND u.deleted_at IS NULL
+$$;
+
 REVOKE ALL ON FUNCTION app.validate_token(TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION app.validate_token(TEXT) TO app_backend;
 
@@ -69,6 +84,9 @@ GRANT EXECUTE ON FUNCTION app.find_user_by_identity(TEXT, TEXT) TO app_backend;
 
 REVOKE ALL ON FUNCTION app.find_user_by_email_for_login(TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION app.find_user_by_email_for_login(TEXT) TO app_backend;
+
+REVOKE ALL ON FUNCTION app.validate_action_token(TEXT, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION app.validate_action_token(TEXT, TEXT) TO app_backend;
 
 ALTER TABLE app.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app.user_identities ENABLE ROW LEVEL SECURITY;
