@@ -60,6 +60,12 @@ func HandleAuthError(c *gin.Context, err error) {
 	case errors.Is(err, auth.ErrInvalidImage):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_image"})
 
+	case errors.Is(err, auth.ErrEmailNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "email_not_found"})
+
+	case errors.Is(err, auth.ErrInvalidActionToken):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_or_expired_token"})
+
 	case errors.Is(err, auth.ErrRLSPolicyViolation):
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "rls_policy_violation"})
 
