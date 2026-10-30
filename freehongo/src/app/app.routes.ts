@@ -13,6 +13,8 @@ import { Login } from './core/auth/pages/login/login';
 import { Profile } from './core/auth/pages/profile/profile';
 import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
+import { VerifyEmail } from './core/auth/pages/verify-email/verify-email';
+import { ResetPassword } from './core/auth/pages/reset-password/reset-password';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -25,6 +27,8 @@ export const routes: Routes = [
   { path: 'quizes/strokes/:mode/:listId', component: StrokesQuiz },
   { path: 'auth/signup', component: Signup, canActivate: [guestGuard] },
   { path: 'auth/login', component: Login, canActivate: [guestGuard] },
+  { path: 'auth/verify-email', component: VerifyEmail },
+  { path: 'auth/reset-password', component: ResetPassword },
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
