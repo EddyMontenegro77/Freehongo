@@ -11,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.11.2
 	github.com/linzeyan/webp-go v0.1.1
+	github.com/resend/resend-go/v4 v4.10.0
 	golang.org/x/crypto v0.58.0
 	golang.org/x/image v0.47.0
 	google.golang.org/api v0.304.0
