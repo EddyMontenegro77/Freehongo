@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../../environments/environments';
 import { AuthService } from './auth.service';
@@ -78,6 +78,18 @@ describe('AuthService', () => {
     await expect(promise).rejects.toBeTruthy();
     expect(service.lastError()).toBe('Incorrect email or password.');
     expect(service.isProcessing()).toBe(false);
+  });
+
+  it('shows a specific message when login is rate limited', async () => {
+    const promise = service.login('user@example.com', 'wrong');
+    const request = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
+    request.flush(
+      { error: 'rate_limit_exceeded' },
+      { status: 429, statusText: 'Too Many Requests', headers: new HttpHeaders({ 'Retry-After': '60' }) },
+    );
+
+    await expect(promise).rejects.toBeTruthy();
+    expect(service.lastError()).toBe('Too many attempts. Please try again later.');
   });
 
   it('signs up with name, email and password', async () => {

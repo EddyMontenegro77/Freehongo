@@ -207,6 +207,7 @@ export class AuthService {
     const code = error instanceof HttpErrorResponse ? error.error?.error : null;
     const messages: Record<string, string> = {
       invalid_credentials: 'Incorrect email or password.',
+      rate_limit_exceeded: 'Too many attempts. Please try again later.',
       invalid_email: 'The email is invalid.',
       password_too_short: 'The password must be at least 8 characters long.',
       password_too_long: 'The password cannot exceed 128 characters.',
