@@ -1,7 +1,7 @@
 import { Service, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environments';
 import { SignupRequest } from '../../models/auth/auth.models';
 
@@ -26,7 +26,9 @@ export class AuthService {
     try {
       this._user.set(
         await firstValueFrom(
-          this.http.get<User>(`${environment.apiUrl}/auth/me`, { withCredentials: true }),
+          this.http
+            .get<User>(`${environment.apiUrl}/auth/me`, { withCredentials: true })
+            .pipe(timeout({ first: 5000 })),
         ),
       );
     } catch {
