@@ -10,7 +10,7 @@ import (
 type RateLimiterPolicy struct {
 	MaxTokenCapacity    int
 	TokensPerPeriod     float64
-	ReplenishmentPeriod	time.Duration
+	ReplenishmentPeriod time.Duration
 }
 
 func (p RateLimiterPolicy) RefillPerSecond() float64 {
@@ -18,21 +18,21 @@ func (p RateLimiterPolicy) RefillPerSecond() float64 {
 }
 
 type bucket struct {
-	tokens		float64
-	lastRefill	time.Time
+	tokens     float64
+	lastRefill time.Time
 }
 
 type RateLimiter struct {
-	policy		RateLimiterPolicy
-	now     	func() time.Time
-	mu			sync.Mutex
+	policy      RateLimiterPolicy
+	now         func() time.Time
+	mu          sync.Mutex
 	lifecycleMu sync.Mutex
-	buckets		map[string]*bucket
-	stop    	chan struct{}
-	closed		bool
-	startOnce 	sync.Once
-	stopOnce 	sync.Once
-	wg 			sync.WaitGroup
+	buckets     map[string]*bucket
+	stop        chan struct{}
+	closed      bool
+	startOnce   sync.Once
+	stopOnce    sync.Once
+	wg          sync.WaitGroup
 }
 
 func NewRateLimiter(policy RateLimiterPolicy) (*RateLimiter, error) {
@@ -46,39 +46,39 @@ func NewRateLimiter(policy RateLimiterPolicy) (*RateLimiter, error) {
 		return nil, fmt.Errorf("ReplenishmentPeriod must be positive")
 	}
 
-    rl := &RateLimiter{
-        policy:  policy,
+	rl := &RateLimiter{
+		policy:  policy,
 		now:     time.Now,
-        buckets: make(map[string]*bucket),
+		buckets: make(map[string]*bucket),
 		stop:    make(chan struct{}),
-    }
+	}
 	return rl, nil
 }
 
 func (rl *RateLimiter) Start() {
 	rl.lifecycleMu.Lock()
-    defer rl.lifecycleMu.Unlock()
+	defer rl.lifecycleMu.Unlock()
 
 	if rl.closed {
-        return
-    }
+		return
+	}
 
-    rl.startOnce.Do(func() {
-        rl.wg.Go(rl.cleanupLoop)
-    })
+	rl.startOnce.Do(func() {
+		rl.wg.Go(rl.cleanupLoop)
+	})
 }
 
 func (rl *RateLimiter) Close() {
 	rl.lifecycleMu.Lock()
 	rl.closed = true
 
-    rl.stopOnce.Do(func() {
-        close(rl.stop)
-    })
+	rl.stopOnce.Do(func() {
+		close(rl.stop)
+	})
 
 	rl.lifecycleMu.Unlock()
 
-    rl.wg.Wait()
+	rl.wg.Wait()
 }
 
 func (rl *RateLimiter) idleTimeout() time.Duration {
@@ -97,10 +97,10 @@ func (rl *RateLimiter) cleanupLoop() {
 
 	for {
 		select {
-			case <-ticker.C:
-				rl.cleanup()
-			case <-rl.stop:
-				return
+		case <-ticker.C:
+			rl.cleanup()
+		case <-rl.stop:
+			return
 		}
 	}
 }
@@ -128,6 +128,22 @@ func (rl *RateLimiter) ActiveBuckets() int {
 func (limiter *RateLimiter) Allow(key string) (bool, time.Duration) {
 	limiter.mu.Lock()
 	defer limiter.mu.Unlock()
+	return limiter.allowLocked(key, true)
+}
+
+func (limiter *RateLimiter) Check(key string) (bool, time.Duration) {
+	limiter.mu.Lock()
+	defer limiter.mu.Unlock()
+	return limiter.allowLocked(key, false)
+}
+
+func (limiter *RateLimiter) Reset(key string) {
+	limiter.mu.Lock()
+	defer limiter.mu.Unlock()
+	delete(limiter.buckets, key)
+}
+
+func (limiter *RateLimiter) allowLocked(key string, consume bool) (bool, time.Duration) {
 
 	now := limiter.now()
 	userBucket, bucketExists := limiter.buckets[key]
@@ -139,16 +155,18 @@ func (limiter *RateLimiter) Allow(key string) (bool, time.Duration) {
 
 	refillRatePerSecond := limiter.policy.RefillPerSecond()
 	elapsedSeconds := now.Sub(userBucket.lastRefill).Seconds()
-	userBucket.tokens = math.Min(float64(limiter.policy.MaxTokenCapacity), userBucket.tokens + elapsedSeconds  * refillRatePerSecond)
+	userBucket.tokens = math.Min(float64(limiter.policy.MaxTokenCapacity), userBucket.tokens+elapsedSeconds*refillRatePerSecond)
 
 	userBucket.lastRefill = now
 
 	if userBucket.tokens >= 1 {
-		userBucket.tokens--
+		if consume {
+			userBucket.tokens--
+		}
 		return true, 0
 	}
-	retryAfter := time.Duration((1 - userBucket.tokens) / refillRatePerSecond  * float64(time.Second))
-	return false, retryAfter 
+	retryAfter := time.Duration((1 - userBucket.tokens) / refillRatePerSecond * float64(time.Second))
+	return false, retryAfter
 }
 
 func RetryAfterSeconds(d time.Duration) int {
