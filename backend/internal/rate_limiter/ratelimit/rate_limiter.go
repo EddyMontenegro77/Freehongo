@@ -26,8 +26,10 @@ type RateLimiter struct {
 	policy		RateLimiterPolicy
 	now     	func() time.Time
 	mu			sync.Mutex
+	lifecycleMu sync.Mutex
 	buckets		map[string]*bucket
 	stop    	chan struct{}
+	closed		bool
 	startOnce 	sync.Once
 	stopOnce 	sync.Once
 	wg 			sync.WaitGroup
@@ -54,15 +56,27 @@ func NewRateLimiter(policy RateLimiterPolicy) (*RateLimiter, error) {
 }
 
 func (rl *RateLimiter) Start() {
+	rl.lifecycleMu.Lock()
+    defer rl.lifecycleMu.Unlock()
+
+	if rl.closed {
+        return
+    }
+
     rl.startOnce.Do(func() {
         rl.wg.Go(rl.cleanupLoop)
     })
 }
 
 func (rl *RateLimiter) Close() {
+	rl.lifecycleMu.Lock()
+	rl.closed = true
+
     rl.stopOnce.Do(func() {
         close(rl.stop)
     })
+
+	rl.lifecycleMu.Unlock()
 
     rl.wg.Wait()
 }
@@ -76,20 +90,17 @@ func (rl *RateLimiter) idleTimeout() time.Duration {
 }
 
 func (rl *RateLimiter) cleanupLoop() {
-	interval := rl.idleTimeout()
-	if interval < time.Second {
-		interval = time.Second
-	}
+	interval := max(rl.idleTimeout(), time.Second)
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-ticker.C:
-			rl.cleanup()
-		case <-rl.stop:
-			return
+			case <-ticker.C:
+				rl.cleanup()
+			case <-rl.stop:
+				return
 		}
 	}
 }
