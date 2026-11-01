@@ -55,3 +55,32 @@ func TestByUserAndIPIncludesBothParts(t *testing.T) {
 		t.Fatalf("key = %q, want %q", got, want)
 	}
 }
+
+func TestLimiterCheckDoesNotConsumeAndResetClearsBucket(t *testing.T) {
+	limiter, err := ratelimit.NewRateLimiter(ratelimit.RateLimiterPolicy{
+		MaxTokenCapacity:    1,
+		TokensPerPeriod:     1,
+		ReplenishmentPeriod: time.Hour,
+	})
+	if err != nil {
+		t.Fatalf("creating limiter: %v", err)
+	}
+
+	if allowed, _ := limiter.Check("email@example.com"); !allowed {
+		t.Fatal("first check should be allowed")
+	}
+	if allowed, _ := limiter.Check("email@example.com"); !allowed {
+		t.Fatal("check should not consume a token")
+	}
+	if allowed, _ := limiter.Allow("email@example.com"); !allowed {
+		t.Fatal("allow should consume the available token")
+	}
+	if allowed, _ := limiter.Check("email@example.com"); allowed {
+		t.Fatal("check should be blocked after consuming the token")
+	}
+
+	limiter.Reset("email@example.com")
+	if allowed, _ := limiter.Check("email@example.com"); !allowed {
+		t.Fatal("reset should clear the bucket")
+	}
+}

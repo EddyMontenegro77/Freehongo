@@ -54,7 +54,7 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	// Auth Endpoints
 	public.POST("/auth/google", d.RateLimiters.Auth(), d.GoogleAuth)
 	public.POST("/auth/signup", d.RateLimiters.Auth(), authHandlers.PostSignUp(d.PasswordAuth))
-	public.POST("/auth/login", d.RateLimiters.Auth(), authHandlers.PostLogin(d.PasswordAuth))
+	public.POST("/auth/login", d.RateLimiters.Auth(), authHandlers.PostLogin(d.PasswordAuth, d.RateLimiters.FailedLogin()))
 	public.POST("/auth/logout", authHandlers.PostLogout(d.PasswordAuth))
 	public.GET("/auth/verify-email", authHandlers.GetVerifyEmail(d.EmailFlows))
 	public.POST("/auth/password-reset/request", d.RateLimiters.Reset(), authHandlers.PostRequestPasswordReset(d.EmailFlows))

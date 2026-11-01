@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"freehongo-api/internal/auth/models"
 	"freehongo-api/internal/auth/repository"
 	"freehongo-api/internal/auth/utils"
+	"freehongo-api/internal/rate_limiter/ratelimit"
 	"freehongo-api/internal/storage"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +31,12 @@ type PasswordAuthService interface {
 	SignUp(ctx context.Context, req models.RegisterRequest) (models.Session, error)
 	SignIn(ctx context.Context, req models.LoginRequest) (models.Session, error)
 	Logout(ctx context.Context, token string) error
+}
+
+type FailedLoginLimiter interface {
+	Check(key string) (bool, time.Duration)
+	Allow(key string) (bool, time.Duration)
+	Reset(key string)
 }
 
 type ProfileAuthService interface {
@@ -122,7 +130,7 @@ func bindSignUpRequest(c *gin.Context) (models.RegisterRequest, io.Closer, error
 	return req, nil, nil
 }
 
-func PostLogin(auth PasswordAuthService) gin.HandlerFunc {
+func PostLogin(auth PasswordAuthService, failedAttempts FailedLoginLimiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req models.LoginRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -130,14 +138,29 @@ func PostLogin(auth PasswordAuthService) gin.HandlerFunc {
 			return
 		}
 
+		email := utils.NormalizeEmail(req.Email)
+		if allowed, retryAfter := failedAttempts.Check(email); !allowed {
+			writeRateLimitExceeded(c, retryAfter)
+			return
+		}
+
 		session, err := auth.SignIn(c.Request.Context(), req)
 		if err != nil {
+			if errors.Is(err, models.ErrInvalidCredentials) {
+				failedAttempts.Allow(email)
+			}
 			utils.HandleAuthError(c, err)
 			return
 		}
+		failedAttempts.Reset(email)
 		setSessionCookie(c, session)
 		c.JSON(http.StatusOK, session)
 	}
+}
+
+func writeRateLimitExceeded(c *gin.Context, retryAfter time.Duration) {
+	c.Header("Retry-After", strconv.Itoa(ratelimit.RetryAfterSeconds(retryAfter)))
+	c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "rate_limit_exceeded"})
 }
 
 func PostLogout(auth PasswordAuthService) gin.HandlerFunc {

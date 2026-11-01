@@ -12,15 +12,17 @@ import (
 )
 
 const (
-	GeneralMaxRequests = 100
-	AuthMaxRequests    = 5
-	ResetMaxRequests   = 1
-	VerifyMaxRequests  = 1
+	GeneralMaxRequests     = 100
+	AuthMaxRequests        = 5
+	ResetMaxRequests       = 1
+	VerifyMaxRequests      = 1
+	FailedLoginMaxAttempts = 10
 
-	GeneralWindow = time.Minute
-	AuthWindow    = time.Minute
-	ResetWindow   = 10 * time.Minute
-	VerifyWindow  = time.Minute
+	GeneralWindow     = time.Minute
+	AuthWindow        = time.Minute
+	ResetWindow       = 10 * time.Minute
+	VerifyWindow      = time.Minute
+	FailedLoginWindow = 15 * time.Minute
 )
 
 var (
@@ -44,15 +46,19 @@ var (
 		TokensPerPeriod:     VerifyMaxRequests,
 		ReplenishmentPeriod: VerifyWindow,
 	}
+	FailedLoginPolicy = ratelimit.RateLimiterPolicy{
+		MaxTokenCapacity:    FailedLoginMaxAttempts,
+		TokensPerPeriod:     FailedLoginMaxAttempts,
+		ReplenishmentPeriod: FailedLoginWindow,
+	}
 )
 
-// Limiters owns all application rate limiters. It is created once at startup
-// and shared by every route that uses rate limiting.
 type Limiters struct {
-	general *ratelimit.RateLimiter
-	auth    *ratelimit.RateLimiter
-	reset   *ratelimit.RateLimiter
-	verify  *ratelimit.RateLimiter
+	general     *ratelimit.RateLimiter
+	auth        *ratelimit.RateLimiter
+	reset       *ratelimit.RateLimiter
+	verify      *ratelimit.RateLimiter
+	failedLogin *ratelimit.RateLimiter
 
 	generalMiddleware gin.HandlerFunc
 	authMiddleware    gin.HandlerFunc
@@ -77,12 +83,17 @@ func NewLimiters() (*Limiters, error) {
 	if err != nil {
 		return nil, err
 	}
+	failedLogin, err := ratelimit.NewRateLimiter(FailedLoginPolicy)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Limiters{
 		general:           general,
 		auth:              auth,
 		reset:             reset,
 		verify:            verify,
+		failedLogin:       failedLogin,
 		generalMiddleware: New(general, ByUserAndIP),
 		authMiddleware:    New(auth, ByIP),
 		resetMiddleware:   New(reset, ByIP),
@@ -95,6 +106,7 @@ func (l *Limiters) Start() {
 	l.auth.Start()
 	l.reset.Start()
 	l.verify.Start()
+	l.failedLogin.Start()
 }
 
 func (l *Limiters) Close() {
@@ -102,12 +114,14 @@ func (l *Limiters) Close() {
 	l.auth.Close()
 	l.reset.Close()
 	l.verify.Close()
+	l.failedLogin.Close()
 }
 
-func (l *Limiters) General() gin.HandlerFunc { return l.generalMiddleware }
-func (l *Limiters) Auth() gin.HandlerFunc    { return l.authMiddleware }
-func (l *Limiters) Reset() gin.HandlerFunc   { return l.resetMiddleware }
-func (l *Limiters) Verify() gin.HandlerFunc  { return l.verifyMiddleware }
+func (l *Limiters) General() gin.HandlerFunc            { return l.generalMiddleware }
+func (l *Limiters) Auth() gin.HandlerFunc               { return l.authMiddleware }
+func (l *Limiters) Reset() gin.HandlerFunc              { return l.resetMiddleware }
+func (l *Limiters) Verify() gin.HandlerFunc             { return l.verifyMiddleware }
+func (l *Limiters) FailedLogin() *ratelimit.RateLimiter { return l.failedLogin }
 
 func New(limiter *ratelimit.RateLimiter, key func(*gin.Context) string) gin.HandlerFunc {
 	return func(c *gin.Context) {
