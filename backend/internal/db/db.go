@@ -3,19 +3,26 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	_ "github.com/lib/pq"
 )
 
-func Connect() *sql.DB {
+type Config struct {
+	Host     string
+	Port     string
+	Name     string
+	User     string
+	Password string
+}
+
+func Connect(config Config) *sql.DB {
 	connectionStr := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=require",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
+		config.Host,
+		config.Port,
+		config.Name,
+		config.User,
+		config.Password,
 	)
 
 	db, err := sql.Open("postgres", connectionStr)
