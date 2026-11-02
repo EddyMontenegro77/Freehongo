@@ -9,8 +9,10 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"log"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"freehongo-api/internal/auth/models"
 	"freehongo-api/internal/auth/repository"
@@ -89,6 +91,53 @@ func (s *ProfileService) DeleteProfile(ctx context.Context, userID string) error
 	return s.users.InTx(ctx, userID, func(q *repository.UserQueries) error {
 		return q.SoftDeleteUser(ctx, userID)
 	})
+}
+
+func (s *ProfileService) StartPictureCleanup(ctx context.Context) {
+	go func() {
+		s.cleanupPictureQueue(ctx)
+
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				s.cleanupPictureQueue(ctx)
+			}
+		}
+	}()
+}
+
+func (s *ProfileService) cleanupPictureQueue(ctx context.Context) {
+	var pictures []string
+	err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
+		var err error
+		pictures, err = q.ListQueuedProfilePictures(ctx)
+		return err
+	})
+	if err != nil {
+		log.Printf("profile picture cleanup: reading queue: %v", err)
+		return
+	}
+
+	for _, pictureURL := range pictures {
+		picturePath, owned := s.storage.ObjectPath(pictureURL)
+		if owned {
+			if err := s.storage.Delete(ctx, picturePath); err != nil {
+				log.Printf("profile picture cleanup: deleting %q: %v", picturePath, err)
+				continue
+			}
+		}
+
+		err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
+			return q.RemoveQueuedProfilePicture(ctx, pictureURL)
+		})
+		if err != nil {
+			log.Printf("profile picture cleanup: removing queue item: %v", err)
+		}
+	}
 }
 
 func convertToWebP(input io.Reader, filename string) ([]byte, error) {
