@@ -13,6 +13,7 @@ describe('VerifyEmail', () => {
   const authMock = {
     lastError: signal<string | null>(null),
     verifyEmail: vi.fn().mockResolvedValue(undefined),
+    requestEmailVerification: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -44,7 +45,7 @@ describe('VerifyEmail', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show an error without requesting verification when the token is missing', async () => {
+  it('should show the pending verification state without a token', async () => {
     token = null;
     createFixture();
     await fixture.whenStable();
@@ -52,6 +53,7 @@ describe('VerifyEmail', () => {
 
     expect(authMock.verifyEmail).not.toHaveBeenCalled();
     expect(component.isProcessing()).toBe(false);
+    expect(component.isPending()).toBe(false);
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent.trim()).toBe(
       'The verification link is invalid.',
     );

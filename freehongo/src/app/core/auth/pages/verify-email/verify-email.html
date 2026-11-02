@@ -1,6 +1,27 @@
 <section class="email-action">
   @if (isProcessing()) {
     <app-loading-state message="Verifying email..." />
+  } @else if (isPending()) {
+    <h1>Check your email</h1>
+    <p>We sent you a verification link. Verify your email before logging in.</p>
+    <label for="verification-email">Email</label>
+    <input
+      id="verification-email"
+      type="email"
+      [value]="email()"
+      (input)="email.set($any($event.target).value)"
+    />
+    <app-action-btn
+      title="Resend verification email"
+      [action]="resendVerification"
+      variant="accent"
+    />
+    @if (resendMessage(); as resendMessage) {
+      <p role="status">{{ resendMessage }}</p>
+    }
+    @if (error(); as error) {
+      <p role="alert">{{ error }}</p>
+    }
   } @else if (message(); as message) {
     <p role="status">{{ message }}</p>
     <app-action-btn title="Go home" [action]="goToHome" variant="accent" />

@@ -17,6 +17,9 @@ export class VerifyEmail {
   private readonly router = inject(Router);
 
   readonly isProcessing = signal(true);
+  readonly isPending = signal(false);
+  readonly email = signal('');
+  readonly resendMessage = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly error = signal<string | null>(null);
 
@@ -27,7 +30,13 @@ export class VerifyEmail {
   private async verify(): Promise<void> {
     const token = this.route.snapshot.queryParamMap.get('token') ?? '';
     if (!token) {
-      this.error.set('The verification link is invalid.');
+      const pending = this.route.snapshot.queryParamMap.get('pending') === 'true';
+      if (!pending) {
+        this.error.set('The verification link is invalid.');
+      } else {
+        this.email.set(this.route.snapshot.queryParamMap.get('email') ?? '');
+        this.isPending.set(true);
+      }
       this.isProcessing.set(false);
       return;
     }
@@ -44,6 +53,17 @@ export class VerifyEmail {
 
   goToLogin = async (): Promise<void> => {
     await this.router.navigateByUrl('/auth/login');
+  };
+
+  resendVerification = async (): Promise<void> => {
+    this.resendMessage.set(null);
+    this.error.set(null);
+    try {
+      await this.auth.requestEmailVerification(this.email().trim());
+      this.resendMessage.set('If an account exists, a verification email has been sent.');
+    } catch {
+      this.error.set(this.auth.lastError() ?? 'The email could not be sent.');
+    }
   };
 
   goToHome = async (): Promise<void> => {
