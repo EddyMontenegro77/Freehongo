@@ -20,7 +20,6 @@ var (
 	ErrImageTooLarge      = errors.New("image too large")
 	ErrUnsupportedImage   = errors.New("unsupported image")
 	ErrInvalidImage       = errors.New("invalid image")
-	ErrEmailNotFound      = errors.New("email not found")
 	ErrInvalidActionToken = errors.New("invalid or expired action token")
 	ErrPasswordReset      = errors.New("password reset failed")
 )

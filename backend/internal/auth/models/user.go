@@ -66,8 +66,9 @@ type LoginRequest struct {
 }
 
 type PasswordUser struct {
-	ID           string
-	PasswordHash string
+	ID            string
+	PasswordHash  string
+	EmailVerified bool
 }
 
 type Session struct {
