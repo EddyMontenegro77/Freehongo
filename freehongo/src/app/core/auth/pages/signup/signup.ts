@@ -1,5 +1,5 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { GoogleLoginBtn } from '../../components/google-login-btn/google-login-btn';
 import { InputField } from '../../../../shared/components/input/input';
@@ -27,7 +27,6 @@ import { SignupRequest } from '../../../../shared/models/auth/auth.models';
 export class Signup {
   auth = inject(AuthService);
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
 
   readonly signUpModel = signal({
     email: '',
@@ -79,7 +78,9 @@ export class Signup {
     };
 
     await this.auth.signup(userSignupRequest);
-    await this.router.navigateByUrl(this.getReturnUrl());
+    await this.router.navigateByUrl(
+      `/auth/verify-email?pending=true&email=${encodeURIComponent(value.email)}`,
+    );
   };
 
   onPictureChange(files: File[]): void {
@@ -94,8 +95,4 @@ export class Signup {
     this.pictureError.set(message);
   }
 
-  private getReturnUrl(): string {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    return returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : '/';
-  }
 }

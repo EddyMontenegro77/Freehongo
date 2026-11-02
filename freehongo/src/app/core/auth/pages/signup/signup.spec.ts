@@ -69,6 +69,8 @@ describe('Signup', () => {
       password: 'password123',
       picture: undefined,
     });
-    expect(navigate).toHaveBeenCalledWith('/');
+    expect(navigate).toHaveBeenCalledWith(
+      '/auth/verify-email?pending=true&email=user%40example.com',
+    );
   });
 });
