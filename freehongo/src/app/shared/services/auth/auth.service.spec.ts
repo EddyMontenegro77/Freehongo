@@ -101,14 +101,10 @@ describe('AuthService', () => {
       email: 'user@example.com',
       password: 'password123',
     });
-    signupRequest.flush({ expiresAt: '2030-01-01T00:00:00Z' });
-    await Promise.resolve();
-
-    const sessionRequest = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
-    sessionRequest.flush({ name: 'User', email: 'user@example.com', verified: false });
+    signupRequest.flush({ message: 'verification_email_sent' });
     await promise;
 
-    expect(service.user()?.name).toBe('User');
+    expect(service.user()).toBeNull();
   });
 
   it('sends signup data as multipart when a picture is provided', async () => {
@@ -122,11 +118,7 @@ describe('AuthService', () => {
     const signupRequest = httpMock.expectOne(`${environment.apiUrl}/auth/signup`);
     expect(signupRequest.request.body).toBeInstanceOf(FormData);
     expect((signupRequest.request.body as FormData).get('picture')).toBe(picture);
-    signupRequest.flush({ expiresAt: '2030-01-01T00:00:00Z' });
-    await Promise.resolve();
-
-    const sessionRequest = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
-    sessionRequest.flush({ name: 'User', email: 'user@example.com', verified: false });
+    signupRequest.flush({ message: 'verification_email_sent' });
     await promise;
   });
 
@@ -136,6 +128,26 @@ describe('AuthService', () => {
     expect(request.request.body).toEqual({ email: 'user@example.com' });
     request.flush({ message: 'password_reset_email_sent' });
     await promise;
+  });
+
+  it('loads the new session after verifying an email', async () => {
+    const promise = service.verifyEmail('verification-token');
+    const verificationRequest = httpMock.expectOne(
+      `${environment.apiUrl}/auth/verify-email?token=verification-token`,
+    );
+    verificationRequest.flush({ message: 'email_verified' });
+    await Promise.resolve();
+
+    const sessionRequest = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
+    expect(sessionRequest.request.withCredentials).toBe(true);
+    sessionRequest.flush({ name: 'User', email: 'user@example.com', verified: true });
+    await promise;
+
+    expect(service.user()).toEqual({
+      name: 'User',
+      email: 'user@example.com',
+      verified: true,
+    });
   });
 
   it('logs out and clears the local user', async () => {

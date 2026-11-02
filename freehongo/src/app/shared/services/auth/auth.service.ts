@@ -94,7 +94,6 @@ export class AuthService {
           { withCredentials: true },
         ),
       );
-      await this.loadSession();
     } catch (error) {
       this.lastError.set(this.getErrorMessage(error));
       throw error;
@@ -122,11 +121,27 @@ export class AuthService {
     }
   }
 
-  async requestEmailVerification(): Promise<void> {
+  async requestEmailVerification(email: string): Promise<void> {
     this.lastError.set(null);
     try {
       await firstValueFrom(
-        this.http.post(`${environment.apiUrl}/auth/verify-email/request`, {}, { withCredentials: true }),
+        this.http.post(`${environment.apiUrl}/auth/verify-email/request`, { email }),
+      );
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async requestEmailVerificationForUser(): Promise<void> {
+    this.lastError.set(null);
+    try {
+      await firstValueFrom(
+        this.http.post(
+          `${environment.apiUrl}/auth/profile/verify-email/request`,
+          {},
+          { withCredentials: true },
+        ),
       );
     } catch (error) {
       this.lastError.set(this.getErrorMessage(error));
@@ -140,7 +155,7 @@ export class AuthService {
       await firstValueFrom(
         this.http.get(`${environment.apiUrl}/auth/verify-email`, { params: { token } }),
       );
-      this._user.update((user) => (user ? { ...user, verified: true } : user));
+      await this.loadSession();
     } catch (error) {
       this.lastError.set(this.getErrorMessage(error));
       throw error;
@@ -209,13 +224,13 @@ export class AuthService {
     const code = error instanceof HttpErrorResponse ? error.error?.error : null;
     const messages: Record<string, string> = {
       invalid_credentials: 'Incorrect email or password.',
+      email_not_verified: 'Please verify your email before logging in.',
       rate_limit_exceeded: 'Too many attempts. Please try again later.',
       invalid_email: 'The email is invalid.',
       password_too_short: 'The password must be at least 8 characters long.',
       password_too_long: 'The password cannot exceed 128 characters.',
       email_already_registered: 'This email is already registered.',
       bad_request: 'Please check the entered information.',
-      email_not_found: 'No account exists with that email.',
       invalid_or_expired_token: 'The link is invalid or has expired.',
       internal_server_error: 'The operation could not be completed. Please try again.',
     };
