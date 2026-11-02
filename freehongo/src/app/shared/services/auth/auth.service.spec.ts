@@ -135,6 +135,7 @@ describe('AuthService', () => {
     const verificationRequest = httpMock.expectOne(
       `${environment.apiUrl}/auth/verify-email?token=verification-token`,
     );
+    expect(verificationRequest.request.withCredentials).toBe(true);
     verificationRequest.flush({ message: 'email_verified' });
     await Promise.resolve();
 
