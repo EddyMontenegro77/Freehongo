@@ -27,4 +27,21 @@ button {
     transform: translateY(0);
     box-shadow: var(--shadow-sm);
   }
+
+  &.disabled,
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: saturate(0.5);
+    transform: none;
+  }
+
+  &.disabled:hover,
+  &:disabled:hover {
+    background-color: var(--action-btn-bg);
+    color: var(--action-btn-text);
+    box-shadow: none;
+    transform: none;
+  }
 }

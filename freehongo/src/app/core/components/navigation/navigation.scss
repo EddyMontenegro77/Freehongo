@@ -13,4 +13,10 @@
     justify-content: center;
     gap: 2rem;
   }
+
+  .auth__btns {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1rem;
+  }
 }

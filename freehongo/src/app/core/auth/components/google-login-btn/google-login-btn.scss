@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.google-slot {
+  position: relative;
+  min-height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.google-skeleton {
+  position: absolute;
+  width: 240px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.google-host {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}

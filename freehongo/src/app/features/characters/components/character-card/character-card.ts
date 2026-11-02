@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { Card } from '../../../../shared/components/card/card';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { CharacterType } from '../../../../shared/models/japanese/character.type
   imports: [Card, ActionBtn],
   standalone: true,
   templateUrl: './character-card.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-card.scss',
 })
 export class CharacterCard {

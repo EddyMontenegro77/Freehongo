@@ -1,4 +1,5 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, model, computed } from '@angular/core';
+import { FormValueControl, ValidationError } from '@angular/forms/signals';
 
 type InputType =
   | 'text'
@@ -16,25 +17,32 @@ type InputType =
   selector: 'app-input',
   standalone: true,
   templateUrl: './input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './input.scss',
 })
 export class InputField {
+  value = model<string>('');
+  disabled = input<boolean>(false);
+  required = input<boolean>(false);
+  touched = input<boolean>(false);
+  errors = input<readonly ValidationError.WithOptionalFieldTree[]>([]);
+  touch = output<void>();
+
   label = input.required<string>();
-  value = input<string | number>('');
   type = input<InputType>('text');
   placeholder = input<string>('');
   helperText = input<string>('');
   errorText = input<string>('');
-  disabled = input<boolean>(false);
-  required = input<boolean>(false);
   autocomplete = input<string>('');
-  min = input<string | number | null>(null);
-  max = input<string | number | null>(null);
-  step = input<string | number | null>(null);
+  min = input<string | number | null | undefined>(null);
+  max = input<string | number | null | undefined>(null);
+  step = input<string | number | null | undefined>(null);
 
-  valueChange = output<string>();
+  protected displayError = computed(
+    () => this.errorText() || (this.touched() ? (this.errors()[0]?.message ?? '') : ''),
+  );
 
   onInput = (event: Event): void => {
-    this.valueChange.emit((event.target as HTMLInputElement).value);
+    this.value.set((event.target as HTMLInputElement).value);
   };
 }

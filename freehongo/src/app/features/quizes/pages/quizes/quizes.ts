@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ListsDisplay } from '../../../../shared/components/character-lists/lists-display/lists-display';
@@ -10,6 +10,7 @@ import { shortenUuid } from '../../../../shared/utils/urls.utils';
   selector: 'app-quizes',
   imports: [ListsDisplay, QuizConfigWindow],
   templateUrl: './quizes.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './quizes.scss',
 })
 export class Quizes {

@@ -1,13 +1,39 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Freehongo</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Freehongo</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+      }
+
+      .app-bootstrap-loading {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        color: #f5f5f5;
+        font:
+          16px system-ui,
+          sans-serif;
+      }
+
+      .app-bootstrap-loading::after {
+        content: 'Loading Freehongo...';
+      }
+    </style>
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <app-root>
+      <div class="app-bootstrap-loading" role="status" aria-live="polite"></div>
+    </app-root>
+  </body>
 </html>

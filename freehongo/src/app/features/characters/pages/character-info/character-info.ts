@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CharacterMeta } from '../../components/character-meta/character-meta';
 import { CharacterInfoFacadeService } from '../../services/character-info.facade.service';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
@@ -11,6 +11,7 @@ import { ErrorState } from '../../../../shared/components/app-state/error-state/
   standalone: true,
   imports: [CharacterMeta, LoadingState, ErrorState],
   templateUrl: './character-info.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-info.scss',
 })
 export class CharacterInfo {

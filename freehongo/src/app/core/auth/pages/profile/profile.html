@@ -1,0 +1,49 @@
+@if (message(); as message) {
+  <p class="profile__message" role="status">{{ message }}</p>
+}
+@if (error(); as error) {
+  <p class="auth-error" role="alert">{{ error }}</p>
+}
+<div class="profile__wrapper">
+  <img [src]="pictureUrl()" class="user__picture" alt="User profile picture" />
+  <div class="user__info">
+    <div class="user__field">
+      <label>Username</label>
+      <span>{{ username() }}</span>
+    </div>
+    <div class="user__field">
+      <label>Email</label>
+      <span>{{ email() }}</span>
+      @if (verified()) {
+        <span class="verified">Verified</span>
+      } @else {
+        <div class="not__verified">
+          <span>Not verified</span>
+          <app-action-btn
+            title="Verify Email"
+            [action]="verifyEmail"
+            busyTitle="Sending..."
+            [cooldownSeconds]="60"
+            cooldownLabel="Resend in"
+          />
+        </div>
+      }
+    </div>
+  </div>
+  <app-action-btn title="Reset password" [action]="resetPassword" />
+  <app-action-btn
+    title="Delete account"
+    [action]="openDeleteConfirmation"
+    variant="danger"
+  />
+</div>
+
+<app-confirmation
+  [open]="deleteConfirmationOpen()"
+  title="Delete account"
+  message="Are you sure you want to delete your account? This action cannot be undone."
+  confirmText="Delete"
+  cancelText="Cancel"
+  [confirmAction]="deleteAccount"
+  [cancelAction]="closeDeleteConfirmation"
+/>

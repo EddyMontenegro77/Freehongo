@@ -7,6 +7,7 @@ import {
   output,
   signal,
   ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
@@ -30,6 +31,7 @@ import {
   standalone: true,
   imports: [ActionBtn, WritingValidation, WritingStrokeGuide],
   templateUrl: './writing-canvas.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './writing-canvas.scss',
 })
 export class WritingCanvas {

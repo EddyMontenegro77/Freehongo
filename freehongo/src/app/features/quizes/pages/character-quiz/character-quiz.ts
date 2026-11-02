@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { ErrorState } from '../../../../shared/components/app-state/error-state/error-state';
@@ -19,6 +19,7 @@ import { expandUuid } from '../../../../shared/utils/urls.utils';
   selector: 'app-character-quiz',
   imports: [ActionBtn, ErrorState, LoadingState, Confirmation, InputField],
   templateUrl: './character-quiz.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-quiz.scss',
 })
 export class CharacterQuiz {

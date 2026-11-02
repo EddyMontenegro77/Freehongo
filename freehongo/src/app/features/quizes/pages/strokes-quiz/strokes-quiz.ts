@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { WritingPractice } from '../../../writing/components/writing-practice/writing-practice';
@@ -34,6 +34,7 @@ interface RecordedAttempt {
   selector: 'app-strokes-quiz',
   imports: [WritingPractice, UnicodeCharacterPipe, ActionBtn, StrokesQuizSummary],
   templateUrl: './strokes-quiz.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './strokes-quiz.scss',
 })
 export class StrokesQuiz {

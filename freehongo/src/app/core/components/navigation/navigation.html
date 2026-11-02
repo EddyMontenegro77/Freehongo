@@ -7,6 +7,12 @@
     <app-navigation-btn [title]="'Dashboard'" [route]="['/dashboard']" />
   </div>
   <div class="auth__btns">
-    <app-navigation-btn [title]="'ex'" />
+    @if (!auth.isAuth()) {
+      <app-navigation-btn [title]="'Login'" [route]="['/auth/login']" />
+      <app-navigation-btn [title]="'Signup'" [route]="['/auth/signup']" />
+    } @else {
+      <app-navigation-btn [title]="'Profile'" [route]="['/user/profile']" />
+      <app-action-btn title="Logout" [action]="logOut" />
+    }
   </div>
 </nav>
