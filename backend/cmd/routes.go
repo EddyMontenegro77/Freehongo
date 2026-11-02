@@ -39,7 +39,7 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	authProtected.PATCH("/auth/profile", authHandlers.PatchProfile(d.ProfileService, d.UserRepo, d.ProfileStorage))
 	authProtected.POST("/auth/profile/picture", authHandlers.PostProfilePicture(d.ProfileService))
 	authProtected.DELETE("/auth/profile", authHandlers.DeleteProfile(d.ProfileService))
-	authProtected.POST("/auth/verify-email/request", d.RateLimiters.Verify(), authHandlers.PostRequestVerification(d.EmailFlows))
+	authProtected.POST("/auth/profile/verify-email/request", d.RateLimiters.Verify(), authHandlers.PostRequestVerification(d.EmailFlows))
 	authProtected.POST("/auth/profile/password-reset/request", d.RateLimiters.Reset(), authHandlers.PostRequestPasswordResetForUser(d.EmailFlows))
 
 	// Japanese Endpoints
@@ -53,10 +53,11 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 
 	// Auth Endpoints
 	public.POST("/auth/google", d.RateLimiters.Auth(), d.GoogleAuth)
-	public.POST("/auth/signup", d.RateLimiters.Auth(), authHandlers.PostSignUp(d.PasswordAuth))
+	public.POST("/auth/signup", d.RateLimiters.Auth(), authHandlers.PostSignUp(d.PasswordAuth, d.EmailFlows))
 	public.POST("/auth/login", d.RateLimiters.Auth(), authHandlers.PostLogin(d.PasswordAuth, d.RateLimiters.FailedLogin()))
 	public.POST("/auth/logout", authHandlers.PostLogout(d.PasswordAuth))
 	public.GET("/auth/verify-email", authHandlers.GetVerifyEmail(d.EmailFlows))
+	public.POST("/auth/verify-email/request", d.RateLimiters.Verify(), authHandlers.PostRequestVerificationByEmail(d.EmailFlows))
 	public.POST("/auth/password-reset/request", d.RateLimiters.Reset(), authHandlers.PostRequestPasswordReset(d.EmailFlows))
 	public.POST("/auth/password-reset", d.RateLimiters.Reset(), authHandlers.PostResetPassword(d.EmailFlows))
 }

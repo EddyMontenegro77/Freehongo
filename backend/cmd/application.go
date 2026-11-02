@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -20,9 +21,10 @@ import (
 )
 
 type Application struct {
-	Router       *gin.Engine
-	RateLimiters *ratelimitmiddleware.Limiters
-	database     *sql.DB
+	Router               *gin.Engine
+	RateLimiters         *ratelimitmiddleware.Limiters
+	database             *sql.DB
+	cancelPictureCleanup context.CancelFunc
 }
 
 func NewApplication(config Config) (*Application, error) {
@@ -46,6 +48,8 @@ func NewApplication(config Config) (*Application, error) {
 	emailFlows := authServices.NewEmailFlows(userRepo, mailer, config.APIAllowedOrigin)
 	googleSignInService := authServices.NewGoogleSignInService(userRepo)
 	profileService := authServices.NewProfileService(userRepo, objectStorage)
+	cleanupContext, cancelPictureCleanup := context.WithCancel(context.Background())
+	profileService.StartPictureCleanup(cleanupContext)
 	passwordAuth := authServices.NewFreeHongoAuthService(userRepo, profileService)
 	kanaRepository := japaneseRepository.NewKanaRepository(database)
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
@@ -70,10 +74,18 @@ func NewApplication(config Config) (*Application, error) {
 		JapaneseService: japaneseService,
 	})
 
-	return &Application{Router: router, RateLimiters: rateLimiters, database: database}, nil
+	return &Application{
+		Router:               router,
+		RateLimiters:         rateLimiters,
+		database:             database,
+		cancelPictureCleanup: cancelPictureCleanup,
+	}, nil
 }
 
 func (app *Application) Close() error {
+	if app.cancelPictureCleanup != nil {
+		app.cancelPictureCleanup()
+	}
 	app.RateLimiters.Close()
 	return app.database.Close()
 }
