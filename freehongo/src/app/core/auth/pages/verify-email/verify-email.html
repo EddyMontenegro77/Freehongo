@@ -15,6 +15,8 @@
       title="Resend verification email"
       [action]="resendVerification"
       variant="accent"
+      [cooldownSeconds]="60"
+      cooldownLabel="Resend in"
     />
     @if (resendMessage(); as resendMessage) {
       <p role="status">{{ resendMessage }}</p>

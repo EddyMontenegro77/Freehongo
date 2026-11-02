@@ -153,7 +153,10 @@ export class AuthService {
     this.lastError.set(null);
     try {
       await firstValueFrom(
-        this.http.get(`${environment.apiUrl}/auth/verify-email`, { params: { token } }),
+        this.http.get(`${environment.apiUrl}/auth/verify-email`, {
+          params: { token },
+          withCredentials: true,
+        }),
       );
       await this.loadSession();
     } catch (error) {
