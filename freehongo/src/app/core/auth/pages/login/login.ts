@@ -1,4 +1,5 @@
 import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
 import { InputField } from '../../../../shared/components/input/input';
@@ -50,8 +51,16 @@ export class Login {
 
   async submitUser(): Promise<void> {
     const { email, password } = this.loginForm().value();
-    await this.auth.login(email, password);
-    await this.router.navigateByUrl(this.getReturnUrl());
+    try {
+      await this.auth.login(email, password);
+      await this.router.navigateByUrl(this.getReturnUrl());
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.error?.error === 'email_not_verified') {
+        await this.router.navigateByUrl(
+          `/auth/verify-email?pending=true&email=${encodeURIComponent(email)}`,
+        );
+      }
+    }
   }
 
   requestPasswordReset = async (): Promise<void> => {
