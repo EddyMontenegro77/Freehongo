@@ -14,7 +14,8 @@ import (
 
 type EmailFlowService interface {
 	RequestVerification(ctx context.Context, userID string) error
-	VerifyEmail(ctx context.Context, token string) error
+	RequestVerificationByEmail(ctx context.Context, email string) error
+	VerifyEmail(ctx context.Context, token string) (models.Session, error)
 	RequestPasswordReset(ctx context.Context, email string) error
 	RequestPasswordResetForUser(ctx context.Context, userID string) error
 	ResetPassword(ctx context.Context, token, password string) error
@@ -44,12 +45,30 @@ func PostRequestVerification(service EmailFlowService) gin.HandlerFunc {
 	}
 }
 
-func GetVerifyEmail(service EmailFlowService) gin.HandlerFunc {
+func PostRequestVerificationByEmail(service EmailFlowService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := service.VerifyEmail(c.Request.Context(), strings.TrimSpace(c.Query("token"))); err != nil {
+		var req EmailAddressRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			utils.HandleAuthError(c, models.ErrBadRequest)
+			return
+		}
+		if err := service.RequestVerificationByEmail(c.Request.Context(), req.Email); err != nil {
 			utils.HandleAuthError(c, err)
 			return
 		}
+		// Always return the same response, whether the account exists or not.
+		c.JSON(http.StatusOK, gin.H{"message": "verification_email_sent"})
+	}
+}
+
+func GetVerifyEmail(service EmailFlowService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session, err := service.VerifyEmail(c.Request.Context(), strings.TrimSpace(c.Query("token")))
+		if err != nil {
+			utils.HandleAuthError(c, err)
+			return
+		}
+		setSessionCookie(c, session)
 		c.JSON(http.StatusOK, gin.H{"message": "email_verified"})
 	}
 }

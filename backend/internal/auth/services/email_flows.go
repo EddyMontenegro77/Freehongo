@@ -60,8 +60,39 @@ func (s *EmailFlows) RequestVerification(ctx context.Context, userID string) err
 	return s.sendVerificationEmail(ctx, email, token)
 }
 
-func (s *EmailFlows) VerifyEmail(ctx context.Context, token string) error {
-	return s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
+func (s *EmailFlows) RequestVerificationByEmail(ctx context.Context, email string) error {
+	email = strings.ToLower(strings.TrimSpace(email))
+	if err := utils.IsValidEmail(email); err != nil {
+		return err
+	}
+
+	var token string
+	var userEmail string
+	err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
+		user, found, err := q.FindActiveUserByEmailForUpdate(ctx, email)
+		if err != nil || !found || user.EmailVerified {
+			return err
+		}
+		if err := q.SetCurrentUserID(ctx, user.ID); err != nil {
+			return err
+		}
+		var tokenHash string
+		token, tokenHash, err = utils.GenerateSessionToken()
+		if err != nil {
+			return err
+		}
+		userEmail = email
+		return q.InsertActionToken(ctx, user.ID, tokenHash, emailVerificationType, time.Now().Add(emailVerificationTokenTTL))
+	})
+	if err != nil || token == "" {
+		return err
+	}
+	return s.sendVerificationEmail(ctx, userEmail, token)
+}
+
+func (s *EmailFlows) VerifyEmail(ctx context.Context, token string) (models.Session, error) {
+	var session models.Session
+	err := s.users.InTx(ctx, "", func(q *repository.UserQueries) error {
 		tokenHash := utils.HashSessionToken(token)
 		userID, found, err := q.FindActiveActionTokenUser(ctx, tokenHash, emailVerificationType)
 		if err != nil {
@@ -76,8 +107,13 @@ func (s *EmailFlows) VerifyEmail(ctx context.Context, token string) error {
 		if err := q.MarkEmailVerified(ctx, userID); err != nil {
 			return err
 		}
-		return q.RevokeActionToken(ctx, tokenHash, emailVerificationType)
+		if err := q.RevokeActionToken(ctx, tokenHash, emailVerificationType); err != nil {
+			return err
+		}
+		session, err = createSession(ctx, q, userID)
+		return err
 	})
+	return session, err
 }
 
 func (s *EmailFlows) RequestPasswordReset(ctx context.Context, email string) error {
@@ -90,7 +126,7 @@ func (s *EmailFlows) RequestPasswordReset(ctx context.Context, email string) err
 			return err
 		}
 		if !found {
-			return models.ErrEmailNotFound
+			return nil
 		}
 		if err := q.SetCurrentUserID(ctx, user.ID); err != nil {
 			return err
@@ -105,6 +141,9 @@ func (s *EmailFlows) RequestPasswordReset(ctx context.Context, email string) err
 	})
 	if err != nil {
 		return err
+	}
+	if token == "" {
+		return nil
 	}
 	return s.sendPasswordResetEmail(ctx, userEmail, token)
 }
