@@ -28,28 +28,27 @@ func NewFreeHongoAuthService(users *repository.UserRepository, profiles ...*Prof
 	return &FreeHongoAuthService{users: users, profile: profile}
 }
 
-func (s *FreeHongoAuthService) SignUp(ctx context.Context, req models.RegisterRequest) (models.Session, error) {
+func (s *FreeHongoAuthService) SignUp(ctx context.Context, req models.RegisterRequest) error {
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" || utf8.RuneCountInString(req.Name) > 100 {
-		return models.Session{}, models.ErrBadRequest
+		return models.ErrBadRequest
 	}
 	email := utils.NormalizeEmail(req.Email)
 	if err := utils.IsValidEmail(email); err != nil {
-		return models.Session{}, err
+		return err
 	}
 	if err := utils.ValidatePasswordPolicy(req.Password); err != nil {
-		return models.Session{}, err
+		return err
 	}
 
 	passwordHash, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return models.Session{}, err
+		return err
 	}
 
-	var session models.Session
 	userID, err := repository.NewUUIDv7()
 	if err != nil {
-		return models.Session{}, err
+		return err
 	}
 	err = s.users.InTx(ctx, userID, func(q *repository.UserQueries) error {
 		userID, err := q.InsertUserWithPassword(ctx, userID, req.Name, email, passwordHash)
@@ -71,13 +70,9 @@ func (s *FreeHongoAuthService) SignUp(ctx context.Context, req models.RegisterRe
 				return err
 			}
 		}
-		if err := q.TouchLastLogin(ctx, userID); err != nil {
-			return err
-		}
-		session, err = createSession(ctx, q, userID)
-		return err
+		return nil
 	})
-	return session, err
+	return err
 }
 
 func (s *FreeHongoAuthService) SignIn(ctx context.Context, req models.LoginRequest) (models.Session, error) {
@@ -104,6 +99,9 @@ func (s *FreeHongoAuthService) SignIn(ctx context.Context, req models.LoginReque
 		}
 		if !found || user.PasswordHash == "" || !passwordMatches {
 			return models.ErrInvalidCredentials
+		}
+		if !user.EmailVerified {
+			return models.ErrEmailNotVerified
 		}
 		if err := q.SetCurrentUserID(ctx, user.ID); err != nil {
 			return err
