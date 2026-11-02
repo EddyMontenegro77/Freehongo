@@ -18,13 +18,14 @@
     [attr.max]="max()"
     [attr.step]="step()"
     (input)="onInput($event)"
+    (blur)="touch.emit()"
   />
 
   @if (helperText()) {
     <span class="field__helper">{{ helperText() }}</span>
   }
 
-  @if (errorText()) {
-    <span class="field__error">{{ errorText() }}</span>
+  @if (displayError()) {
+    <span class="field__error">{{ displayError() }}</span>
   }
 </label>

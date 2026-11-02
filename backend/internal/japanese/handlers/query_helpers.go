@@ -42,9 +42,7 @@ func parseOptionalGradeLevelQuery(c *gin.Context, key string) (*int, error) {
 	}
 
 	normalized := strings.ToLower(value)
-	if strings.HasPrefix(normalized, "g") {
-		normalized = strings.TrimPrefix(normalized, "g")
-	}
+	normalized = strings.TrimPrefix(normalized, "g")
 
 	parsed, err := strconv.Atoi(normalized)
 	if err != nil {

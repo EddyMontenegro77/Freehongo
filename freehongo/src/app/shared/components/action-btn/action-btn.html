@@ -1,3 +1,10 @@
-<button type="button" (click)="handleClick()" [disabled]="disabled() || busy()" [class]="variant()">
-  {{ title() }}
+<button
+  type="button"
+  (click)="handleClick()"
+  [disabled]="disabled() || busy() || cooldownRemaining() > 0"
+  [class]="variant()"
+  [class.disabled]="disabled() || busy() || cooldownRemaining() > 0"
+  [type]="type()"
+>
+  {{ displayTitle() }}
 </button>

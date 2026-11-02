@@ -3,8 +3,24 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"freehongo-api/internal/models"
+	"freehongo-api/internal/japanese/models"
 )
+
+type KanjiRepository struct{ db *sql.DB }
+
+func NewKanjiRepository(db *sql.DB) *KanjiRepository { return &KanjiRepository{db: db} }
+
+func (r *KanjiRepository) Find(unicode string) (*models.Kanji, error) {
+	return GetKanji(r.db, unicode)
+}
+
+func (r *KanjiRepository) FindWriting(unicode string) (*models.KanjiWriting, error) {
+	return GetKanjiWriting(r.db, unicode)
+}
+
+func (r *KanjiRepository) FindDisplay(search *models.KanjiSearch, offset int) (*models.KanjiDisplayPage, error) {
+	return GetKanjiDisplay(r.db, search, offset)
+}
 
 func GetKanji(db *sql.DB, unicode string) (*models.Kanji, error) {
 	row := db.QueryRow(

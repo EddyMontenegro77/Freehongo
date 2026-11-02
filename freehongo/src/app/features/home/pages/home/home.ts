@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavigationBtn } from '../../../../shared/components/navigation-btn/navigation-btn';
 import { gsap } from 'gsap';
@@ -11,6 +11,7 @@ import {
   selector: 'app-home',
   imports: [NavigationBtn],
   templateUrl: './home.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.scss',
 })
 export class Home implements AfterViewInit, OnDestroy {

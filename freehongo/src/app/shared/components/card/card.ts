@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 type CardVariant = 'outline' | 'elevated';
 type CardSize = 'sm' | 'md' | 'lg';
@@ -7,6 +7,7 @@ type CardSize = 'sm' | 'md' | 'lg';
   selector: 'app-card',
   standalone: true,
   templateUrl: './card.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './card.scss',
 })
 export class Card {

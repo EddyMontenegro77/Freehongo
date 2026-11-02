@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { ActionBtn } from '../../action-btn/action-btn';
 
 @Component({
@@ -6,6 +6,7 @@ import { ActionBtn } from '../../action-btn/action-btn';
   standalone: true,
   imports: [ActionBtn],
   templateUrl: './error-state.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './error-state.scss',
 })
 export class ErrorState {

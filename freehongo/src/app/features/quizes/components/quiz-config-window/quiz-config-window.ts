@@ -1,4 +1,4 @@
-import { Component, output, signal, ViewChild } from '@angular/core';
+import { Component, output, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { SelectField, SelectOption } from '../../../../shared/components/select/select';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
@@ -14,6 +14,7 @@ import {
   selector: 'app-quiz-config-window',
   imports: [Modal, SelectField, ActionBtn],
   templateUrl: './quiz-config-window.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './quiz-config-window.scss',
 })
 export class QuizConfigWindow {

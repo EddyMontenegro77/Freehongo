@@ -6,6 +6,9 @@ import { firstValueFrom } from 'rxjs';
 import { KanjiData, KanjiWritingData } from '../../models/japanese/kanji.model';
 import { KanaData, KanaWritingData } from '../../models/japanese/kana.model';
 import { Stroke } from '../../models/writing/stroke.model';
+import { environment } from '../../../../environments/environments';
+
+const apiUrl = environment.apiUrl;
 
 describe('JapaneseService', () => {
   let service: JapaneseService;
@@ -47,7 +50,7 @@ describe('JapaneseService', () => {
       ]);
     });
 
-    const req = httpMock.expectOne('http://localhost:2582/api/kanji/writing/4e00');
+    const req = httpMock.expectOne(`${apiUrl}/kanji/writing/4e00`);
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
@@ -84,7 +87,7 @@ describe('JapaneseService', () => {
       ]);
     });
 
-    const req = httpMock.expectOne('http://localhost:2582/api/kana/writing/3042');
+    const req = httpMock.expectOne(`${apiUrl}/kana/writing/3042`);
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
@@ -95,7 +98,7 @@ describe('JapaneseService', () => {
 
     const promise = firstValueFrom(service.getKanji('4e00'));
 
-    const req = httpMock.expectOne('http://localhost:2582/api/kanji/4e00');
+    const req = httpMock.expectOne(`${apiUrl}/kanji/4e00`);
     expect(req.request.method).toBe('GET');
     req.flush({ error: 'kanji not found' }, { status, statusText });
 
@@ -108,7 +111,7 @@ describe('JapaneseService', () => {
 
     const promise = firstValueFrom(service.getKana('3042'));
 
-    const req = httpMock.expectOne('http://localhost:2582/api/kana/3042');
+    const req = httpMock.expectOne(`${apiUrl}/kana/3042`);
     expect(req.request.method).toBe('GET');
     req.flush({ error: 'internal error' }, { status, statusText });
 
@@ -128,7 +131,7 @@ describe('JapaneseService', () => {
 
     const req = httpMock.expectOne(
       (request) =>
-        request.url === 'http://localhost:2582/api/kana/display' &&
+        request.url === `${apiUrl}/kana/display` &&
         request.params.get('unicode') === '3042' &&
         request.params.get('literal') === 'あ' &&
         request.params.get('type') === 'hiragana' &&
@@ -177,7 +180,7 @@ describe('JapaneseService', () => {
 
     const req = httpMock.expectOne(
       (request) =>
-        request.url === 'http://localhost:2582/api/kanji/display' &&
+        request.url === `${apiUrl}/kanji/display` &&
         request.params.get('unicode') === '65e5' &&
         request.params.get('literal') === '日' &&
         request.params.get('radical_name') === 'sun' &&

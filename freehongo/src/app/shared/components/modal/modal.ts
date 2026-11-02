@@ -1,4 +1,4 @@
-import { Component, input, ViewChild, ElementRef } from '@angular/core';
+import { Component, input, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { IconBtn } from '../icon-btn/icon-btn';
 import { ThemeService } from '../../services/theme/theme.service';
 
@@ -6,6 +6,7 @@ import { ThemeService } from '../../services/theme/theme.service';
   selector: 'app-modal',
   imports: [IconBtn],
   templateUrl: './modal.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './modal.scss',
 })
 export class Modal {

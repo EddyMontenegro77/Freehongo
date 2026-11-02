@@ -1,0 +1,42 @@
+<form class="signup-form" [formRoot]="signUpForm">
+  @if (auth.lastError(); as error) {
+    <p class="auth-error" role="alert">{{ error }}</p>
+  }
+
+  @if (auth.isProcessing()) {
+    <app-loading-state message="Creating account..." />
+  } @else {
+    <app-input label="Name" placeholder="John Doe" [formField]="signUpForm.name" />
+
+    <app-input label="Email" placeholder="JohnDoe@mail.com" [formField]="signUpForm.email" />
+    <app-input
+      label="Password"
+      type="password"
+      placeholder="Type your password"
+      [formField]="signUpForm.password"
+    />
+    <app-input
+      label="Password Confirmation"
+      type="password"
+      placeholder="Type your password again"
+      [formField]="signUpForm.passwordConfirmation"
+    />
+    <app-file-upload
+      label="Profile picture (optional)"
+      hint="JPG, PNG, GIF or WebP · maximum 1 MB"
+      accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
+      [multiple]="false"
+      [maxFiles]="1"
+      [maxSizeBytes]="1048576"
+      (filesChange)="onPictureChange($event)"
+      (validationError)="onPictureError($event)"
+    />
+    @if (pictureError(); as error) {
+      <p class="auth-error" role="alert">{{ error }}</p>
+    }
+    <app-action-btn title="Submit" type="submit" variant="accent" />
+  }
+</form>
+@if (!auth.isProcessing()) {
+  <app-google-login-btn />
+}

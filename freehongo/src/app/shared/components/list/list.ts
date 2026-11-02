@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 export type ListType = 'ul' | 'ol';
 export type ListItem = string | number;
@@ -7,6 +7,7 @@ export type ListItem = string | number;
   selector: 'app-list',
   imports: [],
   templateUrl: './list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './list.scss',
 })
 export class List {

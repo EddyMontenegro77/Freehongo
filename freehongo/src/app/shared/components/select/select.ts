@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 export type SelectOption<T = string> = {
   label: string;
@@ -10,6 +10,7 @@ export type SelectOption<T = string> = {
   selector: 'app-select',
   standalone: true,
   templateUrl: './select.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './select.scss',
 })
 export class SelectField<T = string> {

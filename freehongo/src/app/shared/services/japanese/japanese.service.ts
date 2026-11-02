@@ -28,7 +28,7 @@ import { environment } from '../../../../environments/environments';
   providedIn: 'root',
 })
 export class JapaneseService {
-  private apiUrl = 'http://localhost:2582/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

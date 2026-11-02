@@ -1,0 +1,6 @@
+<div class="google-slot">
+  @if (!ready()) {
+    <div class="google-skeleton" aria-hidden="true"></div>
+  }
+  <div #googleLoginBtn class="google-host" [class.visible]="ready()"></div>
+</div>

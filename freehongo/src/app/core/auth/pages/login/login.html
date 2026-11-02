@@ -1,0 +1,31 @@
+<form class="signup-form" [formRoot]="loginForm">
+  @if (auth.lastError(); as error) {
+    <p class="auth-error" role="alert">{{ error }}</p>
+  }
+
+  @if (auth.isProcessing()) {
+    <app-loading-state message="Iniciando sesión..." />
+  } @else {
+    <app-input
+      label="Email"
+      type="email"
+      placeholder="JohnDoe@mail.com"
+      [formField]="loginForm.email"
+    />
+    <app-input
+      label="Password"
+      type="password"
+      placeholder="Type your password"
+      [formField]="loginForm.password"
+    />
+    <app-action-btn title="Submit" type="submit" variant="accent" />
+    <app-action-btn title="Forgot password?" [action]="requestPasswordReset" />
+    @if (resetMessage(); as message) {
+      <p class="auth-message" role="status">{{ message }}</p>
+    }
+  }
+</form>
+
+@if (!auth.isProcessing()) {
+  <app-google-login-btn />
+}
