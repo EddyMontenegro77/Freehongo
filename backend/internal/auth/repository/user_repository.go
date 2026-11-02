@@ -143,6 +143,7 @@ func (q *UserQueries) FindUserByEmailForPasswordLogin(ctx context.Context, email
 		SELECT user_id, password_hash, email_verified_at
 		FROM app.find_user_by_email_for_login($1)`, email).Scan(&u.ID, &hash, &verifiedAt)
 	u.PasswordHash = hash.String
+	u.EmailVerified = verifiedAt.Valid
 	return u, err == nil, ignoreNoRows(err)
 }
 
@@ -280,6 +281,38 @@ func (q *UserQueries) RevokeSessionToken(ctx context.Context, tokenHash string) 
 		WHERE token_hash = $1
 		  AND token_type = 'session'
 		  AND revoked_at IS NULL`, tokenHash)
+	return err
+}
+
+func (q *UserQueries) ListQueuedProfilePictures(ctx context.Context) ([]string, error) {
+	rows, err := q.tx.QueryContext(ctx, `
+		SELECT picture_url
+		FROM app.profile_picture_cleanup
+		ORDER BY queued_at
+		LIMIT 100`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pictures []string
+	for rows.Next() {
+		var pictureURL string
+		if err := rows.Scan(&pictureURL); err != nil {
+			return nil, err
+		}
+		pictures = append(pictures, pictureURL)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return pictures, nil
+}
+
+func (q *UserQueries) RemoveQueuedProfilePicture(ctx context.Context, pictureURL string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		DELETE FROM app.profile_picture_cleanup
+		WHERE picture_url = $1`, pictureURL)
 	return err
 }
 
