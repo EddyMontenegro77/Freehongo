@@ -27,7 +27,7 @@ export class Profile {
     this.error.set(null);
     this.message.set('Sending verification email...');
     try {
-      await this.auth.requestEmailVerification();
+      await this.auth.requestEmailVerificationForUser();
       this.message.set('Check your email to verify your account.');
     } catch {
       this.message.set(null);

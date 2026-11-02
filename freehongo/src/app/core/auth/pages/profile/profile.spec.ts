@@ -18,7 +18,7 @@ describe('Profile', () => {
           provide: AuthService,
           useValue: {
             user: signal({ name: 'User', email: 'user@example.com', verified: false }),
-            requestEmailVerification: vi.fn().mockResolvedValue(undefined),
+            requestEmailVerificationForUser: vi.fn().mockResolvedValue(undefined),
             requestPasswordResetForUser: vi.fn().mockResolvedValue(undefined),
           },
         },
