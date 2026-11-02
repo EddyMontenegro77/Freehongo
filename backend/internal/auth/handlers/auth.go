@@ -28,7 +28,7 @@ type GoogleSignInService interface {
 }
 
 type PasswordAuthService interface {
-	SignUp(ctx context.Context, req models.RegisterRequest) (models.Session, error)
+	SignUp(ctx context.Context, req models.RegisterRequest) error
 	SignIn(ctx context.Context, req models.LoginRequest) (models.Session, error)
 	Logout(ctx context.Context, token string) error
 }
@@ -74,7 +74,7 @@ func PostGoogleAuth(verifier GoogleTokenVerifier, signInService GoogleSignInServ
 	}
 }
 
-func PostSignUp(auth PasswordAuthService) gin.HandlerFunc {
+func PostSignUp(auth PasswordAuthService, emailFlows EmailFlowService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req, closePicture, err := bindSignUpRequest(c)
 		if closePicture != nil {
@@ -85,13 +85,16 @@ func PostSignUp(auth PasswordAuthService) gin.HandlerFunc {
 			return
 		}
 
-		session, err := auth.SignUp(c.Request.Context(), req)
+		err = auth.SignUp(c.Request.Context(), req)
 		if err != nil {
 			utils.HandleAuthError(c, err)
 			return
 		}
-		setSessionCookie(c, session)
-		c.JSON(http.StatusCreated, session)
+		if err := emailFlows.RequestVerificationByEmail(c.Request.Context(), req.Email); err != nil {
+			utils.HandleAuthError(c, err)
+			return
+		}
+		c.JSON(http.StatusCreated, gin.H{"message": "verification_email_sent"})
 	}
 }
 
