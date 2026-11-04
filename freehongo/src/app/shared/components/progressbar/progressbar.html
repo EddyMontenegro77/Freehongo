@@ -1,0 +1,24 @@
+<div
+  class="track"
+  role="progressbar"
+  [attr.aria-label]="progressAriaLabel()"
+  [attr.aria-valuenow]="percent()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+>
+  <div class="fill" [style.width.%]="percent()"></div>
+
+  @for (milestone of milestones(); track $index) {
+    <div
+      class="milestone"
+      [class.reached]="reached(milestone)"
+      [style.left.%]="position(milestone)"
+    >
+      <span class="dot" aria-hidden="true"></span>
+
+      <span class="label">
+        {{ milestone.label }}
+      </span>
+    </div>
+  }
+</div>
