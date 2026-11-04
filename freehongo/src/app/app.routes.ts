@@ -15,6 +15,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { guestGuard } from './core/guards/guest-guard';
 import { VerifyEmail } from './core/auth/pages/verify-email/verify-email';
 import { ResetPassword } from './core/auth/pages/reset-password/reset-password';
+import { Dashboard } from './shared/features/dashboard/pages/dashboard/dashboard';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -30,6 +31,7 @@ export const routes: Routes = [
   { path: 'auth/verify-email', component: VerifyEmail },
   { path: 'auth/reset-password', component: ResetPassword },
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
+  { path: 'dashboard', component: Dashboard },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];
