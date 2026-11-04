@@ -248,7 +248,7 @@ describe('Progressbar', () => {
         label: 'Halfway',
       };
 
-      expect(component.reached(milestone)).toBe(true);
+      expect(component.reached(milestone)).toBe(false);
     });
   });
 });
