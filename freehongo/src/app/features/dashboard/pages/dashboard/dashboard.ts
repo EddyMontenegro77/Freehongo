@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Progressbar, Milestone } from '../../../../components/progressbar/progressbar';
+import { Milestone, Progressbar } from '../../../../shared/components/progressbar/progressbar';
 
 @Component({
   imports: [Progressbar],
