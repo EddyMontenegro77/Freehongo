@@ -29,11 +29,12 @@ type Application struct {
 
 func NewApplication(config Config) (*Application, error) {
 	database := db.Connect(config.Database)
+	txm := db.NewTxManager(database)
 	verifier, err := authServices.NewGoogleVerifier(config.GoogleClientID)
 	if err != nil {
 		return nil, err
 	}
-	userRepo := authRepository.NewUserRepository(database)
+	userRepo := authRepository.NewUserRepository(txm)
 	mailer, err := emailServices.NewMailer(config.ResendAPIKey)
 	if err != nil {
 		return nil, err
