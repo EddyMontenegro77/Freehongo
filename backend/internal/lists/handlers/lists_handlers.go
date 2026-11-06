@@ -11,35 +11,153 @@ import (
 )
 
 type ListService interface {
-	FetchListInfo(ctx context.Context, req models.FetchListInfoRequest) (models.ListInfo, error)
-	FetchUserLists(ctx context.Context, req models.FetchUserListsRequest) (models.ListsGroup, error)
-	CreateList(ctx context.Context, req models.CreateListRequest) (error)
-	DeleteList(ctx context.Context, req models.DeleteListRequest) (error)
-	UpdateList(ctx context.Context, req models.UpdateListRequest) (error)
+	FetchOfficialListDetail(ctx context.Context, userId string, req models.FetchListRequest) (models.ListInfo, error)
+	FetchOfficialListsPreview(ctx context.Context, userId string, req models.FetchPublicListsRequest) (models.ListsGroup, error)
 
-	FetchListCharacters(ctx context.Context, req models.FetchListCharactersRequest) (models.ListCharacters, error)
-	AddListCharacters(ctx context.Context, req models.AddListCharsRequest) (error)
-	DeleteListCharacters(ctx context.Context, req models.DeleteListCharsRequest) (error)
-	UpdateListCharacters(ctx context.Context, req models.UpdateListCharsRequest) (error)
+	FetchPublicListDetail(ctx context.Context, userId string, req models.FetchListRequest) (models.ListInfo, error)
+	FetchPublicListsPreview(ctx context.Context, userId string, req models.FetchPublicListsRequest) (models.ListsGroup, error)
+	
+	FetchListPreview(ctx context.Context, userId string, req models.FetchListRequest) (models.ListInfo, error)
+	FetchListDetail(ctx context.Context, userId string, req models.FetchListRequest) (models.ListInfo, error)
+	FetchUserLists(ctx context.Context, userId string, req models.FetchUserListsRequest) (models.ListsGroup, error)
+
+	CreateList(ctx context.Context, userId string, req models.CreateListRequest) (error)
+	DeleteList(ctx context.Context, userId string, req models.DeleteListRequest) (error)
+	UpdateList(ctx context.Context, userId string, req models.UpdateListRequest) (error)
+	AddListCharacters(ctx context.Context, userId string, req models.AddListCharsRequest) (error)
+	DeleteListCharacters(ctx context.Context, userId string, req models.DeleteListCharsRequest) (error)
+	UpdateListCharacters(ctx context.Context, userId string, req models.UpdateListCharsRequest) (error)
 }
 
-func GetListInfo(listService ListService) gin.HandlerFunc {
+func GetOfficialListDetail(listService ListService) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        userId, ok := middleware.UserID(c)
+        if !ok {
+            middleware.AbortUnauthorized(c)
+            return
+        }
+
+        var req models.FetchListRequest
+        if err := c.ShouldBindQuery(&req); err != nil {
+            utils.HandleListError(c, models.ErrBadRequest)
+            return
+        }
+
+        listInfo, err := listService.FetchOfficialListDetail(
+            c.Request.Context(),
+            userId,
+            req,
+        )
+        if err != nil {
+            utils.HandleListError(c, err)
+            return
+        }
+
+        c.JSON(http.StatusOK, listInfo)
+    }
+}
+
+func GetOfficialListsPreview(listService ListService) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        userId, ok := middleware.UserID(c)
+        if !ok {
+            middleware.AbortUnauthorized(c)
+            return
+        }
+
+        var req models.FetchPublicListsRequest
+        if err := c.ShouldBindQuery(&req); err != nil {
+            utils.HandleListError(c, models.ErrBadRequest)
+            return
+        }
+
+        lists, err := listService.FetchOfficialListsPreview(
+            c.Request.Context(),
+            userId,
+            req,
+        )
+        if err != nil {
+            utils.HandleListError(c, err)
+            return
+        }
+
+        c.JSON(http.StatusOK, lists)
+    }
+}
+
+func GetPublicListDetail(listService ListService) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        userId, ok := middleware.UserID(c)
+        if !ok {
+            middleware.AbortUnauthorized(c)
+            return
+        }
+
+        var req models.FetchListRequest
+        if err := c.ShouldBindQuery(&req); err != nil {
+            utils.HandleListError(c, models.ErrBadRequest)
+            return
+        }
+
+        listInfo, err := listService.FetchPublicListDetail(
+            c.Request.Context(),
+            userId,
+            req,
+        )
+        if err != nil {
+            utils.HandleListError(c, err)
+            return
+        }
+
+        c.JSON(http.StatusOK, listInfo)
+    }
+}
+
+func GetPublicListsPreview(listService ListService) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        userId, ok := middleware.UserID(c)
+        if !ok {
+            middleware.AbortUnauthorized(c)
+            return
+        }
+
+        var req models.FetchPublicListsRequest
+        if err := c.ShouldBindQuery(&req); err != nil {
+            utils.HandleListError(c, models.ErrBadRequest)
+            return
+        }
+
+        lists, err := listService.FetchPublicListsPreview(
+            c.Request.Context(),
+            userId,
+            req,
+        )
+        if err != nil {
+            utils.HandleListError(c, err)
+            return
+        }
+
+        c.JSON(http.StatusOK, lists)
+    }
+}
+
+func GetListPreview(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
 		}
 
-		var req models.FetchListInfoRequest;
+		var req models.FetchListRequest;
 		if err := c.ShouldBindQuery(&req); err != nil {
 			utils.HandleListError(c, models.ErrBadRequest)
 			return
 		}
 
-		listInfo, err := listService.FetchListInfo(c.Request.Context(), req)
+		listInfo, err := listService.FetchListPreview(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -49,7 +167,7 @@ func GetListInfo(listService ListService) gin.HandlerFunc {
 
 func GetUserLists(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -61,9 +179,9 @@ func GetUserLists(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		lists, err := listService.FetchUserLists(c.Request.Context(), req)
+		lists, err := listService.FetchUserLists(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -71,23 +189,23 @@ func GetUserLists(listService ListService) gin.HandlerFunc {
 	}
 }
 
-func GetListCharacters(listService ListService) gin.HandlerFunc {
+func GetListDetail(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
 		}
 
-		var req models.FetchListCharactersRequest;
+		var req models.FetchListRequest;
 		if err := c.ShouldBindQuery(&req); err != nil {
 			utils.HandleListError(c, models.ErrBadRequest)
 			return
 		}
 
-		charUnicodes, err := listService.FetchListCharacters(c.Request.Context(), req)
+		charUnicodes, err := listService.FetchListDetail(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -98,7 +216,7 @@ func GetListCharacters(listService ListService) gin.HandlerFunc {
 
 func PostCreateList(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -110,9 +228,9 @@ func PostCreateList(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.CreateList(c.Request.Context(), req)
+		err := listService.CreateList(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -122,7 +240,7 @@ func PostCreateList(listService ListService) gin.HandlerFunc {
 
 func DeleteList(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -134,9 +252,9 @@ func DeleteList(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.DeleteList(c.Request.Context(), req)
+		err := listService.DeleteList(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -146,7 +264,7 @@ func DeleteList(listService ListService) gin.HandlerFunc {
 
 func PutUpdateList(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -158,9 +276,9 @@ func PutUpdateList(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.UpdateList(c.Request.Context(), req)
+		err := listService.UpdateList(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -170,7 +288,7 @@ func PutUpdateList(listService ListService) gin.HandlerFunc {
 
 func PostAddListCharacters(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -182,9 +300,9 @@ func PostAddListCharacters(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.AddListCharacters(c.Request.Context(), req)
+		err := listService.AddListCharacters(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return 
 		}
 
@@ -194,7 +312,7 @@ func PostAddListCharacters(listService ListService) gin.HandlerFunc {
 
 func DeleteListCharacters(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -206,9 +324,9 @@ func DeleteListCharacters(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.DeleteListCharacters(c.Request.Context(), req)
+		err := listService.DeleteListCharacters(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err) 
 			return
 		}
 
@@ -218,7 +336,7 @@ func DeleteListCharacters(listService ListService) gin.HandlerFunc {
 
 func PutUpdateListCharacters(listService ListService) gin.HandlerFunc {
 	return func(c *gin.Context){
-		_, ok := middleware.UserID(c)
+		userId, ok := middleware.UserID(c)
 		if !ok {
 			middleware.AbortUnauthorized(c)
 			return
@@ -230,9 +348,9 @@ func PutUpdateListCharacters(listService ListService) gin.HandlerFunc {
 			return
 		}
 
-		err := listService.UpdateListCharacters(c.Request.Context(), req)
+		err := listService.UpdateListCharacters(c.Request.Context(), userId, req)
 		if err != nil{
-			utils.HandleListError(c, err) // PENDING
+			utils.HandleListError(c, err)
 			return
 		}
 
