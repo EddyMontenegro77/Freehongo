@@ -78,11 +78,11 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	authProtected.DELETE("/lists/delete/characters", listHandlers.DeleteListCharacters(d.ListService))
 	authProtected.PUT("/lists/update/characters", listHandlers.PutUpdateListCharacters(d.ListService))
 
-	// Public Lists REVISAR AUTH O PUBLIC
-	authProtected.GET("/lists/public/detail", listHandlers.GetPublicListDetail(d.ListService))
-	authProtected.GET("/lists/public/preview", listHandlers.GetPublicListsPreview(d.ListService))
+	// Public Lists
+	public.GET("/lists/public/detail", listHandlers.GetPublicListDetail(d.ListService))
+	public.GET("/lists/public/preview", listHandlers.GetPublicListsPreview(d.ListService))
 
-	// Official Lists REVISAR AUTH O PUBLIC
-	authProtected.GET("/lists/official/detail", listHandlers.GetOfficialListDetail(d.ListService))
-	authProtected.GET("/lists/official/preview", listHandlers.GetOfficialListsPreview(d.ListService))
+	// Official Lists
+	public.GET("/lists/official/detail", listHandlers.GetOfficialListDetail(d.ListService))
+	public.GET("/lists/official/preview", listHandlers.GetOfficialListsPreview(d.ListService))
 }
