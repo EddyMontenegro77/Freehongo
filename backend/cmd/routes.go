@@ -6,6 +6,8 @@ import (
 	"freehongo-api/internal/auth/services"
 	japaneseHandlers "freehongo-api/internal/japanese/handlers"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	listHandlers "freehongo-api/internal/lists/handlers"
+	listServices "freehongo-api/internal/lists/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -21,8 +23,8 @@ type Deps struct {
 	GoogleAuth     gin.HandlerFunc
 	RequireAuth    gin.HandlerFunc
 	RateLimiters   *ratelimitmiddleware.Limiters
-
 	JapaneseService *japaneseServices.JapaneseService
+	ListService		*listServices.ListService
 }
 
 func SetupRoutes(router *gin.Engine, d Deps) {
@@ -60,4 +62,27 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	public.POST("/auth/verify-email/request", d.RateLimiters.Verify(), authHandlers.PostRequestVerificationByEmail(d.EmailFlows))
 	public.POST("/auth/password-reset/request", d.RateLimiters.Reset(), authHandlers.PostRequestPasswordReset(d.EmailFlows))
 	public.POST("/auth/password-reset", d.RateLimiters.Reset(), authHandlers.PostResetPassword(d.EmailFlows))
+
+	// Lists Endpoints
+
+	// User Lists
+	authProtected.GET("/lists/preview", listHandlers.GetListPreview(d.ListService))
+	authProtected.GET("/lists/detail", listHandlers.GetListDetail(d.ListService))
+	authProtected.GET("/lists/user", listHandlers.GetUserLists(d.ListService))
+
+	authProtected.POST("/lists/create", listHandlers.PostCreateList(d.ListService))
+	authProtected.DELETE("/lists/delete", listHandlers.DeleteList(d.ListService))
+	authProtected.PUT("/lists/update", listHandlers.PutUpdateList(d.ListService))
+
+	authProtected.POST("/lists/add/characters", listHandlers.PostAddListCharacters(d.ListService))
+	authProtected.DELETE("/lists/delete/characters", listHandlers.DeleteListCharacters(d.ListService))
+	authProtected.PUT("/lists/update/characters", listHandlers.PutUpdateListCharacters(d.ListService))
+
+	// Public Lists REVISAR AUTH O PUBLIC
+	authProtected.GET("/lists/public/detail", listHandlers.GetPublicListDetail(d.ListService))
+	authProtected.GET("/lists/public/preview", listHandlers.GetPublicListsPreview(d.ListService))
+
+	// Official Lists REVISAR AUTH O PUBLIC
+	authProtected.GET("/lists/official/detail", listHandlers.GetOfficialListDetail(d.ListService))
+	authProtected.GET("/lists/official/preview", listHandlers.GetOfficialListsPreview(d.ListService))
 }
