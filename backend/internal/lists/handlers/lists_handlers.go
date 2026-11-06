@@ -31,11 +31,7 @@ type ListService interface {
 
 func GetOfficialListDetail(listService ListService) gin.HandlerFunc {
     return func(c *gin.Context) {
-        userId, ok := middleware.UserID(c)
-        if !ok {
-            middleware.AbortUnauthorized(c)
-            return
-        }
+        userId, _ := middleware.UserID(c)
 
         var req models.FetchListRequest
         if err := c.ShouldBindQuery(&req); err != nil {
@@ -59,11 +55,7 @@ func GetOfficialListDetail(listService ListService) gin.HandlerFunc {
 
 func GetOfficialListsPreview(listService ListService) gin.HandlerFunc {
     return func(c *gin.Context) {
-        userId, ok := middleware.UserID(c)
-        if !ok {
-            middleware.AbortUnauthorized(c)
-            return
-        }
+        userId, _ := middleware.UserID(c)
 
         var req models.FetchPublicListsRequest
         if err := c.ShouldBindQuery(&req); err != nil {
@@ -87,11 +79,7 @@ func GetOfficialListsPreview(listService ListService) gin.HandlerFunc {
 
 func GetPublicListDetail(listService ListService) gin.HandlerFunc {
     return func(c *gin.Context) {
-        userId, ok := middleware.UserID(c)
-        if !ok {
-            middleware.AbortUnauthorized(c)
-            return
-        }
+        userId, _ := middleware.UserID(c)
 
         var req models.FetchListRequest
         if err := c.ShouldBindQuery(&req); err != nil {
@@ -115,11 +103,7 @@ func GetPublicListDetail(listService ListService) gin.HandlerFunc {
 
 func GetPublicListsPreview(listService ListService) gin.HandlerFunc {
     return func(c *gin.Context) {
-        userId, ok := middleware.UserID(c)
-        if !ok {
-            middleware.AbortUnauthorized(c)
-            return
-        }
+        userId, _ := middleware.UserID(c)
 
         var req models.FetchPublicListsRequest
         if err := c.ShouldBindQuery(&req); err != nil {
