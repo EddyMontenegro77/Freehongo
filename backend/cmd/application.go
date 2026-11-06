@@ -13,6 +13,7 @@ import (
 	emailServices "freehongo-api/internal/emails/services"
 	japaneseRepository "freehongo-api/internal/japanese/repository"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	listServices "freehongo-api/internal/lists/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -55,6 +56,7 @@ func NewApplication(config Config) (*Application, error) {
 	kanaRepository := japaneseRepository.NewKanaRepository(database)
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
 	japaneseService := japaneseServices.NewJapaneseService(kanaRepository, kanjiRepository)
+	listService		:= listServices.NewListService(txm)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -73,6 +75,7 @@ func NewApplication(config Config) (*Application, error) {
 		RequireAuth:     authMiddleware.RequireAuth(userRepo),
 		RateLimiters:    rateLimiters,
 		JapaneseService: japaneseService,
+		ListService:	 listService,
 	})
 
 	return &Application{
