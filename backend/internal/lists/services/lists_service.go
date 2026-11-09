@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"freehongo-api/internal/db"
+	dbErrors "freehongo-api/internal/db/errors"
 	"freehongo-api/internal/lists/models"
 	"freehongo-api/internal/lists/repository"
 	"freehongo-api/internal/lists/utils"
@@ -184,7 +185,7 @@ func (s *ListService) CreateList(ctx context.Context, userId string, req models.
 			return err
 		}
 		if !owns {
-			return models.ErrConflict
+			return dbErrors.ErrConflict
 		}
 		return nil
 	})
@@ -196,7 +197,7 @@ func (s *ListService) DeleteList(ctx context.Context, userId string, req models.
 		lq := repository.NewListQueries(tx)
 		return lq.DeleteList(ctx, req)
 	})
-	if errors.Is(err, models.ErrNoRowsChanged) {
+	if errors.Is(err, dbErrors.ErrNoRowsChanged) {
 		return nil
 	}
 	return utils.MapDBError(err)
@@ -242,7 +243,7 @@ func (s *ListService) DeleteListCharacters(ctx context.Context, userId string, r
 		lq := repository.NewListQueries(tx)
 		return lq.DeleteListCharacters(ctx, req)
 	})
-	if errors.Is(err, models.ErrNoRowsChanged) {
+	if errors.Is(err, dbErrors.ErrNoRowsChanged) {
 		return nil
 	}
 	return utils.MapDBError(err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	dbErrors "freehongo-api/internal/db/errors"
 	"freehongo-api/internal/lists/models"
 )
 
@@ -291,7 +292,7 @@ func affectedOrErr(res sql.Result) error {
 		return err
 	}
 	if n == 0 {
-		return models.ErrNoRowsChanged
+		return dbErrors.ErrNoRowsChanged
 	}
 	return nil
 }
