@@ -14,6 +14,7 @@ import (
 	japaneseRepository "freehongo-api/internal/japanese/repository"
 	japaneseServices "freehongo-api/internal/japanese/services"
 	listServices "freehongo-api/internal/lists/services"
+	quizServices "freehongo-api/internal/quizes/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -57,6 +58,7 @@ func NewApplication(config Config) (*Application, error) {
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
 	japaneseService := japaneseServices.NewJapaneseService(kanaRepository, kanjiRepository)
 	listService		:= listServices.NewListService(txm)
+	quizService		:= quizServices.NewQuizService(txm)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -76,6 +78,7 @@ func NewApplication(config Config) (*Application, error) {
 		RateLimiters:    rateLimiters,
 		JapaneseService: japaneseService,
 		ListService:	 listService,
+		QuizService:	 quizService,
 	})
 
 	return &Application{

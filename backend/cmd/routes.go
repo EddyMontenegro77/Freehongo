@@ -8,6 +8,8 @@ import (
 	japaneseServices "freehongo-api/internal/japanese/services"
 	listHandlers "freehongo-api/internal/lists/handlers"
 	listServices "freehongo-api/internal/lists/services"
+	quizHandlers "freehongo-api/internal/quizes/handlers"
+	quizServices "freehongo-api/internal/quizes/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -25,6 +27,7 @@ type Deps struct {
 	RateLimiters   *ratelimitmiddleware.Limiters
 	JapaneseService *japaneseServices.JapaneseService
 	ListService		*listServices.ListService
+	QuizService		*quizServices.QuizService
 }
 
 func SetupRoutes(router *gin.Engine, d Deps) {
@@ -85,4 +88,14 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	// Official Lists
 	public.GET("/lists/official/detail", listHandlers.GetOfficialListDetail(d.ListService))
 	public.GET("/lists/official/preview", listHandlers.GetOfficialListsPreview(d.ListService))
+
+	// Quizes Endpoints
+	authProtected.POST("/quizes/submit", quizHandlers.PostSubmitQuizSession(d.QuizService))
+
+	authProtected.GET("/quizes/sessions", quizHandlers.GetUserQuizSessions(d.QuizService))
+	authProtected.GET("/quizes/sessions/detail", quizHandlers.GetQuizSessionDetail(d.QuizService))
+
+	authProtected.GET("/quizes/stats/characters", quizHandlers.GetCharacterStats(d.QuizService))
+	authProtected.GET("/quizes/stats/list", quizHandlers.GetListStats(d.QuizService))
+	authProtected.GET("/quizes/stats/weak", quizHandlers.GetWeakCharacters(d.QuizService))
 }
