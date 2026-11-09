@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"freehongo-api/internal/auth/middleware"
 	"freehongo-api/internal/quizes/models"
 	"freehongo-api/internal/quizes/utils"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+const maxSubmitBodyBytes = 2 << 20 // 2 MB
 
 type QuizService interface {
 	SubmitQuizSession(ctx context.Context, userId string, req models.SubmitQuizRequest) error
@@ -28,9 +31,18 @@ func PostSubmitQuizSession(quizService QuizService) gin.HandlerFunc {
 			return
 		}
 
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxSubmitBodyBytes)
+
 		var req models.SubmitQuizRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
+			if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
+				c.JSON(http.StatusRequestEntityTooLarge, gin.H{
+					"error": "payload_too_large",
+				})
+				return
+			}
 			utils.HandleQuizError(c, models.ErrBadRequest)
+			return
 		}
 
 		err := quizService.SubmitQuizSession(c.Request.Context(), userId, req)
@@ -57,13 +69,13 @@ func GetUserQuizSessions(quizService QuizService) gin.HandlerFunc {
 			return
 		}
 
-		lists, err := quizService.FetchUserQuizSessions(c.Request.Context(), userId, req)
+		sessions, err := quizService.FetchUserQuizSessions(c.Request.Context(), userId, req)
 		if err != nil{
 			utils.HandleQuizError(c, err) 
 			return
 		}
 
-		c.JSON(http.StatusOK, lists)
+		c.JSON(http.StatusOK, sessions)
 	}
 }
 
@@ -81,13 +93,37 @@ func GetQuizSessionDetail(quizService QuizService) gin.HandlerFunc {
 			return
 		}
 
-		lists, err := quizService.FetchQuizSessionDetail(c.Request.Context(), userId, req)
+		sessionDetails, err := quizService.FetchQuizSessionDetail(c.Request.Context(), userId, req)
 		if err != nil{
 			utils.HandleQuizError(c, err) 
 			return
 		}
 
-		c.JSON(http.StatusOK, lists)
+		c.JSON(http.StatusOK, sessionDetails)
+	}
+}
+
+func GetListStats(quizService QuizService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId, ok := middleware.UserID(c)
+		if !ok {
+			middleware.AbortUnauthorized(c)
+			return
+		}
+
+		var req models.FetchListStatsRequest
+		if err := c.ShouldBindQuery(&req); err != nil {
+			utils.HandleQuizError(c, models.ErrBadRequest)
+			return
+		}
+
+		stats, err := quizService.FetchListStats(c.Request.Context(), userId, req)
+		if err != nil {
+			utils.HandleQuizError(c, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, stats)
 	}
 }
 
@@ -105,13 +141,13 @@ func GetCharacterStats(quizService QuizService) gin.HandlerFunc {
 			return
 		}
 
-		lists, err := quizService.FetchCharacterStats(c.Request.Context(), userId, req)
+		characterStats, err := quizService.FetchCharacterStats(c.Request.Context(), userId, req)
 		if err != nil{
 			utils.HandleQuizError(c, err) 
 			return
 		}
 
-		c.JSON(http.StatusOK, lists)
+		c.JSON(http.StatusOK, characterStats)
 	}
 }
 
@@ -129,12 +165,12 @@ func GetWeakCharacters(quizService QuizService) gin.HandlerFunc {
 			return
 		}
 
-		lists, err := quizService.FetchWeakCharacters(c.Request.Context(), userId, req)
+		weakCharacters, err := quizService.FetchWeakCharacters(c.Request.Context(), userId, req)
 		if err != nil{
 			utils.HandleQuizError(c, err) 
 			return
 		}
 
-		c.JSON(http.StatusOK, lists)
+		c.JSON(http.StatusOK, weakCharacters)
 	}
 }
