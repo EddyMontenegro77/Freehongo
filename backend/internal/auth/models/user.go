@@ -20,6 +20,7 @@ type GoogleIdentity struct {
 }
 
 type UserProfile struct {
+	UserId	   string `json:"userId"`
 	Email      string `json:"email"`
 	Name       string `json:"name"`
 	Verified   bool   `json:"verified"`

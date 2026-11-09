@@ -71,11 +71,12 @@ func (q *UserQueries) FetchUserProfile(
 	var pictureURL sql.NullString
 
 	err := q.tx.QueryRowContext(ctx, `
-        SELECT username, email, email_verified_at, picture_url
+        SELECT user_id, username, email, email_verified_at, picture_url
         FROM app.users
         WHERE user_id = $1
           AND deleted_at IS NULL
     `, userID).Scan(
+		&profile.UserId,
 		&profile.Name,
 		&profile.Email,
 		&emailVerifiedAt,
