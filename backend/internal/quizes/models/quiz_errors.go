@@ -7,6 +7,7 @@ var (
 	ErrInvalidQuizType  = errors.New("invalid quiz type")
     ErrInvalidQuizLimit = errors.New("invalid quiz limit")
 	ErrQuizNotFound = errors.New("quiz not found")
+	ErrRLSPolicyViolation = errors.New("policy violation")
 
 	ErrInvalidAnswerType     = errors.New("invalid_answer_type")
 	ErrInvalidCharQuizType   = errors.New("invalid_character_quiz_type")
