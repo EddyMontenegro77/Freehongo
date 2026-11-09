@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	dbErrors "freehongo-api/internal/db/errors"
@@ -153,43 +154,39 @@ func ValidateSubmit(req models.SubmitQuizRequest) (models.SubmitQuizRequest, []s
 func HandleQuizError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, dbErrors.ErrConflict):
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "list_id_already_in_use",
-		})
+		c.JSON(http.StatusConflict, gin.H{"error": "quiz_session_id_already_in_use"})
 
 	case errors.Is(err, models.ErrBadRequest):
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "bad_request",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad_request"})
 
-	case errors.Is(err, models.ErrInvalidQuizType):
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid_list_type",
-		})
+	case errors.Is(err, models.ErrInvalidAnswerType):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_answer_type"})
 
-	case errors.Is(err, models.ErrInvalidQuizLimit):
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid_list_limit",
-		})
+	case errors.Is(err, models.ErrInvalidCharQuizType):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_character_quiz_type"})
 
-	case errors.Is(err, models.ErrQuizNotFound):
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "list_not_found",
-		})
+	case errors.Is(err, models.ErrInvalidQuizTimes):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_quiz_times"})
 
-	case errors.Is(err, dbErrors.ErrInvalidChars):
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid_chars",
-		})
+	case errors.Is(err, models.ErrInvalidQuizAnswers):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_quiz_answers"})
 
-	case errors.Is(err, dbErrors.ErrNoRowsChanged):
-		c.JSON(http.StatusOK, gin.H{
-			"message": "no_changes_made",
-		})
+	case errors.Is(err, models.ErrInvalidWritingData):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_writing_data"})
+
+	case errors.Is(err, models.ErrInvalidSortBy):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_sort_by"})
+
+	case errors.Is(err, models.ErrCharNotInList):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "character_not_in_list"})
+
+	case errors.Is(err, models.ErrQuizNotFound), errors.Is(err, sql.ErrNoRows):
+		c.JSON(http.StatusNotFound, gin.H{"error": "not_found"})
+
+	case errors.Is(err, models.ErrRLSPolicyViolation):
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 
 	default:
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "internal_server_error",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal_server_error"})
 	}
 }
