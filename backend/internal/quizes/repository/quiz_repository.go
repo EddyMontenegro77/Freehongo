@@ -18,13 +18,14 @@ type rowScanner interface {
 	Scan(dest ...any) error
 }
 
-func (q *QuizQueries) ListAccessible(ctx context.Context, listID string) (bool, error) {
+func (q *QuizQueries) ListAccessible(ctx context.Context, listID string, startedAt time.Time) (bool, error) {
 	var ok bool
 	err := q.tx.QueryRowContext(ctx, `
 		SELECT EXISTS (
 			SELECT 1 FROM app.user_lists
-			WHERE list_id = $1 AND deleted_at IS NULL
-		)`, listID).Scan(&ok)
+			WHERE list_id = $1
+			AND (deleted_at IS NULL OR deleted_at >= $2::timestamptz)
+		)`, listID, startedAt.UTC()).Scan(&ok)
 	return ok, err
 }
 

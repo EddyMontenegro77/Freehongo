@@ -70,15 +70,18 @@ func ValidateSubmit(req models.SubmitQuizRequest) (models.SubmitQuizRequest, []s
 	if !ok {
 		return req, nil, models.ErrInvalidAnswerType
 	}
-	cqt, ok := models.ParseCharacterQuizType(req.CharacterQuizType)
-	if !ok {
-		return req, nil, models.ErrInvalidCharQuizType
-	}
-	if at == models.AnswerStrokeWriting && !cqt.AllowsStrokeWriting() {
-		return req, nil, models.ErrInvalidCharQuizType
+	if req.CharacterQuizType != nil && *req.CharacterQuizType != "" {
+		cqt, ok := models.ParseCharacterQuizType(*req.CharacterQuizType)
+		if !ok {
+			return req, nil, models.ErrInvalidCharQuizType
+		}
+		if at == models.AnswerStrokeWriting && !cqt.AllowsStrokeWriting() {
+			return req, nil, models.ErrInvalidCharQuizType
+		}
+		normalized := string(cqt)
+    	req.CharacterQuizType = &normalized
 	}
 	req.AnswerType = string(at)
-	req.CharacterQuizType = string(cqt)
 
 	req.StartedAt = req.StartedAt.UTC()
 	req.FinishedAt = req.FinishedAt.UTC()

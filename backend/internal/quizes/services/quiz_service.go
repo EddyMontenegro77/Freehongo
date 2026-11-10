@@ -24,7 +24,7 @@ type QuizService struct {
 func NewQuizService(txm *db.TxManager) *QuizService { return &QuizService{txm: txm} }
 
 func (s *QuizService) SubmitQuizSession(ctx context.Context, userId string, req models.SubmitQuizRequest) error {
-	req, chars, err := utils.ValidateSubmit(req)
+	req, _, err := utils.ValidateSubmit(req)
 	if err != nil {
 		return err
 	}
@@ -40,20 +40,12 @@ func (s *QuizService) SubmitQuizSession(ctx context.Context, userId string, req 
 			return nil
 		}
 
-		accessible, err := qq.ListAccessible(ctx, req.ListId)
+		accessible, err := qq.ListAccessible(ctx, req.ListId, req.StartedAt)
 		if err != nil {
 			return err
 		}
 		if !accessible {
 			return sql.ErrNoRows
-		}
-
-		missing, err := qq.MissingListChars(ctx, req.ListId, chars)
-		if err != nil {
-			return err
-		}
-		if len(missing) > 0 {
-			return models.ErrCharNotInList
 		}
 
 		created, err := qq.SubmitQuizSession(ctx, userId, req)

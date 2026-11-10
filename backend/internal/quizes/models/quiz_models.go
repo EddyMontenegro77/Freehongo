@@ -66,7 +66,7 @@ type SubmitQuizRequest struct {
 	QuizSessionId     string            `json:"quizSessionId" binding:"required,uuid"`
 	ListId            string            `json:"listId" binding:"required,uuid"`
 	AnswerType        string            `json:"answerType" binding:"required"`
-	CharacterQuizType string            `json:"characterQuizType" binding:"required"`
+	CharacterQuizType *string            `json:"characterQuizType"`
 	StartedAt         time.Time         `json:"startedAt" binding:"required"`
 	FinishedAt        time.Time         `json:"finishedAt" binding:"required"`
 	RandomOrder       *bool             `json:"randomOrder" binding:"required"`
@@ -128,7 +128,7 @@ type QuizSessionSummary struct {
 	ListId            string    `json:"listId"`
 	ListName          *string   `json:"listName"`
 	AnswerType        string    `json:"answerType"`
-	CharacterQuizType string    `json:"characterQuizType"`
+	CharacterQuizType *string    `json:"characterQuizType"`
 	StartedAt         time.Time `json:"startedAt"`
 	FinishedAt        time.Time `json:"finishedAt"`
 	TotalQuestions    int       `json:"totalQuestions"`
