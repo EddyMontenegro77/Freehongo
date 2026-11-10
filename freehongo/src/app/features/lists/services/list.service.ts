@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CharacterList, CreateCharacterListInput } from '../../../shared/models/lists/list.model';
-import { db, FreeHongoDB } from '../../../core/db/db';
+import { FreeHongoDB } from '../../../core/db/db';
 import { nowIso } from '../../../shared/utils/date.utils';
 import { newId } from '../../../shared/utils/uuid.utils';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
 
-/** Fields a caller may change. Bookkeeping fields are managed by the service. */
 type EditableListFields = Partial<
   Omit<CharacterList, 'listId' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'syncStatus'>
 >;
@@ -12,7 +13,6 @@ type EditableListFields = Partial<
 function normalizeName(name: string): string {
   const trimmed = name.trim();
 
-  // Mirrors CHECK (length(trim(name)) > 0) in the cloud database.
   if (!trimmed) {
     throw new Error('A list needs a name.');
   }
@@ -24,9 +24,13 @@ function normalizeName(name: string): string {
   providedIn: 'root',
 })
 export class ListService {
-  protected database: FreeHongoDB = db;
+  private readonly databaseService = inject(DatabaseService);
+  private readonly syncTrigger = inject(SyncTriggerService);
 
-  // LOCAL METHODS
+  protected get database(): FreeHongoDB {
+    return this.databaseService.database;
+  }
+
   async createList(input: CreateCharacterListInput): Promise<string> {
     const listId = newId();
     const now = nowIso();
@@ -34,7 +38,6 @@ export class ListService {
     const newList: CharacterList = {
       ...input,
       name: normalizeName(input.name),
-      // Mirrors UNIQUE (list_id, unicode) in the cloud database.
       characters: [...new Set(input.characters)],
       listId,
       isPublic: false,
@@ -44,6 +47,7 @@ export class ListService {
     };
 
     await this.database.lists.add(newList);
+    this.syncTrigger.schedule();
     return listId;
   }
 
@@ -61,13 +65,12 @@ export class ListService {
     await this.database.lists.update(listId, {
       ...cleaned,
       updatedAt: nowIso(),
-      // Any edit must be uploaded again, even if the list was already synced.
       syncStatus: 'pending',
     });
+    this.syncTrigger.schedule();
   }
 
   async addCharacterToList(listId: string, unicode: string): Promise<boolean> {
-    // One transaction so two quick additions can't overwrite each other.
     return this.database.transaction('rw', this.database.lists, async () => {
       const list = await this.getListById(listId);
 
@@ -87,16 +90,13 @@ export class ListService {
     });
   }
 
-  /**
-   * Soft delete: the list is hidden but kept, so the sync can tell the cloud it was deleted.
-   * It can be removed for good once that deletion has been uploaded.
-   */
   async deleteList(listId: string): Promise<void> {
     await this.database.lists.update(listId, {
       deletedAt: nowIso(),
       updatedAt: nowIso(),
       syncStatus: 'pending',
     });
+    this.syncTrigger.schedule();
   }
 
   async getAllLists(): Promise<CharacterList[]> {
@@ -115,6 +115,4 @@ export class ListService {
       .and((list) => !list.deletedAt)
       .first();
   }
-
-  // CLOUD METHODS
 }
