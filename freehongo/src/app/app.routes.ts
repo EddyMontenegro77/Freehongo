@@ -16,6 +16,7 @@ import { guestGuard } from './core/guards/guest-guard';
 import { VerifyEmail } from './core/auth/pages/verify-email/verify-email';
 import { ResetPassword } from './core/auth/pages/reset-password/reset-password';
 import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
+import { Logout } from './core/auth/pages/logout/logout';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -28,6 +29,7 @@ export const routes: Routes = [
   { path: 'quizes/strokes/:mode/:listId', component: StrokesQuiz },
   { path: 'auth/signup', component: Signup, canActivate: [guestGuard] },
   { path: 'auth/login', component: Login, canActivate: [guestGuard] },
+  { path: 'auth/logout', component: Logout },
   { path: 'auth/verify-email', component: VerifyEmail },
   { path: 'auth/reset-password', component: ResetPassword },
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
