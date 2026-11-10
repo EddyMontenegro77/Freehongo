@@ -12,7 +12,7 @@ export class CharacterList {
   createdAt: string = nowIso();
   deletedAt?: string;
   updatedAt: string = nowIso();
-  syncStatus: 'synced' | 'pending' = 'pending';
+  syncStatus: 'synced' | 'pending' | 'failed' = 'pending';
 }
 
 export class ResolvedCharacterList {
