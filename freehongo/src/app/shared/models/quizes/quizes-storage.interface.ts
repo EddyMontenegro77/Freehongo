@@ -1,7 +1,7 @@
 import { StrokeValidationResult } from '../../../features/writing/models/stroke-validation-result.interface';
 import { AnswerType, CharacterQuizType } from './quizes.interface';
 
-export type SyncStatus = 'pending' | 'synced';
+export type SyncStatus = 'pending' | 'synced' | 'failed';
 
 export interface WritingAttemptResult {
   strokeCountCorrect: boolean;
