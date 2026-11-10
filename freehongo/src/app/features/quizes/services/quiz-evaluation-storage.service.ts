@@ -1,17 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { QuizEvaluationResult } from '../../../shared/models/quizes/quizes.interface';
 import {
   StoredCharacterStat,
   StoredQuizAnswer,
   StoredQuizSession,
 } from '../../../shared/models/quizes/quizes-storage.interface';
-import { db, FreeHongoDB } from '../../../core/db/db';
+import { FreeHongoDB } from '../../../core/db/db';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
 
 const MIN_QUESTIONS = 2;
-
-// ─────────────────────────────────────────────────────────────
-// Mappers (runtime model -> storage model)
-// ─────────────────────────────────────────────────────────────
 
 function toStoredQuizSession(r: QuizEvaluationResult): StoredQuizSession {
   return {
@@ -52,10 +50,6 @@ function toStoredAnswers(r: QuizEvaluationResult): StoredQuizAnswer[] {
   }));
 }
 
-// ─────────────────────────────────────────────────────────────
-// Validation (mirrors the CHECK constraints of the cloud database)
-// ─────────────────────────────────────────────────────────────
-
 function assertValid(r: QuizEvaluationResult): void {
   if (r.total < MIN_QUESTIONS || r.answers.length < MIN_QUESTIONS) {
     throw new Error(`An evaluation needs at least ${MIN_QUESTIONS} questions.`);
@@ -75,18 +69,15 @@ function assertValid(r: QuizEvaluationResult): void {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Service
-// ─────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class QuizEvaluationStorageService {
-  protected database: FreeHongoDB = db;
+  private readonly databaseService = inject(DatabaseService);
+  private readonly syncTrigger = inject(SyncTriggerService);
 
-  /**
-   * Stores the session, its answers and the updated character stats in a single
-   * transaction, so a session can never be saved without its answers.
-   */
+  protected get database(): FreeHongoDB {
+    return this.databaseService.database;
+  }
+
   async saveEvaluation(result: QuizEvaluationResult): Promise<void> {
     assertValid(result);
 
@@ -104,9 +95,10 @@ export class QuizEvaluationStorageService {
         await this.updateStats(result);
       },
     );
+
+    this.syncTrigger.schedule();
   }
 
-  /** One answer per character per session (guaranteed by assertValid), so one step each. */
   private async updateStats(result: QuizEvaluationResult): Promise<void> {
     const keys = result.answers.map(
       (a) => [a.characterUnicode, result.answerType] as [string, string],
