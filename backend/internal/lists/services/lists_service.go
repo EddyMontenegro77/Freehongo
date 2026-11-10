@@ -140,12 +140,18 @@ func (s *ListService) FetchUserLists(ctx context.Context, userId string, req mod
 		return models.ListsGroup{}, err
 	}
 
+	var charLimit *int
+	if req.Full == nil || !*req.Full {
+		limit := sampleCharsLimit
+		charLimit = &limit
+	}
+
 	var result models.ListsGroup
 	err = s.txm.InTx(ctx, userId, func(tx *sql.Tx) error {
 		lq := repository.NewListQueries(tx)
 
 		var err error
-		result, err = lq.FetchUserLists(ctx, req, req.Limit, sampleCharsLimit, userId)
+		result, err = lq.FetchUserLists(ctx, req, req.Limit, charLimit, userId)
 		return err
 	})
 	if err != nil {

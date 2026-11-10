@@ -115,7 +115,7 @@ func (q *ListQueries) FetchPublicLists(ctx context.Context, req models.FetchPubl
 	return models.ListsGroup{Lists: lists}, nil
 }
 
-func (q *ListQueries) FetchUserLists(ctx context.Context, req models.FetchUserListsRequest, pageLimit *int, sampleLimit int, userId string) (models.ListsGroup, error) {
+func (q *ListQueries) FetchUserLists(ctx context.Context, req models.FetchUserListsRequest, pageLimit *int, sampleLimit *int, userId string) (models.ListsGroup, error) {
 	rows, err := q.tx.QueryContext(ctx, `
 		SELECT l.list_id, l.user_id, l.name, l.created_at, l.updated_at,
 		       l.is_public, l.list_type,
@@ -213,14 +213,16 @@ func (q *ListQueries) DeleteList(ctx context.Context, req models.DeleteListReque
 }
 
 func (q *ListQueries) AddListCharacters(ctx context.Context, req models.AddListCharsRequest) error {
-	_, err := q.tx.ExecContext(ctx, `
+	if _, err := q.tx.ExecContext(ctx, `
 		INSERT INTO app.list_characters (list_id, unicode)
 		SELECT $1::uuid, u
 		FROM unnest($2::text[]) WITH ORDINALITY AS t(u, ord)
 		ORDER BY ord
 		ON CONFLICT DO NOTHING
-	`, req.ListId, req.CharUnicodes)
-	return err
+	`, req.ListId, req.CharUnicodes); err != nil {
+		return err
+	}
+	return q.touchList(ctx, req.ListId)
 }
 
 func (q *ListQueries) DeleteListCharacters(ctx context.Context, req models.DeleteListCharsRequest) error {
@@ -285,6 +287,13 @@ func (q *ListQueries) fetchListChars(ctx context.Context, listID string, charLim
 	return chars, rows.Err()
 }
 
+func (q *ListQueries) touchList(ctx context.Context, listID string) error {
+	_, err := q.tx.ExecContext(ctx, `
+		UPDATE app.user_lists SET updated_at = NOW()
+		WHERE list_id = $1 AND deleted_at IS NULL
+	`, listID)
+	return err
+}
 
 func affectedOrErr(res sql.Result) error {
 	n, err := res.RowsAffected()
