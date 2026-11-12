@@ -40,7 +40,6 @@ export class ListService {
       name: normalizeName(input.name),
       characters: [...new Set(input.characters)],
       listId,
-      isPublic: false,
       createdAt: now,
       updatedAt: now,
       syncStatus: 'pending',

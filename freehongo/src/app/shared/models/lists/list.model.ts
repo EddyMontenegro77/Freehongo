@@ -26,6 +26,7 @@ export class ResolvedCharacterList {
 export class CreateCharacterListInput {
   name: string = '';
   type: CharacterListType = 'mixed';
+  isPublic: boolean = false;
   characters: string[] = [];
 }
 
