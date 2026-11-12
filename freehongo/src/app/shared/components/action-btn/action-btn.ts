@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 
-type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
-type ButtonType = 'button' | 'submit';
+export type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
+export type ButtonType = 'button' | 'submit';
 
 @Component({
   selector: 'app-action-btn',
