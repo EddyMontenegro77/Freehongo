@@ -6,6 +6,14 @@ export type DashboardSkill = 'reading' | 'meaning' | 'writing';
 export type MasteryLevel = 'new' | 'beginner' | 'intermediate' | 'mastered';
 export type TrendPeriod = 7 | 30 | 90 | 'all';
 
+export interface GeneralSummary {
+  masteryLevel: MasteryLevel;
+  accuracy: number;
+  totalSessions: number;
+  dayStreak: number;
+  averageResponseTimeMs: number;
+}
+
 export interface ProgressSummary {
   score: number;
   accuracy: number;

@@ -1,2 +1,8 @@
-<p>dashboard works!</p>
-<app-progressbar [value]="55" [milestones]="milestones" barAriaLabel="Test Progress bar" />
+@if (isLoading()) {
+  <app-loading-state message="Building dashboard..." />
+} @else {
+  @if (generalSummary(); as summary) {
+    <app-summary [data]="summary" />
+  }
+  <app-progressbar [value]="55" [milestones]="milestones" barAriaLabel="Test Progress bar" />
+}

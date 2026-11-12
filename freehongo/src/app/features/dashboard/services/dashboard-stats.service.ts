@@ -1,8 +1,15 @@
 import { inject, Service } from '@angular/core';
 import { DatabaseService } from '../../../core/db/services/database.service';
-import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
+import {
+  StoredCharacterStat,
+  WritingAttemptResult,
+  StoredQuizSession,
+  StoredQuizAnswer,
+} from '../../../shared/models/quizes/quizes-storage.interface';
 import { AnswerType } from '../../../shared/models/quizes/quizes.interface';
 import { toTime } from '../../../core/sync/sync.utils';
+import { GeneralSummary, ProgressSummary } from '../models/dashboard.models';
+import { SummaryRepository } from '../repositories/summary.repository';
 
 interface Attempt {
   at: number;
@@ -22,6 +29,11 @@ export class DashboardStatsService {
 
   private get db() {
     return this.databaseService.database;
+  }
+
+  async buildSummaryStats(): Promise<GeneralSummary> {
+    const summaryRepository = new SummaryRepository(this.db);
+    return summaryRepository.getSummary();
   }
 
   async rebuildCharacterStats(): Promise<number> {

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { GeneralSummary } from '../../models/dashboard.models';
 
 @Component({
   imports: [],
@@ -7,4 +8,5 @@ import { Component } from '@angular/core';
   templateUrl: './summary.html',
 })
 export class Summary {
+  data = input.required<GeneralSummary>();
 }
