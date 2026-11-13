@@ -6,6 +6,15 @@ export type DashboardSkill = 'reading' | 'meaning' | 'writing';
 export type MasteryLevel = 'new' | 'beginner' | 'intermediate' | 'mastered';
 export type TrendPeriod = 7 | 30 | 90 | 'all';
 
+export const CATEGORY_TOTALS: Record<DashboardCategory, number> = {
+  hiragana: 86,
+  katakana: 94,
+  kanji: 6400,
+};
+
+export const CONFIDENT_ATTEMPTS = 10;
+export const MAX_ANSWER_MS = 120_000;
+
 export interface GeneralSummary {
   masteryLevel: MasteryLevel;
   accuracy: number;
@@ -23,12 +32,16 @@ export interface ProgressSummary {
   level: MasteryLevel;
 }
 
-export interface CategoryProgress extends ProgressSummary {
+export interface CategoryProgress {
   category: DashboardCategory;
+  totalCharacters: number;
+  levelDistribution: Record<MasteryLevel, number>;
 }
 
-export interface SkillProgress extends ProgressSummary {
+export interface SkillProgress {
   skill: DashboardSkill;
+  averageResponseMs: number;
+  levelDistribution: Record<MasteryLevel, number>;
 }
 
 export interface CharacterProgress {
@@ -42,6 +55,13 @@ export interface CharacterProgress {
   averageResponseMs: number;
   lastSeenAt: Date;
   skills: Record<DashboardSkill, ProgressSummary>;
+}
+
+export interface SkillAnswer {
+  skill: DashboardSkill;
+  unicode: string;
+  isCorrect: boolean;
+  responseTimeMs: number;
 }
 
 export interface TrendPoint {
