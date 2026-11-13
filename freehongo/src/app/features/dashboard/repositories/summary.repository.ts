@@ -6,11 +6,7 @@ import { GeneralSummary, MasteryLevel } from '../models/dashboard.models';
 const CONFIDENT_ATTEMPTS = 5;
 
 export class SummaryRepository {
-  db: FreeHongoDB;
-
-  constructor(db: FreeHongoDB) {
-    this.db = db;
-  }
+  constructor(private readonly db: FreeHongoDB) {}
 
   async getSummary(): Promise<GeneralSummary> {
     const [stats, sessionStarts] = await Promise.all([
