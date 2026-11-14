@@ -1,4 +1,5 @@
 import { Milestone } from '../../../shared/components/progressbar/progressbar';
+import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
 import { AnswerType, CharacterQuizType } from '../../../shared/models/quizes/quizes.interface';
 
 export type DashboardCategory = 'hiragana' | 'katakana' | 'kanji';
@@ -14,6 +15,7 @@ export const CATEGORY_TOTALS: Record<DashboardCategory, number> = {
 
 export const CONFIDENT_ATTEMPTS = 10;
 export const MAX_ANSWER_MS = 120_000;
+export const WEAK_THRESHOLD = 0.8;
 
 export interface GeneralSummary {
   masteryLevel: MasteryLevel;
@@ -55,6 +57,46 @@ export interface CharacterProgress {
   averageResponseMs: number;
   lastSeenAt: Date;
   skills: Record<DashboardSkill, ProgressSummary>;
+}
+
+export interface PracticedCharacter {
+  unicode: string;
+  attempts: number;
+  accuracy: number;
+  masteryScore: number;
+  lastSeenAt: Date;
+}
+
+export interface CharacterAttempt {
+  answeredAt: Date;
+  isCorrect: boolean;
+  responseTimeMs: number;
+  givenAnswer?: string;
+  expectedAnswer?: string;
+  answerType: AnswerType;
+  skill: DashboardSkill | null;
+  listId: string;
+}
+
+export interface ConfusionCount {
+  unicode: string;
+  count: number;
+}
+
+export interface WritingSummary {
+  attempts: number;
+  strokeCountCorrectRate: number;
+  orderCorrectRate: number;
+  validRateByStroke: number[];
+}
+
+export interface CharacterDetail {
+  unicode: string;
+  stats: StoredCharacterStat[];
+  recentAttempts: CharacterAttempt[];
+  confusedWith: ConfusionCount[];
+  confusedBy: ConfusionCount[];
+  writing?: WritingSummary;
 }
 
 export interface SkillAnswer {
