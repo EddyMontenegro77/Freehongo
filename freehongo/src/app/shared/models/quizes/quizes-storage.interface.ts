@@ -43,3 +43,15 @@ export interface StoredCharacterStat {
   lastSeenAt: Date;
   firstSeenAt: Date;
 }
+
+export interface FetchQuizSessionFilters {
+  listName?: string;
+  finishedAt?: string;
+  answerType?: AnswerType;
+  descOrder: boolean;
+  characterQuizType?: CharacterQuizType;
+}
+
+export interface QuizSessionWithList extends StoredQuizSession {
+  listName: string | null;
+}
