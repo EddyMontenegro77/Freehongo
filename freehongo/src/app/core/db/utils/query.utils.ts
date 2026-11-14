@@ -42,6 +42,31 @@ export function join<L, R, K>(
   return pairs;
 }
 
+export function leftJoin<L, R, K>(
+  left: readonly L[],
+  right: readonly R[],
+  getLeftKey: (item: L) => K,
+  getRightKey: (item: R) => K,
+): Array<[L, R | undefined]> {
+  const rightGroups = groupBy(right, getRightKey);
+  const pairs: Array<[L, R | undefined]> = [];
+
+  for (const leftItem of left) {
+    const matches = rightGroups.get(getLeftKey(leftItem));
+
+    if (!matches) {
+      pairs.push([leftItem, undefined]);
+      continue;
+    }
+
+    for (const rightItem of matches) {
+      pairs.push([leftItem, rightItem]);
+    }
+  }
+
+  return pairs;
+}
+
 export function sumBy<T>(items: readonly T[], getValue: (item: T) => number): number {
   return items.reduce((sum, item) => sum + getValue(item), 0);
 }
