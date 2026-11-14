@@ -9,15 +9,18 @@ import { AnswerType } from '../../../shared/models/quizes/quizes.interface';
 import { toTime } from '../../../core/sync/sync.utils';
 import {
   CategoryProgress,
+  CharacterDetail,
   DashboardCategory,
   DashboardSkill,
   GeneralSummary,
+  PracticedCharacter,
   SkillProgress,
 } from '../models/dashboard.models';
 import { SummaryRepository } from '../repositories/summary.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { SkillsRepository } from '../repositories/skills.repository';
 import { QuizHistoryRepository } from '../repositories/quiz-history.repository';
+import { CharactersRepository } from '../repositories/characters.repository';
 
 interface Attempt {
   at: number;
@@ -57,6 +60,21 @@ export class DashboardStatsService {
   async fetchQuizSession(filters: FetchQuizSessionFilters): Promise<QuizSessionWithList[]> {
     const quizHistoryRepository = new QuizHistoryRepository(this.db);
     return quizHistoryRepository.fetchQuizSession(filters);
+  }
+
+  async fetchWeakCharacters(): Promise<StoredCharacterStat[]> {
+    const charactersRepository = new CharactersRepository(this.db);
+    return charactersRepository.getWeakCharacters();
+  }
+
+  async fetchCharacterDetail(unicode: string): Promise<CharacterDetail> {
+    const charactersRepository = new CharactersRepository(this.db);
+    return charactersRepository.getCharacterDetail(unicode);
+  }
+
+  async fetchPracticedCharacters(): Promise<PracticedCharacter[]> {
+    const charactersRepository = new CharactersRepository(this.db);
+    return charactersRepository.getPracticedCharacters();
   }
 
   async rebuildCharacterStats(): Promise<number> {

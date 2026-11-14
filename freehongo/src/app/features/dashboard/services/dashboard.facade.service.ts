@@ -1,15 +1,18 @@
 import { inject, Service } from '@angular/core';
 import {
   CategoryProgress,
+  CharacterDetail,
   DashboardCategory,
   DashboardSkill,
   GeneralSummary,
+  PracticedCharacter,
   SkillProgress,
 } from '../models/dashboard.models';
 import { DashboardStatsService } from './dashboard-stats.service';
 import {
   FetchQuizSessionFilters,
   QuizSessionWithList,
+  StoredCharacterStat,
 } from '../../../shared/models/quizes/quizes-storage.interface';
 
 @Service()
@@ -30,5 +33,16 @@ export class DashboardFacadeService {
 
   fetchQuizSessions(filters: FetchQuizSessionFilters): Promise<QuizSessionWithList[]> {
     return this.dashboardStatsService.fetchQuizSession(filters);
+  }
+
+  getCharacterStats(): Promise<[PracticedCharacter[], StoredCharacterStat[]]> {
+    return Promise.all([
+      this.dashboardStatsService.fetchPracticedCharacters(),
+      this.dashboardStatsService.fetchWeakCharacters(),
+    ]);
+  }
+
+  getCharacterDetail(unicode: string): Promise<CharacterDetail> {
+    return this.dashboardStatsService.fetchCharacterDetail(unicode);
   }
 }

@@ -10,6 +10,12 @@
   @if (skillsProgress(); as skills) {
     <app-skills [data]="skills" />
   }
+  @if (weakCharacters()) {
+    <app-weak-chars [data]="weakCharacters()" />
+  }
+  @if (practicedCharacters()) {
+    <app-master-details [data]="practicedCharacters()" />
+  }
   <app-quiz-history />
   <app-progressbar [value]="55" [milestones]="milestones" barAriaLabel="Test Progress bar" />
 }
