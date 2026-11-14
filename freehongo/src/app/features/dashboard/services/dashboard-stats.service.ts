@@ -1,15 +1,18 @@
 import { inject, Service } from '@angular/core';
 import { DatabaseService } from '../../../core/db/services/database.service';
-import {
-  StoredCharacterStat,
-  WritingAttemptResult,
-  StoredQuizSession,
-  StoredQuizAnswer,
-} from '../../../shared/models/quizes/quizes-storage.interface';
+import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
 import { AnswerType } from '../../../shared/models/quizes/quizes.interface';
 import { toTime } from '../../../core/sync/sync.utils';
-import { GeneralSummary, ProgressSummary } from '../models/dashboard.models';
+import {
+  CategoryProgress,
+  DashboardCategory,
+  DashboardSkill,
+  GeneralSummary,
+  SkillProgress,
+} from '../models/dashboard.models';
 import { SummaryRepository } from '../repositories/summary.repository';
+import { CategoriesRepository } from '../repositories/categories.repository';
+import { SkillsRepository } from '../repositories/skills.repository';
 
 interface Attempt {
   at: number;
@@ -34,6 +37,16 @@ export class DashboardStatsService {
   async buildSummaryStats(): Promise<GeneralSummary> {
     const summaryRepository = new SummaryRepository(this.db);
     return summaryRepository.getSummary();
+  }
+
+  async buildCategoriesStats(): Promise<Record<DashboardCategory, CategoryProgress>> {
+    const categoriesRepository = new CategoriesRepository(this.db);
+    return categoriesRepository.getCategoriesProgressReport();
+  }
+
+  async buildSkillsStats(): Promise<Record<DashboardSkill, SkillProgress>> {
+    const skillsRepository = new SkillsRepository(this.db);
+    return skillsRepository.getSkillsProgressReport();
   }
 
   async rebuildCharacterStats(): Promise<number> {
