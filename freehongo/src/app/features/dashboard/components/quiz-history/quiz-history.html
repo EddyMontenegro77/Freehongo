@@ -1,0 +1,91 @@
+<app-card class="quiz-history">
+  <section card-header class="history-filters">
+    <h2>Quiz history</h2>
+    <div class="filter-group">
+      <app-input
+        label="List name"
+        placeholder="My list"
+        type="text"
+        [value]="listName()"
+        (valueChange)="listName.set($event)"
+      />
+      <app-input
+        label="Search by Date"
+        type="date"
+        [value]="finishedAt()"
+        (valueChange)="finishedAt.set($event)"
+      />
+      <div class="segmented-controls">
+        <app-segmented-control
+          label="Answer Type"
+          [options]="answerTypeOptions"
+          [value]="answerType()"
+          (valueChange)="setAnswerType($event)"
+        />
+        <app-segmented-control
+          label="Quiz Type"
+          [options]="characterQuizTypeOptions"
+          [value]="characterQuizType()"
+          (valueChange)="setCharacterQuizType($event)"
+        />
+        <app-segmented-control
+          label="Order"
+          [options]="orderOptions"
+          [value]="order()"
+          (valueChange)="setOrder($event)"
+        />
+      </div>
+      <app-action-btn title="Clear" [action]="clearFilters" variant="light" />
+      <app-action-btn title="Filter" [action]="filterQuizes" variant="accent" />
+    </div>
+  </section>
+  <div card-body class="history-explorer">
+    <h3>My Quiz Sessions</h3>
+    @for (session of quizSessions(); track session.quizSessionId) {
+      <app-card class="history-card">
+        <div card-body class="history-card-content">
+          <div class="history-card-header">
+            <div class="history-title">
+              <h3>{{ session.listName }}</h3>
+              <span class="history-date">
+                {{ session.finishedAt | date: 'dd/MM/yyyy · HH:mm' }}
+              </span>
+            </div>
+
+            <span class="history-badge">
+              {{ session.answerType | answerTypeLabel }}
+            </span>
+          </div>
+
+          <div class="history-details">
+            <div class="history-detail">
+              <span class="detail-label">Questions</span>
+              <b>{{ session.totalQuestions }}</b>
+            </div>
+
+            <div class="history-detail">
+              <span class="detail-label">Quiz type</span>
+              <b>{{ session.characterQuizType | characterQuizTypeLabel }}</b>
+            </div>
+
+            <div class="history-detail">
+              <span class="detail-label">Question order</span>
+              <b>
+                {{ session.randomOrder ? 'Random' : 'Sequential' }}
+              </b>
+            </div>
+          </div>
+
+          <div class="history-card-footer">
+            <app-action-btn title="View" [action]="viewQuiz" />
+          </div>
+        </div>
+      </app-card>
+    } @empty {
+      <p>No quiz sessions found</p>
+    }
+    @if (hasMore()) {
+      <div class="scroll-sentinel" appInView (inView)="loadMore()"></div>
+    }
+  </div>
+</app-card>

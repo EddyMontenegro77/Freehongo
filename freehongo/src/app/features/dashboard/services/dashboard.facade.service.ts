@@ -7,6 +7,10 @@ import {
   SkillProgress,
 } from '../models/dashboard.models';
 import { DashboardStatsService } from './dashboard-stats.service';
+import {
+  FetchQuizSessionFilters,
+  QuizSessionWithList,
+} from '../../../shared/models/quizes/quizes-storage.interface';
 
 @Service()
 export class DashboardFacadeService {
@@ -22,5 +26,9 @@ export class DashboardFacadeService {
 
   getSkillsProgressData(): Promise<Record<DashboardSkill, SkillProgress>> {
     return this.dashboardStatsService.buildSkillsStats();
+  }
+
+  fetchQuizSessions(filters: FetchQuizSessionFilters): Promise<QuizSessionWithList[]> {
+    return this.dashboardStatsService.fetchQuizSession(filters);
   }
 }

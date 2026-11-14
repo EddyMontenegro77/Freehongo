@@ -1,6 +1,10 @@
 import { inject, Service } from '@angular/core';
 import { DatabaseService } from '../../../core/db/services/database.service';
-import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
+import {
+  FetchQuizSessionFilters,
+  QuizSessionWithList,
+  StoredCharacterStat,
+} from '../../../shared/models/quizes/quizes-storage.interface';
 import { AnswerType } from '../../../shared/models/quizes/quizes.interface';
 import { toTime } from '../../../core/sync/sync.utils';
 import {
@@ -13,6 +17,7 @@ import {
 import { SummaryRepository } from '../repositories/summary.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { SkillsRepository } from '../repositories/skills.repository';
+import { QuizHistoryRepository } from '../repositories/quiz-history.repository';
 
 interface Attempt {
   at: number;
@@ -47,6 +52,11 @@ export class DashboardStatsService {
   async buildSkillsStats(): Promise<Record<DashboardSkill, SkillProgress>> {
     const skillsRepository = new SkillsRepository(this.db);
     return skillsRepository.getSkillsProgressReport();
+  }
+
+  async fetchQuizSession(filters: FetchQuizSessionFilters): Promise<QuizSessionWithList[]> {
+    const quizHistoryRepository = new QuizHistoryRepository(this.db);
+    return quizHistoryRepository.fetchQuizSession(filters);
   }
 
   async rebuildCharacterStats(): Promise<number> {
