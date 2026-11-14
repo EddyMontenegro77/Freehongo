@@ -54,6 +54,11 @@ export class FreeHongoDB extends Dexie {
           });
       });
 
+    this.version(4).stores({
+      quizAnswers: '[quizSessionId+unicode], unicode, confusedWith',
+      characterStats: '[unicode+answerType], unicode, lastSeenAt',
+    });
+
     this.on('versionchange', () => {
       this.close();
       location.reload();
