@@ -1,0 +1,16 @@
+.categories__container {
+  display: grid;
+  grid-template-rows: 1fr;
+
+  .category__group {
+    grid-row: span 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    .category {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+}
