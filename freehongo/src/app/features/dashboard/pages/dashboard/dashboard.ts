@@ -11,11 +11,11 @@ import {
 } from '../../models/dashboard.models';
 import { DashboardFacadeService } from '../../services/dashboard.facade.service';
 import { Categories } from '../../components/categories/categories';
-import sk from '@angular/common/locales/sk';
 import { Skills } from '../../components/skills/skills';
+import { QuizHistory } from '../../components/quiz-history/quiz-history';
 
 @Component({
-  imports: [Progressbar, LoadingState, Summary, Categories, Skills],
+  imports: [Progressbar, LoadingState, Summary, Categories, Skills, QuizHistory],
   selector: 'app-dashboard',
   styleUrl: './dashboard.scss',
   templateUrl: './dashboard.html',

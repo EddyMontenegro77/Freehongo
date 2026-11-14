@@ -10,5 +10,6 @@
   @if (skillsProgress(); as skills) {
     <app-skills [data]="skills" />
   }
+  <app-quiz-history />
   <app-progressbar [value]="55" [milestones]="milestones" barAriaLabel="Test Progress bar" />
 }
