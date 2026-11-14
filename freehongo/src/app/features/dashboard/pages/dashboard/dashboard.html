@@ -4,5 +4,11 @@
   @if (generalSummary(); as summary) {
     <app-summary [data]="summary" />
   }
+  @if (categoriesProgress(); as categories) {
+    <app-categories [data]="categories" />
+  }
+  @if (skillsProgress(); as skills) {
+    <app-skills [data]="skills" />
+  }
   <app-progressbar [value]="55" [milestones]="milestones" barAriaLabel="Test Progress bar" />
 }
