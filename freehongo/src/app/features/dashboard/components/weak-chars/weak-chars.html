@@ -1,0 +1,20 @@
+<app-card class="weak-chars">
+  <h2 card-header>Weak characters</h2>
+  <div card-body class="weak-list">
+    @for (stat of data(); track stat.unicode + stat.answerType) {
+      <button type="button" class="weak-row" (click)="characterSelected.emit(stat.unicode)">
+        <span class="weak-char">{{ stat.unicode | unicodeCharacter }}</span>
+        <span class="weak-info">
+          <span class="weak-badge">{{ stat.answerType | answerTypeLabel }}</span>
+          <span class="weak-meta">
+            {{ stat.correctCount }}/{{ stat.attempts }} correct · last seen
+            {{ stat.lastSeenAt | date: 'dd/MM/yyyy' }}
+          </span>
+        </span>
+        <b class="weak-accuracy">{{ accuracy(stat) }}%</b>
+      </button>
+    } @empty {
+      <p class="weak-empty">No weak characters yet. Keep practicing!</p>
+    }
+  </div>
+</app-card>
