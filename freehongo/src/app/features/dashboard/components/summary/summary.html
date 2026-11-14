@@ -3,5 +3,7 @@
   <span class="summary__item">Accuracy: {{ data().accuracy }}%</span>
   <span class="summary__item">Quiz sessions: {{ data().totalSessions }}</span>
   <span class="summary__item">Streak: {{ data().dayStreak }} days</span>
-  <span class="summary__item">Average Response Time: {{ data().averageResponseTimeMs }}ms</span>
+  <span class="summary__item"
+    >Average Response Time: {{ data().averageResponseTimeMs | responseTime }}</span
+  >
 </div>
