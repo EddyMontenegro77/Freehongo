@@ -1,0 +1,55 @@
+<app-card class="trends">
+  <section card-header class="trends-header">
+    <h2>Trends</h2>
+    <div class="trends-filters">
+      <app-segmented-control
+        label="Period"
+        [options]="periodOptions"
+        [value]="period()"
+        (valueChange)="period.set($event)"
+      />
+      <app-segmented-control
+        label="Skill"
+        [options]="skillOptions"
+        [value]="skill()"
+        (valueChange)="skill.set($event)"
+      />
+    </div>
+  </section>
+
+  <div card-body class="trends-body">
+    @if (hasEnoughData()) {
+      <div class="trend-cards">
+        @for (card of cards(); track card.label) {
+          <div class="trend-card">
+            <span class="trend-label">{{ card.label }}</span>
+            <b class="trend-value">{{ card.value }}</b>
+            @if (card.delta) {
+              <span
+                class="trend-delta"
+                [class.is-up]="card.trend === 'up'"
+                [class.is-down]="card.trend === 'down'"
+              >
+                {{ card.delta }} vs previous period
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <section class="trend-section">
+        <h3>Accuracy and activity</h3>
+        <app-trend-chart [config]="mainChart()" />
+      </section>
+
+      @if (skill() === 'all' && skillChart().datasets.length > 1) {
+        <section class="trend-section">
+          <h3>Accuracy by skill</h3>
+          <app-trend-chart [config]="skillChart()" />
+        </section>
+      }
+    } @else {
+      <p class="trends-empty">Practice a few different days to see your progress here.</p>
+    }
+  </div>
+</app-card>
