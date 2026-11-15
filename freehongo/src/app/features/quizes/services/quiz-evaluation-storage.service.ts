@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { QuizEvaluationResult } from '../../../shared/models/quizes/quizes.interface';
 import {
+  QuizSessionDetail,
   StoredCharacterStat,
   StoredQuizAnswer,
   StoredQuizSession,
@@ -8,6 +9,8 @@ import {
 import { FreeHongoDB } from '../../../core/db/db';
 import { DatabaseService } from '../../../core/db/services/database.service';
 import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
+import { Dexie } from 'dexie';
+import { toTime } from '../../../core/sync/sync.utils';
 
 const MIN_QUESTIONS = 2;
 
@@ -122,5 +125,32 @@ export class QuizEvaluationStorageService {
     });
 
     await this.database.characterStats.bulkPut(updated);
+  }
+
+  async getSessionDetail(sessionId: string): Promise<QuizSessionDetail | null> {
+    const session = await this.database.quizSessions.get(sessionId);
+    if (!session) return null;
+
+    const [list, answers] = await Promise.all([
+      this.database.lists.get(session.listId),
+      this.getSessionAnswers(sessionId),
+    ]);
+
+    return {
+      session: { ...session, listName: list?.name ?? null },
+      answers,
+    };
+  }
+
+  async getSessionAnswers(sessionId: string): Promise<StoredQuizAnswer[]> {
+    const answers = await this.database.quizAnswers
+      .where('[quizSessionId+unicode]')
+      .between([sessionId, Dexie.minKey], [sessionId, Dexie.maxKey])
+      .toArray();
+
+    return answers.sort(
+      (a, b) =>
+        (a.answeredAt ? toTime(a.answeredAt) : 0) - (b.answeredAt ? toTime(b.answeredAt) : 0),
+    );
   }
 }

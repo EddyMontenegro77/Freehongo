@@ -55,3 +55,8 @@ export interface FetchQuizSessionFilters {
 export interface QuizSessionWithList extends StoredQuizSession {
   listName: string | null;
 }
+
+export interface QuizSessionDetail {
+  session: QuizSessionWithList;
+  answers: StoredQuizAnswer[];
+}
