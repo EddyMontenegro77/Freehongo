@@ -38,6 +38,15 @@ export function categoryOf(unicode: string): DashboardCategory | null {
   return null;
 }
 
+export function kanaOrKanji(unicode: string): string | null {
+  const char = String.fromCodePoint(parseInt(unicode, 16));
+
+  if (isHiragana(char) || isKatakana(char)) return 'kana';
+  if (isKanji(char)) return 'kanji';
+
+  return null;
+}
+
 export function countByLevel(levels: MasteryLevel[]): Record<MasteryLevel, number> {
   const counts: Record<MasteryLevel, number> = {
     new: 0,
