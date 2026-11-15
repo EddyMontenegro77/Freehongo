@@ -7,6 +7,7 @@ import {
   GeneralSummary,
   PracticedCharacter,
   SkillProgress,
+  TrendsData,
 } from '../models/dashboard.models';
 import { DashboardStatsService } from './dashboard-stats.service';
 import {
@@ -44,5 +45,9 @@ export class DashboardFacadeService {
 
   getCharacterDetail(unicode: string): Promise<CharacterDetail> {
     return this.dashboardStatsService.fetchCharacterDetail(unicode);
+  }
+
+  getTrendsData(): Promise<TrendsData> {
+    return this.dashboardStatsService.fetchTrends();
   }
 }

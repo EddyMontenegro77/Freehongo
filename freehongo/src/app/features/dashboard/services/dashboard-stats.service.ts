@@ -15,12 +15,14 @@ import {
   GeneralSummary,
   PracticedCharacter,
   SkillProgress,
+  TrendsData,
 } from '../models/dashboard.models';
 import { SummaryRepository } from '../repositories/summary.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { SkillsRepository } from '../repositories/skills.repository';
 import { QuizHistoryRepository } from '../repositories/quiz-history.repository';
 import { CharactersRepository } from '../repositories/characters.repository';
+import { TrendsRepository } from '../repositories/trends.repository';
 
 interface Attempt {
   at: number;
@@ -75,6 +77,11 @@ export class DashboardStatsService {
   async fetchPracticedCharacters(): Promise<PracticedCharacter[]> {
     const charactersRepository = new CharactersRepository(this.db);
     return charactersRepository.getPracticedCharacters();
+  }
+
+  async fetchTrends(): Promise<TrendsData> {
+    const trendsRepository = new TrendsRepository(this.db);
+    return { buckets: await trendsRepository.getDailyBuckets() };
   }
 
   async rebuildCharacterStats(): Promise<number> {

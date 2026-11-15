@@ -10,6 +10,9 @@
   @if (skillsProgress(); as skills) {
     <app-skills [data]="skills" />
   }
+  @if (trends(); as trends) {
+    <app-trends [data]="trends" />
+  }
   @if (weakCharacters()) {
     <app-weak-chars [data]="weakCharacters()" />
   }
