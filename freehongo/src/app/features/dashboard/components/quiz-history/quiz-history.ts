@@ -16,6 +16,7 @@ import { DatePipe } from '@angular/common';
 import { CharacterQuizTypePipe } from '../../../../shared/pipes/character-quiz-type.pipe';
 import { AnswerTypePipe } from '../../../../shared/pipes/answer-type.pipe';
 import { InViewDirective } from '../../../../shared/directives/in-view.directive';
+import { Router } from '@angular/router';
 
 type AnswerTypeFilter = AnswerType | 'all';
 type CharacterQuizTypeFilter = CharacterQuizType | 'all';
@@ -39,11 +40,14 @@ const PAGE_SIZE = 20;
 })
 export class QuizHistory {
   private readonly dashboardFacadeService = inject(DashboardFacadeService);
+  private readonly router = inject(Router);
 
   private readonly allSessions = signal<QuizSessionWithList[]>([]);
   private readonly visibleCount = signal(PAGE_SIZE);
   readonly quizSessions = computed(() => this.allSessions().slice(0, this.visibleCount()));
   readonly hasMore = computed(() => this.visibleCount() < this.allSessions().length);
+
+  private readonly viewActions = new Map<string, () => Promise<void>>();
 
   readonly orderOptions: ReadonlyArray<SegmentedOption<boolean>> = [
     { label: 'Asc', value: false },
@@ -115,5 +119,14 @@ export class QuizHistory {
     this.visibleCount.set(PAGE_SIZE);
   };
 
-  viewQuiz = async (): Promise<void> => {};
+  viewAction(sessionId: string): () => Promise<void> {
+    let action = this.viewActions.get(sessionId);
+    if (!action) {
+      action = async () => {
+        await this.router.navigate(['/quizzes/details', sessionId]);
+      };
+      this.viewActions.set(sessionId, action);
+    }
+    return action;
+  }
 }

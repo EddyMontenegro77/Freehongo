@@ -1,9 +1,10 @@
 import { FreeHongoDB } from '../../../core/db/db';
 import {
   StoredCharacterStat,
+  StoredQuizAnswer,
   StoredQuizSession,
 } from '../../../shared/models/quizes/quizes-storage.interface';
-import { AnswerType } from '../../../shared/models/quizes/quizes.interface';
+import { AnswerType, CharacterQuizType } from '../../../shared/models/quizes/quizes.interface';
 import {
   CharacterAttempt,
   CharacterDetail,
@@ -11,6 +12,16 @@ import {
   WEAK_THRESHOLD,
 } from '../models/dashboard.models';
 import { countPairs, skillOf, summarizeWriting, weaknessScore } from '../utils/dashboard.utils';
+
+const CHAR_ANSWER_QUIZ_TYPES: CharacterQuizType[] = ['readingToCharacter', 'meaningToCharacter'];
+const isHexUnicode = (v: string): boolean => /^[0-9a-f]{4,6}$/i.test(v);
+
+const isCharacterConfusion = (a: StoredQuizAnswer, s: StoredQuizSession | undefined): boolean =>
+  !!a.confusedWith &&
+  isHexUnicode(a.confusedWith) &&
+  s?.answerType === 'multiple' &&
+  !!s.characterQuizType &&
+  CHAR_ANSWER_QUIZ_TYPES.includes(s.characterQuizType);
 
 export class CharactersRepository {
   constructor(private readonly db: FreeHongoDB) {}
@@ -69,7 +80,7 @@ export class CharactersRepository {
       this.db.quizAnswers.where('confusedWith').equals(unicode).toArray(),
     ]);
 
-    const sessionIds = [...new Set(answers.map((a) => a.quizSessionId))];
+    const sessionIds = [...new Set([...answers, ...confusedByRows].map((a) => a.quizSessionId))];
     const sessions = await this.db.quizSessions.bulkGet(sessionIds);
     const sessionById = new Map(
       sessions.filter((s): s is StoredQuizSession => !!s).map((s) => [s.quizSessionId, s]),
@@ -100,8 +111,16 @@ export class CharactersRepository {
       unicode,
       stats,
       recentAttempts: attempts.slice(0, recentLimit),
-      confusedWith: countPairs(answers.map((a) => a.confusedWith)),
-      confusedBy: countPairs(confusedByRows.map((a) => a.unicode)),
+      confusedWith: countPairs(
+        answers
+          .filter((a) => isCharacterConfusion(a, sessionById.get(a.quizSessionId)))
+          .map((a) => a.confusedWith),
+      ),
+      confusedBy: countPairs(
+        confusedByRows
+          .filter((a) => isCharacterConfusion(a, sessionById.get(a.quizSessionId)))
+          .map((a) => a.unicode),
+      ),
       writing: summarizeWriting(answers),
     };
   }
