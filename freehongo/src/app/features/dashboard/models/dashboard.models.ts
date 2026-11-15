@@ -106,22 +106,6 @@ export interface SkillAnswer {
   responseTimeMs: number;
 }
 
-export interface TrendPoint {
-  date: string;
-  attempts: number;
-  accuracy: number;
-  studyTimeMs: number;
-}
-
-export interface DashboardData {
-  overview: ProgressSummary;
-  categories: CategoryProgress[];
-  skills: SkillProgress[];
-  characters: CharacterProgress[];
-  trends: TrendPoint[];
-  totalSessions: number;
-}
-
 export const DASHBOARD_MILESTONES: Milestone[] = [
   { value: 0, label: 'New' },
   { value: 20, label: 'New' },
@@ -142,11 +126,50 @@ export const SKILL_LABELS: Record<DashboardSkill, string> = {
   writing: 'Writing',
 };
 
-export interface DashboardAnswerContext {
-  unicode: string;
-  answerType: AnswerType;
-  characterQuizType?: CharacterQuizType;
-  isCorrect: boolean;
-  responseTimeMs: number;
-  answeredAt: Date;
+export interface TrendPoint {
+  date: string;
+  attempts: number;
+  accuracy: number | null; // antes: number
+  studyTimeMs: number;
+}
+
+export type TrendGranularity = 'day' | 'week';
+
+export interface DailyBucket {
+  date: string;
+  skill: DashboardSkill;
+  attempts: number;
+  correct: number;
+  studyTimeMs: number;
+}
+
+export interface TrendsData {
+  buckets: DailyBucket[];
+}
+
+export interface PeriodTotals {
+  attempts: number;
+  accuracy: number | null;
+  studyTimeMs: number;
+}
+
+export interface TrendComparison {
+  current: PeriodTotals;
+  previous: PeriodTotals;
+  accuracyDelta: number | null;
+  attemptsDelta: number | null;
+}
+
+export interface TrendChartDataset {
+  label: string;
+  type: 'line' | 'bar';
+  yAxisID: 'y' | 'y1';
+  data: (number | null)[];
+  color: string;
+  colorVar?: string;
+}
+
+export interface TrendChartConfig {
+  labels: string[];
+  datasets: TrendChartDataset[];
 }
