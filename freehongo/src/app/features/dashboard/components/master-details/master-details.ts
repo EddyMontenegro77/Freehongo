@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
-import { categoryOf, levelOf } from '../../utils/dashboard.utils';
+import { categoryOf, kanaOrKanji, levelOf } from '../../utils/dashboard.utils';
 import {
   CharacterDetail,
   DashboardCategory,
@@ -16,6 +16,7 @@ import { InputField } from '../../../../shared/components/input/input';
 import { InViewDirective } from '../../../../shared/directives/in-view.directive';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Card } from '../../../../shared/components/card/card';
+import { RouterLink } from '@angular/router';
 
 type CategoryFilter = DashboardCategory | 'all';
 type SortKey = 'masteryAsc' | 'masteryDesc' | 'attempts' | 'recent';
@@ -40,6 +41,7 @@ const SORTERS: Record<SortKey, (a: PracticedCharacter, b: PracticedCharacter) =>
     DatePipe,
     InViewDirective,
     Card,
+    RouterLink,
   ],
   selector: 'app-master-details',
   styleUrl: './master-details.scss',
@@ -95,6 +97,7 @@ export class MasterDetails {
 
   protected readonly categoryOf = categoryOf;
   protected readonly levelOf = levelOf;
+  protected readonly kanaOrKanji = kanaOrKanji;
 
   constructor() {
     effect(() => {

@@ -54,7 +54,13 @@
         <header class="detail-header">
           <span class="detail-char">{{ d.unicode | unicodeCharacter }}</span>
           <div>
-            <h3>U+{{ d.unicode.toUpperCase() }}</h3>
+            <h3>
+              <a
+                [routerLink]="['/characters/info', kanaOrKanji(d.unicode), d.unicode.toUpperCase()]"
+              >
+                U+{{ d.unicode.toUpperCase() }}
+              </a>
+            </h3>
             <span class="detail-category">{{ categoryOf(d.unicode) }}</span>
           </div>
         </header>
@@ -126,7 +132,7 @@
           <ul class="attempts">
             @for (a of d.recentAttempts; track $index) {
               <li [class.is-correct]="a.isCorrect">
-                <span>{{ a.isCorrect ? '✓' : '✗' }}</span>
+                <span>{{ a.isCorrect ? 'Correct:' : 'Incorrect:' }}</span>
                 <span>{{ a.answeredAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
                 <span>{{ a.answerType | answerTypeLabel }}</span>
                 @if (!a.isCorrect && a.givenAnswer) {

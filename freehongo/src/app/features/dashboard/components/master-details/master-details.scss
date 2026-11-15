@@ -3,6 +3,16 @@
   min-width: 0;
 }
 
+a {
+  color: var(--text);
+  display: inline-block;
+  transition: transform 0.25s ease-in-out;
+}
+
+a:hover {
+  transform: scale(1.1);
+}
+
 .md-layout {
   display: grid;
   grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
