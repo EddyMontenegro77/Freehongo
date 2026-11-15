@@ -17,6 +17,7 @@ import { VerifyEmail } from './core/auth/pages/verify-email/verify-email';
 import { ResetPassword } from './core/auth/pages/reset-password/reset-password';
 import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 import { Logout } from './core/auth/pages/logout/logout';
+import { QuizSessionDetails } from './features/quizes/pages/quiz-session-details/quiz-session-details';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -24,9 +25,10 @@ export const routes: Routes = [
   { path: 'characters/info/:type/:unicode', component: CharacterInfo },
   { path: 'lists', component: Lists },
   { path: 'lists/edit/:id', component: ViewList },
-  { path: 'quizes', component: Quizes },
-  { path: 'quizes/:mode/:listId', component: CharacterQuiz },
-  { path: 'quizes/strokes/:mode/:listId', component: StrokesQuiz },
+  { path: 'quizzes/details/:sessionId', component: QuizSessionDetails },
+  { path: 'quizzes/strokes/:mode/:listId', component: StrokesQuiz },
+  { path: 'quizzes/:mode/:listId', component: CharacterQuiz },
+  { path: 'quizzes', component: Quizes },
   { path: 'auth/signup', component: Signup, canActivate: [guestGuard] },
   { path: 'auth/login', component: Login, canActivate: [guestGuard] },
   { path: 'auth/logout', component: Logout },
