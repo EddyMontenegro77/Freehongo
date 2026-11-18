@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
+export type ButtonVariant = 'dark' | 'light' | 'accent' | 'danger' | 'success';
 export type ButtonType = 'button' | 'submit';
 
 @Component({
