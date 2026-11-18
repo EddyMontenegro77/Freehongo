@@ -1,0 +1,154 @@
+<app-card class="master-details">
+  <h2 card-header>Character explorer</h2>
+
+  <div card-body class="md-layout">
+    <aside class="md-master">
+      <div class="md-filters">
+        <app-input
+          label="Search"
+          placeholder="あ, 4e00…"
+          type="text"
+          [value]="search()"
+          (valueChange)="search.set($event)"
+        />
+        <app-segmented-control
+          label="Category"
+          [options]="categoryOptions"
+          [value]="category()"
+          (valueChange)="category.set($event)"
+        />
+        <app-segmented-control
+          label="Sort"
+          [options]="sortOptions"
+          [value]="sortBy()"
+          (valueChange)="sortBy.set($event)"
+        />
+      </div>
+
+      <div class="md-list">
+        @for (c of visibleCharacters(); track c.unicode) {
+          <button
+            type="button"
+            class="md-item"
+            [class.is-selected]="c.unicode === selected()"
+            (click)="select(c.unicode)"
+          >
+            <span class="md-item-char">{{ c.unicode | unicodeCharacter }}</span>
+            <span class="md-item-info">
+              <span class="md-item-level">{{ levelOf(c.masteryScore) }}</span>
+              <span class="md-item-meta">{{ c.attempts }} attempts</span>
+            </span>
+            <b>{{ c.masteryScore | number: '1.0-0' }}</b>
+          </button>
+        } @empty {
+          <p class="md-empty">No characters found</p>
+        }
+        @if (hasMore()) {
+          <div class="scroll-sentinel" appInView (inView)="loadMore()"></div>
+        }
+      </div>
+    </aside>
+
+    <section class="md-detail">
+      @if (detail(); as d) {
+        <header class="detail-header">
+          <span class="detail-char">{{ d.unicode | unicodeCharacter }}</span>
+          <div>
+            <h3>
+              <a
+                [routerLink]="['/characters/info', kanaOrKanji(d.unicode), d.unicode.toUpperCase()]"
+              >
+                U+{{ d.unicode.toUpperCase() }}
+              </a>
+            </h3>
+            <span class="detail-category">{{ categoryOf(d.unicode) }}</span>
+          </div>
+        </header>
+
+        <section class="detail-section">
+          <h4>Mastery</h4>
+          @for (s of d.stats; track s.answerType) {
+            <div class="stat-row">
+              <span>{{ s.answerType | answerTypeLabel }}</span>
+              <div class="bar">
+                <span [style.width.%]="accuracy(s.correctCount, s.attempts)"></span>
+              </div>
+              <small>{{ accuracy(s.correctCount, s.attempts) }}% · {{ s.attempts }}</small>
+            </div>
+          } @empty {
+            <p class="md-empty">No stats yet</p>
+          }
+        </section>
+
+        @if (d.confusedWith.length || d.confusedBy.length) {
+          <section class="detail-section">
+            <h4>Confusions</h4>
+            @if (d.confusedWith.length) {
+              <p class="detail-hint">You answered these instead of this character</p>
+              <div class="chips">
+                @for (c of d.confusedWith; track c.unicode) {
+                  <button type="button" class="chip" (click)="select(c.unicode)">
+                    {{ c.unicode | unicodeCharacter }} <small>×{{ c.count }}</small>
+                  </button>
+                }
+              </div>
+            }
+            @if (d.confusedBy.length) {
+              <p class="detail-hint">You answered this character instead of these</p>
+              <div class="chips">
+                @for (c of d.confusedBy; track c.unicode) {
+                  <button type="button" class="chip" (click)="select(c.unicode)">
+                    {{ c.unicode | unicodeCharacter }} <small>×{{ c.count }}</small>
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        @if (d.writing; as w) {
+          <section class="detail-section">
+            <h4>Writing</h4>
+            <p class="detail-hint">
+              Stroke count correct {{ pct(w.strokeCountCorrectRate) }}% · Order correct
+              {{ pct(w.orderCorrectRate) }}% · {{ w.attempts }} attempts
+            </p>
+            <div class="strokes">
+              @for (rate of w.validRateByStroke; track $index) {
+                <span
+                  class="stroke"
+                  [style.background]="strokeColor(rate)"
+                  [title]="pct(rate) + '% valid'"
+                >
+                  {{ $index + 1 }}
+                </span>
+              }
+            </div>
+          </section>
+        }
+
+        <section class="detail-section">
+          <h4>Recent attempts</h4>
+          <ul class="attempts">
+            @for (a of d.recentAttempts; track $index) {
+              <li [class.is-correct]="a.isCorrect">
+                <span>{{ a.isCorrect ? 'Correct:' : 'Incorrect:' }}</span>
+                <span>{{ a.answeredAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
+                <span>{{ a.answerType | answerTypeLabel }}</span>
+                @if (!a.isCorrect && a.givenAnswer) {
+                  <span>{{ a.givenAnswer }} → {{ a.expectedAnswer }}</span>
+                }
+              </li>
+            } @empty {
+              <li>No attempts yet</li>
+            }
+          </ul>
+        </section>
+      } @else if (detailLoading()) {
+        <p class="md-empty">Loading…</p>
+      } @else {
+        <p class="md-empty">Select a character</p>
+      }
+    </section>
+  </div>
+</app-card>

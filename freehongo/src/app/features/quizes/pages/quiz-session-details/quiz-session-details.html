@@ -1,0 +1,129 @@
+<div class="session-page">
+  <button type="button" class="back-link" (click)="back()">Go back</button>
+
+  @if (loading()) {
+    <p class="session-empty">Loading…</p>
+  } @else if (notFound()) {
+    <app-card>
+      <div card-body class="session-empty">
+        <h2>Quiz session not found</h2>
+        <p>It may have been deleted or the link is wrong.</p>
+      </div>
+    </app-card>
+  } @else if (detail(); as d) {
+    <app-card class="session-header">
+      <div card-header class="session-title">
+        <div>
+          <h2>{{ d.session.listName ?? 'Unknown list' }}</h2>
+          <span class="session-date">
+            {{ d.session.finishedAt | date: 'dd/MM/yyyy · HH:mm' }}
+          </span>
+        </div>
+        <span class="session-badge">{{ d.session.answerType | answerTypeLabel }}</span>
+      </div>
+
+      <div card-body class="session-meta">
+        <div class="meta-item">
+          <span class="meta-label">Quiz type</span>
+          <b>{{ d.session.characterQuizType | characterQuizTypeLabel }}</b>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Question order</span>
+          <b>{{ d.session.randomOrder ? 'Random' : 'Sequential' }}</b>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Duration</span>
+          <b>{{ durationMs() | responseTime }}</b>
+        </div>
+      </div>
+    </app-card>
+
+    <section class="session-summary">
+      <app-card>
+        <div card-body class="summary-item">
+          <span class="meta-label">Accuracy</span>
+          <b class="summary-value">{{ accuracy() }}%</b>
+        </div>
+      </app-card>
+      <app-card>
+        <div card-body class="summary-item">
+          <span class="meta-label">Correct</span>
+          <b class="summary-value">{{ correctCount() }}/{{ d.answers.length }}</b>
+        </div>
+      </app-card>
+      <app-card>
+        <div card-body class="summary-item">
+          <span class="meta-label">Avg. response</span>
+          <b class="summary-value">{{ averageResponseMs() | responseTime }}</b>
+        </div>
+      </app-card>
+    </section>
+
+    <app-card>
+      <div card-header class="answers-header">
+        <h3>Answers</h3>
+        <app-segmented-control
+          label="Show"
+          [options]="filterOptions"
+          [value]="onlyErrors()"
+          (valueChange)="onlyErrors.set($event)"
+        />
+      </div>
+
+      <ul card-body class="answers">
+        @for (a of visibleAnswers(); track a.unicode) {
+          <li class="answer" [class.is-correct]="a.isCorrect" [class.is-wrong]="!a.isCorrect">
+            <span class="answer-char">{{ a.unicode | unicodeCharacter }}</span>
+
+            <div class="answer-body">
+              <div class="answer-line">
+                <span class="answer-status">{{ a.isCorrect ? 'Correct:' : 'Incorrect:' }}</span>
+                @if (d.session.answerType !== 'strokeWriting') {
+                  @if (a.isCorrect) {
+                    <span>{{ a.expectedAnswer }}</span>
+                  } @else {
+                    <span> {{ a.givenAnswer || '—' }} → {{ a.expectedAnswer }} </span>
+                  }
+                } @else {
+                  <span>{{ a.expectedAnswer }}</span>
+                }
+              </div>
+
+              @if (a.confusedWith) {
+                <span class="answer-note">
+                  Confused with
+                  <b class="answer-confused">{{ a.confusedWith | unicodeCharacter }}</b>
+                </span>
+              }
+
+              @if (a.writingAttempt; as w) {
+                <div class="writing">
+                  <span [class.is-ok]="w.strokeCountCorrect">
+                    Stroke count {{ w.strokeCountCorrect ? 'Correct:' : 'Incorrect:' }}
+                  </span>
+                  <span [class.is-ok]="w.orderCorrect">
+                    Order {{ w.orderCorrect ? 'Correct:' : 'Incorrect:' }}
+                  </span>
+                  <div class="strokes">
+                    @for (stroke of w.strokeResults; track $index) {
+                      <span class="stroke" [class.is-ok]="stroke.isValid">{{ $index + 1 }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="answer-time">
+              <span>{{ a.responseTimeMs | responseTime }}</span>
+              <small>{{ a.answeredAt ?? d.session.finishedAt | date: 'HH:mm:ss' }}</small>
+            </div>
+          </li>
+        } @empty {
+          <li class="session-empty">
+            {{ onlyErrors() ? 'No mistakes in this session' : 'No answers found' }}
+          </li>
+        }
+      </ul>
+    </app-card>
+  }
+</div>

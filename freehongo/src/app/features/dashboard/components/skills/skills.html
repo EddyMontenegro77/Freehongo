@@ -1,0 +1,19 @@
+<div class="skills__container">
+  <h2>Skills</h2>
+  @if (data(); as skills) {
+    <div class="skill__group">
+      @for (item of skills | keyvalue: keepOrder; track item.key) {
+        <section class="skill">
+          <h3>{{ item.value.skill }}</h3>
+
+          <p>Average response: {{ item.value.averageResponseMs | responseTime }}</p>
+
+          <p>Starting: {{ item.value.levelDistribution.new }}</p>
+          <p>Beginner: {{ item.value.levelDistribution.beginner }}</p>
+          <p>Intermediate: {{ item.value.levelDistribution.intermediate }}</p>
+          <p>Mastered: {{ item.value.levelDistribution.mastered }}</p>
+        </section>
+      }
+    </div>
+  }
+</div>

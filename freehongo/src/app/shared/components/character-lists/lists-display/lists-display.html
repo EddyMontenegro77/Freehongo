@@ -4,9 +4,14 @@
       <p class="lists-eyebrow">Study collection</p>
       <h2>My lists</h2>
     </div>
-    @if (!creatingList()) {
-      <app-action-btn title="Create a new list" [action]="toggleCreatingList" variant="accent" />
-    }
+    <div class="lists-header-actions">
+      @if (auth.isAuth()) {
+        <app-action-btn title="Sync lists" [action]="trySync" />
+      }
+      @if (!creatingList()) {
+        <app-action-btn title="Create a new list" [action]="toggleCreatingList" variant="accent" />
+      }
+    </div>
   </header>
 
   <div class="list-filters">
@@ -41,6 +46,11 @@
         [value]="newListType.value ?? 'mixed'"
         (valueChange)="newListType.setValue($event)"
       />
+      <app-toggle-button
+        label="Public list"
+        [checked]="newListPublic.value"
+        (checkedChange)="updatePublic($event)"
+      />
       <div class="create-actions">
         <app-action-btn title="Create" [action]="createList" variant="success" />
         <app-action-btn title="Cancel" [action]="toggleCreatingList" variant="danger" />
@@ -63,7 +73,15 @@
           <div class="list-display-header">
             <div>
               <h3>{{ list.name }}</h3>
-              <span class="list-type">{{ list.type }}</span>
+              <div class="list-tags">
+                <span class="list-type">{{ list.type }}</span>
+                <span class="list-visibility" [class.list-visibility--public]="list.isPublic">
+                  {{ list.isPublic ? 'Public' : 'Private' }}
+                </span>
+                <span class="sync-status" [attr.data-status]="list.syncStatus"
+                  >Sync: {{ list.syncStatus }}</span
+                >
+              </div>
             </div>
             <span class="character-count">{{ list.characters.length }} chars</span>
           </div>
@@ -124,6 +142,8 @@
   title="Delete list"
   message="Are you sure you want to delete this list? This action cannot be undone."
   confirmText="Delete"
+  confirmVariant="danger"
+  cancelVariant="light"
   [confirmAction]="deleteList"
   [cancelAction]="cancelDelete"
 />

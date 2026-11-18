@@ -22,6 +22,7 @@ type Config struct {
 	SupabaseServiceKey string
 	TLSCertFile        string
 	TLSKeyFile         string
+	OfficialUserId	   string
 	Database           db.Config
 }
 
@@ -41,6 +42,7 @@ func LoadConfig() (Config, error) {
 		SupabaseServiceKey: os.Getenv("SUPABASE_SERVICE_KEY"),
 		TLSCertFile:        os.Getenv("TLS_CERT_FILE"),
 		TLSKeyFile:         os.Getenv("TLS_KEY_FILE"),
+		OfficialUserId:		os.Getenv("OFFICIAL_USER_ID"),
 		Database: db.Config{
 			Host: os.Getenv("DB_HOST"), Port: os.Getenv("DB_PORT"),
 			Name: os.Getenv("DB_NAME"), User: os.Getenv("DB_USER"),
@@ -55,6 +57,7 @@ func LoadConfig() (Config, error) {
 		"RESEND_API_KEY":       config.ResendAPIKey,
 		"SUPABASE_URL":         config.SupabaseURL,
 		"SUPABASE_SERVICE_KEY": config.SupabaseServiceKey,
+		"OFFICIAL_USER_ID":		config.OfficialUserId,
 		"DB_HOST":              config.Database.Host,
 		"DB_PORT":              config.Database.Port,
 		"DB_NAME":              config.Database.Name,

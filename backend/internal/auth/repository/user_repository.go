@@ -11,32 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"freehongo-api/internal/auth/models"
+	"freehongo-api/internal/db"
 )
 
 const pgUniqueViolationCode = "23505"
 
-type UserRepository struct{ db *sql.DB }
+type UserRepository struct{ txm *db.TxManager }
 
-func NewUserRepository(db *sql.DB) *UserRepository { return &UserRepository{db: db} }
+func NewUserRepository(txm *db.TxManager) *UserRepository {
+	return &UserRepository{txm: txm}
+}
 
 func (r *UserRepository) InTx(ctx context.Context, userID string, fn func(q *UserQueries) error) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	q := &UserQueries{tx: tx}
-	if userID != "" {
-		if err := q.SetCurrentUserID(ctx, userID); err != nil {
-			return translateDatabaseError(err)
-		}
-	}
-
-	if err := fn(q); err != nil {
-		return translateDatabaseError(err)
-	}
-	return translateDatabaseError(tx.Commit())
+	return r.txm.InTx(ctx, userID, func(tx *sql.Tx) error {
+		return fn(NewUserQueries(tx))
+	})
 }
 
 func IsUniqueViolation(err error) bool {
@@ -45,6 +34,8 @@ func IsUniqueViolation(err error) bool {
 }
 
 type UserQueries struct{ tx *sql.Tx }
+
+func NewUserQueries(tx *sql.Tx) *UserQueries { return &UserQueries{tx: tx} }
 
 func (q *UserQueries) SetCurrentUserID(ctx context.Context, userID string) error {
 	_, err := q.tx.ExecContext(ctx,
@@ -80,11 +71,12 @@ func (q *UserQueries) FetchUserProfile(
 	var pictureURL sql.NullString
 
 	err := q.tx.QueryRowContext(ctx, `
-        SELECT username, email, email_verified_at, picture_url
+        SELECT user_id, username, email, email_verified_at, picture_url
         FROM app.users
         WHERE user_id = $1
           AND deleted_at IS NULL
     `, userID).Scan(
+		&profile.UserId,
 		&profile.Name,
 		&profile.Email,
 		&emailVerifiedAt,

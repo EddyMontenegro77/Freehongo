@@ -1,7 +1,7 @@
 import { StrokeValidationResult } from '../../../features/writing/models/stroke-validation-result.interface';
 import { AnswerType, CharacterQuizType } from './quizes.interface';
 
-export type SyncStatus = 'pending' | 'synced';
+export type SyncStatus = 'pending' | 'synced' | 'failed';
 
 export interface WritingAttemptResult {
   strokeCountCorrect: boolean;
@@ -42,4 +42,21 @@ export interface StoredCharacterStat {
   correctCount: number;
   lastSeenAt: Date;
   firstSeenAt: Date;
+}
+
+export interface FetchQuizSessionFilters {
+  listName?: string;
+  finishedAt?: string;
+  answerType?: AnswerType;
+  descOrder: boolean;
+  characterQuizType?: CharacterQuizType;
+}
+
+export interface QuizSessionWithList extends StoredQuizSession {
+  listName: string | null;
+}
+
+export interface QuizSessionDetail {
+  session: QuizSessionWithList;
+  answers: StoredQuizAnswer[];
 }

@@ -34,7 +34,7 @@
                   <span>Your answer: {{ result.answer || 'No answer' }}</span>
                   <span>Expected: {{ question.acceptedAnswers.join(', ') }}</span>
                 </div>
-                <span>{{ result.correct ? 'Correct' : 'Incorrect' }}</span>
+                <span>{{ result.correct ? 'Correct:' : 'Incorrect:' }}</span>
               </article>
             }
           }

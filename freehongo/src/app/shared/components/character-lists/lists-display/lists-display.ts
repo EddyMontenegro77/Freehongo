@@ -7,7 +7,7 @@ import {
   output,
   signal,
   ViewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl } from '@angular/forms';
@@ -29,6 +29,9 @@ import { UnicodeCharacterPipe } from '../../../pipes/unicode.pipe';
 import { LoadingState } from '../../app-state/loading-state/loading-state';
 import { ErrorState } from '../../app-state/error-state/error-state';
 import { Confirmation } from '../../confirmation/confirmation';
+import { ToggleButton } from '../../toggle-button/toggle-button';
+import { AuthService } from '../../../services/auth/auth.service';
+import { SyncService } from '../../../../core/sync/sync.service';
 
 export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
 
@@ -46,6 +49,7 @@ export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
     LoadingState,
     ErrorState,
     Confirmation,
+    ToggleButton,
   ],
   templateUrl: './lists-display.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -54,6 +58,8 @@ export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
 export class ListsDisplay {
   private readonly listsFacade = inject(ListsFacade);
   private readonly destroyRef = inject(DestroyRef);
+  readonly auth = inject(AuthService);
+  readonly syncService = inject(SyncService);
 
   mode = input<ListsDisplayMode>('manage');
   compact = input(false);
@@ -74,6 +80,9 @@ export class ListsDisplay {
 
   newListName = new FormControl<string>('');
   newListType = new FormControl<CharacterListType>('mixed');
+  newListPublic = new FormControl(false, {
+    nonNullable: true,
+  });
 
   // List filters
   listName = new FormControl<string>('');
@@ -133,6 +142,21 @@ export class ListsDisplay {
     });
   }
 
+  trySync = async (): Promise<void> => {
+    this.operationError.set(null);
+    try {
+      await this.syncService.sync();
+      await this.fetchUserLists();
+    } catch (error) {
+      console.error(error);
+      this.operationError.set('Could not sync your lists.');
+    }
+  };
+
+  updatePublic(value: boolean): void {
+    this.newListPublic.setValue(value);
+  }
+
   toggleCreatingList = (): void => {
     this.operationError.set(null);
     const shouldShowForm = !this.creatingList();
@@ -151,6 +175,7 @@ export class ListsDisplay {
   createList = async (): Promise<void> => {
     const name = this.newListName.value?.trim();
     const type = this.newListType.value;
+    const isPublic = this.newListPublic.value;
 
     if (!name || !type) {
       this.operationError.set('Enter a name and choose a list type.');
@@ -161,11 +186,13 @@ export class ListsDisplay {
       const listId = await this.listsFacade.createList({
         name,
         type,
+        isPublic,
         characters: [],
       });
 
       this.newListName.reset('');
       this.newListType.setValue('mixed');
+      this.newListPublic.setValue(false);
       this.toggleCreatingList();
       await this.fetchUserLists();
 
@@ -176,7 +203,7 @@ export class ListsDisplay {
       console.error(error);
       this.operationError.set('Could not create the list.');
     }
-  }
+  };
 
   requestDeleteList = (listId: string): void => {
     this.operationError.set(null);
@@ -203,12 +230,12 @@ export class ListsDisplay {
       this.pendingDeleteListId.set(null);
       this.operationError.set('Could not delete the list.');
     }
-  }
+  };
 
   fetchUserLists = async (): Promise<void> => {
     await this.listsFacade.loadLists();
     this.filterLists();
-  }
+  };
 
   filterLists(): void {
     const name = this.listName.value ?? '';

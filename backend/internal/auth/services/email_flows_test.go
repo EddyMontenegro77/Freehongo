@@ -8,23 +8,24 @@ import (
 
 	"freehongo-api/internal/auth/models"
 	"freehongo-api/internal/auth/repository"
+	"freehongo-api/internal/db"
 
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestPasswordResetDoesNotRevealUnknownEmail(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(`SELECT user_id, password_hash, email_verified_at`).
 		WithArgs("unknown@example.com").WillReturnError(sql.ErrNoRows)
 	mock.ExpectCommit()
 
-	service := NewEmailFlows(repository.NewUserRepository(db), nil, "https://frontend.example")
+	service := NewEmailFlows(repository.NewUserRepository(db.NewTxManager(mockDB)), nil, "https://frontend.example")
 	if err := service.RequestPasswordReset(context.Background(), "unknown@example.com"); err != nil {
 		t.Fatal(err)
 	}
@@ -34,11 +35,11 @@ func TestPasswordResetDoesNotRevealUnknownEmail(t *testing.T) {
 }
 
 func TestVerifyEmailRejectsInvalidOrExpiredToken(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(`SELECT app\.validate_action_token`).
@@ -46,7 +47,7 @@ func TestVerifyEmailRejectsInvalidOrExpiredToken(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow(nil))
 	mock.ExpectRollback()
 
-	service := NewEmailFlows(repository.NewUserRepository(db), nil, "https://frontend.example")
+	service := NewEmailFlows(repository.NewUserRepository(db.NewTxManager(mockDB)), nil, "https://frontend.example")
 	_, err = service.VerifyEmail(context.Background(), "expired-token")
 	if !errors.Is(err, models.ErrInvalidActionToken) {
 		t.Fatalf("expected ErrInvalidActionToken, got %v", err)
@@ -57,11 +58,11 @@ func TestVerifyEmailRejectsInvalidOrExpiredToken(t *testing.T) {
 }
 
 func TestVerifyEmailCreatesSession(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(`SELECT app\.validate_action_token`).
@@ -77,7 +78,7 @@ func TestVerifyEmailCreatesSession(t *testing.T) {
 		WithArgs("user-id", sqlmock.AnyArg(), sqlmock.AnyArg()).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	service := NewEmailFlows(repository.NewUserRepository(db), nil, "https://frontend.example")
+	service := NewEmailFlows(repository.NewUserRepository(db.NewTxManager(mockDB)), nil, "https://frontend.example")
 	session, err := service.VerifyEmail(context.Background(), "verification-token")
 	if err != nil {
 		t.Fatal(err)

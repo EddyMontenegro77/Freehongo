@@ -1,10 +1,29 @@
 import { Milestone } from '../../../shared/components/progressbar/progressbar';
+import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
 import { AnswerType, CharacterQuizType } from '../../../shared/models/quizes/quizes.interface';
 
 export type DashboardCategory = 'hiragana' | 'katakana' | 'kanji';
 export type DashboardSkill = 'reading' | 'meaning' | 'writing';
 export type MasteryLevel = 'new' | 'beginner' | 'intermediate' | 'mastered';
 export type TrendPeriod = 7 | 30 | 90 | 'all';
+
+export const CATEGORY_TOTALS: Record<DashboardCategory, number> = {
+  hiragana: 86,
+  katakana: 94,
+  kanji: 6400,
+};
+
+export const CONFIDENT_ATTEMPTS = 10;
+export const MAX_ANSWER_MS = 120_000;
+export const WEAK_THRESHOLD = 0.8;
+
+export interface GeneralSummary {
+  masteryLevel: MasteryLevel;
+  accuracy: number;
+  totalSessions: number;
+  dayStreak: number;
+  averageResponseTimeMs: number;
+}
 
 export interface ProgressSummary {
   score: number;
@@ -15,12 +34,16 @@ export interface ProgressSummary {
   level: MasteryLevel;
 }
 
-export interface CategoryProgress extends ProgressSummary {
+export interface CategoryProgress {
   category: DashboardCategory;
+  totalCharacters: number;
+  levelDistribution: Record<MasteryLevel, number>;
 }
 
-export interface SkillProgress extends ProgressSummary {
+export interface SkillProgress {
   skill: DashboardSkill;
+  averageResponseMs: number;
+  levelDistribution: Record<MasteryLevel, number>;
 }
 
 export interface CharacterProgress {
@@ -36,20 +59,51 @@ export interface CharacterProgress {
   skills: Record<DashboardSkill, ProgressSummary>;
 }
 
-export interface TrendPoint {
-  date: string;
+export interface PracticedCharacter {
+  unicode: string;
   attempts: number;
   accuracy: number;
-  studyTimeMs: number;
+  masteryScore: number;
+  lastSeenAt: Date;
 }
 
-export interface DashboardData {
-  overview: ProgressSummary;
-  categories: CategoryProgress[];
-  skills: SkillProgress[];
-  characters: CharacterProgress[];
-  trends: TrendPoint[];
-  totalSessions: number;
+export interface CharacterAttempt {
+  answeredAt: Date;
+  isCorrect: boolean;
+  responseTimeMs: number;
+  givenAnswer?: string;
+  expectedAnswer?: string;
+  answerType: AnswerType;
+  skill: DashboardSkill | null;
+  listId: string;
+}
+
+export interface ConfusionCount {
+  unicode: string;
+  count: number;
+}
+
+export interface WritingSummary {
+  attempts: number;
+  strokeCountCorrectRate: number;
+  orderCorrectRate: number;
+  validRateByStroke: number[];
+}
+
+export interface CharacterDetail {
+  unicode: string;
+  stats: StoredCharacterStat[];
+  recentAttempts: CharacterAttempt[];
+  confusedWith: ConfusionCount[];
+  confusedBy: ConfusionCount[];
+  writing?: WritingSummary;
+}
+
+export interface SkillAnswer {
+  skill: DashboardSkill;
+  unicode: string;
+  isCorrect: boolean;
+  responseTimeMs: number;
 }
 
 export const DASHBOARD_MILESTONES: Milestone[] = [
@@ -72,11 +126,50 @@ export const SKILL_LABELS: Record<DashboardSkill, string> = {
   writing: 'Writing',
 };
 
-export interface DashboardAnswerContext {
-  unicode: string;
-  answerType: AnswerType;
-  characterQuizType?: CharacterQuizType;
-  isCorrect: boolean;
-  responseTimeMs: number;
-  answeredAt: Date;
+export interface TrendPoint {
+  date: string;
+  attempts: number;
+  accuracy: number | null; // antes: number
+  studyTimeMs: number;
+}
+
+export type TrendGranularity = 'day' | 'week';
+
+export interface DailyBucket {
+  date: string;
+  skill: DashboardSkill;
+  attempts: number;
+  correct: number;
+  studyTimeMs: number;
+}
+
+export interface TrendsData {
+  buckets: DailyBucket[];
+}
+
+export interface PeriodTotals {
+  attempts: number;
+  accuracy: number | null;
+  studyTimeMs: number;
+}
+
+export interface TrendComparison {
+  current: PeriodTotals;
+  previous: PeriodTotals;
+  accuracyDelta: number | null;
+  attemptsDelta: number | null;
+}
+
+export interface TrendChartDataset {
+  label: string;
+  type: 'line' | 'bar';
+  yAxisID: 'y' | 'y1';
+  data: (number | null)[];
+  color: string;
+  colorVar?: string;
+}
+
+export interface TrendChartConfig {
+  labels: string[];
+  datasets: TrendChartDataset[];
 }

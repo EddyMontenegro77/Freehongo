@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NavigationBtn } from '../../../shared/components/navigation-btn/navigation-btn';
-import { AuthService } from '../../../shared/services/auth/auth.service';
 import { ActionBtn } from '../../../shared/components/action-btn/action-btn';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 
 @Component({
   selector: 'app-navigation',
@@ -16,12 +16,6 @@ export class Navigation {
   router = inject(Router);
 
   logOut = async (): Promise<void> => {
-    try {
-      await this.auth.logout();
-    } catch (e) {
-      console.log(e);
-    } finally {
-      await this.router.navigate(['/auth/login']);
-    }
+    await this.router.navigate(['/auth/logout']);
   };
 }

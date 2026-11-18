@@ -1,4 +1,11 @@
-import { Component, computed, inject, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { WritingPractice } from '../../../writing/components/writing-practice/writing-practice';
@@ -59,7 +66,6 @@ export class StrokesQuiz {
   private sourceCharacters: string[] = [];
   private shuffle = false;
 
-  // Data needed to persist an evaluation.
   private listId = '';
   private startedAt: Date | null = null;
   private characterShownAt = 0;
@@ -72,7 +78,6 @@ export class StrokesQuiz {
     () => `${this.currentIndex() + 1} / ${this.characters().length}`,
   );
 
-  /** One result per character, in quiz order; characters never validated come out as not attempted. */
   readonly orderedResults = computed<CharacterResult[]>(() =>
     this.characters().map((unicode) => this.results().get(unicode) ?? notAttempted(unicode)),
   );
@@ -152,7 +157,6 @@ export class StrokesQuiz {
     }
 
     await this.validateIfEvaluating();
-    // Show the summary first so the UI doesn't wait for the save.
     this.isFinished.set(true);
     await this.saveEvaluation();
   };
@@ -162,10 +166,9 @@ export class StrokesQuiz {
   }
 
   async exit(): Promise<void> {
-    await this.router.navigate(['/quizes']);
+    await this.router.navigate(['/quizzes']);
   }
 
-  /** Keeps the latest validation of each character (practice may validate several times). */
   onValidationCompleted(validation: WritingValidationEvent): void {
     this.results.update((results) =>
       new Map(results).set(validation.unicode, fromValidation(validation)),
@@ -178,7 +181,6 @@ export class StrokesQuiz {
     });
   }
 
-  /** The Validate button is hidden in evaluation, so advancing has to validate the drawing. */
   private async validateIfEvaluating(): Promise<void> {
     if (this.mode() === 'evaluation') {
       await this.writingPractice?.validate();
@@ -186,7 +188,6 @@ export class StrokesQuiz {
   }
 
   private async saveEvaluation(): Promise<void> {
-    // Practice sessions are not stored: the database has no column for the mode.
     if (this.mode() !== 'evaluation' || !this.startedAt) {
       return;
     }
@@ -205,7 +206,6 @@ export class StrokesQuiz {
           correct: attempt.event.isValid,
           responseTimeMs: attempt.responseTimeMs,
           answeredAt: attempt.answeredAt,
-          // Replace the second argument with the real number of strokes the character has.
           writing: toWritingAttempt(attempt.event, attempt.event.strokeResults.length),
         },
       ];

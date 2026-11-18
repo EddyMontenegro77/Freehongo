@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.weak-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.weak-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  transition: border-color var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    border-color: currentColor;
+  }
+}
+
+.weak-char {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.weak-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.weak-badge {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.weak-meta {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.weak-empty {
+  margin: 0;
+  padding: 1rem 0;
+  text-align: center;
+  opacity: 0.65;
+}
