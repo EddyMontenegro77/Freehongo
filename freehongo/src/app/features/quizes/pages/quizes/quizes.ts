@@ -39,7 +39,7 @@ export class Quizes {
         },
       );
     } else {
-      await this.router.navigate(['/quizes', settings.mode, shortenUuid(this.selectedListId)], {
+      await this.router.navigate(['/quizzes', settings.mode, shortenUuid(this.selectedListId)], {
         queryParams: {
           type: settings.characterQuizType,
           answerType: settings.answerType,

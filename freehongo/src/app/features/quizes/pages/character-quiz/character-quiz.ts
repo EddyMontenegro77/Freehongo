@@ -60,7 +60,7 @@ export class CharacterQuiz {
   };
 
   goToQuizMenu = async (): Promise<void> => {
-    await this.router.navigate(['/quizes']);
+    await this.router.navigate(['/quizzes']);
   };
 
   retry = (): Promise<void> => {

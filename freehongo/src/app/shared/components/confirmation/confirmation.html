@@ -5,8 +5,17 @@
       <p>{{ message() }}</p>
 
       <div class="confirmation__actions">
-        <app-action-btn [title]="cancelText()" [action]="cancelAction()" variant="danger" />
-        <app-action-btn [title]="confirmText()" [action]="confirmAction()" variant="success" />
+        <app-action-btn
+          [title]="cancelText()"
+          [action]="cancelAction()"
+          [variant]="cancelVariant()"
+        />
+
+        <app-action-btn
+          [title]="confirmText()"
+          [action]="confirmAction()"
+          [variant]="confirmVariant()"
+        />
       </div>
     </section>
   </div>

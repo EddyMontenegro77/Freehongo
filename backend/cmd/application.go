@@ -13,6 +13,8 @@ import (
 	emailServices "freehongo-api/internal/emails/services"
 	japaneseRepository "freehongo-api/internal/japanese/repository"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	listServices "freehongo-api/internal/lists/services"
+	quizServices "freehongo-api/internal/quizes/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -29,11 +31,12 @@ type Application struct {
 
 func NewApplication(config Config) (*Application, error) {
 	database := db.Connect(config.Database)
+	txm := db.NewTxManager(database)
 	verifier, err := authServices.NewGoogleVerifier(config.GoogleClientID)
 	if err != nil {
 		return nil, err
 	}
-	userRepo := authRepository.NewUserRepository(database)
+	userRepo := authRepository.NewUserRepository(txm)
 	mailer, err := emailServices.NewMailer(config.ResendAPIKey)
 	if err != nil {
 		return nil, err
@@ -54,6 +57,8 @@ func NewApplication(config Config) (*Application, error) {
 	kanaRepository := japaneseRepository.NewKanaRepository(database)
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
 	japaneseService := japaneseServices.NewJapaneseService(kanaRepository, kanjiRepository)
+	listService		:= listServices.NewListService(txm)
+	quizService		:= quizServices.NewQuizService(txm)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -72,6 +77,8 @@ func NewApplication(config Config) (*Application, error) {
 		RequireAuth:     authMiddleware.RequireAuth(userRepo),
 		RateLimiters:    rateLimiters,
 		JapaneseService: japaneseService,
+		ListService:	 listService,
+		QuizService:	 quizService,
 	})
 
 	return &Application{

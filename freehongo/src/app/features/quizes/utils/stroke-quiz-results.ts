@@ -107,7 +107,7 @@ function resultLabel(result: CharacterResult): string {
     return 'Not attempted';
   }
 
-  return result.isValid ? 'Correct' : 'Incorrect';
+  return result.isValid ? 'Correct:' : 'Incorrect:';
 }
 
 function strokeSummary(result: CharacterResult): string {

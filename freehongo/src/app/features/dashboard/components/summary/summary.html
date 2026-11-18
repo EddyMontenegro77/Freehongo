@@ -1,0 +1,9 @@
+<div class="summary__container">
+  <span class="summary__item">Mastery Level: {{ data().masteryLevel }}</span>
+  <span class="summary__item">Accuracy: {{ data().accuracy }}%</span>
+  <span class="summary__item">Quiz sessions: {{ data().totalSessions }}</span>
+  <span class="summary__item">Streak: {{ data().dayStreak }} days</span>
+  <span class="summary__item"
+    >Average Response Time: {{ data().averageResponseTimeMs | responseTime }}</span
+  >
+</div>

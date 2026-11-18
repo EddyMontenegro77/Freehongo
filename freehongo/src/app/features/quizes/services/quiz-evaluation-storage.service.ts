@@ -1,17 +1,18 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { QuizEvaluationResult } from '../../../shared/models/quizes/quizes.interface';
 import {
+  QuizSessionDetail,
   StoredCharacterStat,
   StoredQuizAnswer,
   StoredQuizSession,
 } from '../../../shared/models/quizes/quizes-storage.interface';
-import { db, FreeHongoDB } from '../../../core/db/db';
+import { FreeHongoDB } from '../../../core/db/db';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
+import { Dexie } from 'dexie';
+import { toTime } from '../../../core/sync/sync.utils';
 
 const MIN_QUESTIONS = 2;
-
-// ─────────────────────────────────────────────────────────────
-// Mappers (runtime model -> storage model)
-// ─────────────────────────────────────────────────────────────
 
 function toStoredQuizSession(r: QuizEvaluationResult): StoredQuizSession {
   return {
@@ -52,10 +53,6 @@ function toStoredAnswers(r: QuizEvaluationResult): StoredQuizAnswer[] {
   }));
 }
 
-// ─────────────────────────────────────────────────────────────
-// Validation (mirrors the CHECK constraints of the cloud database)
-// ─────────────────────────────────────────────────────────────
-
 function assertValid(r: QuizEvaluationResult): void {
   if (r.total < MIN_QUESTIONS || r.answers.length < MIN_QUESTIONS) {
     throw new Error(`An evaluation needs at least ${MIN_QUESTIONS} questions.`);
@@ -75,18 +72,15 @@ function assertValid(r: QuizEvaluationResult): void {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Service
-// ─────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class QuizEvaluationStorageService {
-  protected database: FreeHongoDB = db;
+  private readonly databaseService = inject(DatabaseService);
+  private readonly syncTrigger = inject(SyncTriggerService);
 
-  /**
-   * Stores the session, its answers and the updated character stats in a single
-   * transaction, so a session can never be saved without its answers.
-   */
+  protected get database(): FreeHongoDB {
+    return this.databaseService.database;
+  }
+
   async saveEvaluation(result: QuizEvaluationResult): Promise<void> {
     assertValid(result);
 
@@ -104,9 +98,10 @@ export class QuizEvaluationStorageService {
         await this.updateStats(result);
       },
     );
+
+    this.syncTrigger.schedule();
   }
 
-  /** One answer per character per session (guaranteed by assertValid), so one step each. */
   private async updateStats(result: QuizEvaluationResult): Promise<void> {
     const keys = result.answers.map(
       (a) => [a.characterUnicode, result.answerType] as [string, string],
@@ -130,5 +125,32 @@ export class QuizEvaluationStorageService {
     });
 
     await this.database.characterStats.bulkPut(updated);
+  }
+
+  async getSessionDetail(sessionId: string): Promise<QuizSessionDetail | null> {
+    const session = await this.database.quizSessions.get(sessionId);
+    if (!session) return null;
+
+    const [list, answers] = await Promise.all([
+      this.database.lists.get(session.listId),
+      this.getSessionAnswers(sessionId),
+    ]);
+
+    return {
+      session: { ...session, listName: list?.name ?? null },
+      answers,
+    };
+  }
+
+  async getSessionAnswers(sessionId: string): Promise<StoredQuizAnswer[]> {
+    const answers = await this.database.quizAnswers
+      .where('[quizSessionId+unicode]')
+      .between([sessionId, Dexie.minKey], [sessionId, Dexie.maxKey])
+      .toArray();
+
+    return answers.sort(
+      (a, b) =>
+        (a.answeredAt ? toTime(a.answeredAt) : 0) - (b.answeredAt ? toTime(b.answeredAt) : 0),
+    );
   }
 }

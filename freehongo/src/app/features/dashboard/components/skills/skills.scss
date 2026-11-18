@@ -1,0 +1,15 @@
+.skills__container {
+  display: grid;
+  grid-template-rows: 1fr;
+
+  .skill__group {
+    grid-row: span 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    .skill {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

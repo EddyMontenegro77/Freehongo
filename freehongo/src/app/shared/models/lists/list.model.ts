@@ -12,7 +12,7 @@ export class CharacterList {
   createdAt: string = nowIso();
   deletedAt?: string;
   updatedAt: string = nowIso();
-  syncStatus: 'synced' | 'pending' = 'pending';
+  syncStatus: 'synced' | 'pending' | 'failed' = 'pending';
 }
 
 export class ResolvedCharacterList {
@@ -26,6 +26,7 @@ export class ResolvedCharacterList {
 export class CreateCharacterListInput {
   name: string = '';
   type: CharacterListType = 'mixed';
+  isPublic: boolean = false;
   characters: string[] = [];
 }
 

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"freehongo-api/internal/auth/repository"
+	"freehongo-api/internal/db"
 	"freehongo-api/internal/storage"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -23,11 +24,11 @@ func TestCleanupPictureQueueDeletesStorageObjectAndQueueItem(t *testing.T) {
 	}))
 	defer server.Close()
 
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	pictureURL := server.URL + "/storage/v1/object/public/freehongo-users-pfp/avatars/user-id.webp"
 	mock.ExpectBegin()
@@ -40,7 +41,7 @@ func TestCleanupPictureQueueDeletesStorageObjectAndQueueItem(t *testing.T) {
 	mock.ExpectCommit()
 
 	service := NewProfileService(
-		repository.NewUserRepository(db),
+		repository.NewUserRepository(db.NewTxManager(mockDB)),
 		storage.NewSupabaseStorage(server.URL, "service-key"),
 	)
 	service.cleanupPictureQueue(context.Background())
@@ -59,11 +60,11 @@ func TestCleanupPictureQueueKeepsItemWhenStorageDeleteFails(t *testing.T) {
 	}))
 	defer server.Close()
 
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	pictureURL := server.URL + "/storage/v1/object/public/freehongo-users-pfp/avatars/user-id.webp"
 	mock.ExpectBegin()
@@ -72,7 +73,7 @@ func TestCleanupPictureQueueKeepsItemWhenStorageDeleteFails(t *testing.T) {
 	mock.ExpectCommit()
 
 	service := NewProfileService(
-		repository.NewUserRepository(db),
+		repository.NewUserRepository(db.NewTxManager(mockDB)),
 		storage.NewSupabaseStorage(server.URL, "service-key"),
 	)
 	service.cleanupPictureQueue(context.Background())

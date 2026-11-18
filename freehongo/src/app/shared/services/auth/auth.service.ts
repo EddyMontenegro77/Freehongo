@@ -4,8 +4,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environments';
 import { SignupRequest } from '../../models/auth/auth.models';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncService } from '../../../core/sync/sync.service';
 
 export interface User {
+  userId: string;
   name: string;
   email: string;
   verified: boolean;
@@ -15,6 +18,8 @@ export interface User {
 @Service()
 export class AuthService {
   private http = inject(HttpClient);
+  private databaseService = inject(DatabaseService);
+  private syncService = inject(SyncService);
 
   private readonly _user = signal<User | null>(null);
   readonly user = this._user.asReadonly();
@@ -24,14 +29,17 @@ export class AuthService {
 
   async loadSession(): Promise<void> {
     try {
-      this._user.set(
-        await firstValueFrom(
-          this.http
-            .get<User>(`${environment.apiUrl}/auth/me`, { withCredentials: true })
-            .pipe(timeout({ first: 5000 })),
-        ),
+      const user = await firstValueFrom(
+        this.http
+          .get<User>(`${environment.apiUrl}/auth/me`, {
+            withCredentials: true,
+          })
+          .pipe(timeout({ first: 5000 })),
       );
+      await this.databaseService.initialize(user.userId);
+      this._user.set(user);
     } catch {
+      await this.databaseService.initialize();
       this._user.set(null);
     }
   }
@@ -88,11 +96,7 @@ export class AuthService {
             password: signupReq.password,
           };
       await firstValueFrom(
-        this.http.post(
-          `${environment.apiUrl}/auth/signup`,
-          body,
-          { withCredentials: true },
-        ),
+        this.http.post(`${environment.apiUrl}/auth/signup`, body, { withCredentials: true }),
       );
     } catch (error) {
       this.lastError.set(this.getErrorMessage(error));
@@ -112,12 +116,20 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
+    if (!this._user()) return;
+
     try {
+      await Promise.race([
+        this.syncService.sync().catch(() => undefined),
+        new Promise<void>((resolve) => setTimeout(resolve, 5000)),
+      ]);
+
       await firstValueFrom(
         this.http.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true }),
       );
     } finally {
       this._user.set(null);
+      await this.databaseService.initialize();
     }
   }
 
@@ -195,11 +207,19 @@ export class AuthService {
 
   async deleteProfile(): Promise<void> {
     this.lastError.set(null);
+
+    const userId = this._user()?.userId;
     try {
       await firstValueFrom(
         this.http.delete(`${environment.apiUrl}/auth/profile`, { withCredentials: true }),
       );
       this._user.set(null);
+
+      if (userId) {
+        await this.databaseService.deleteUserDb(userId);
+      } else {
+        await this.databaseService.initialize();
+      }
     } catch (error) {
       this.lastError.set(this.getErrorMessage(error));
       throw error;
@@ -218,9 +238,11 @@ export class AuthService {
     }
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     this._user.set(null);
     this.lastError.set(null);
+
+    await this.databaseService.initialize();
   }
 
   private getErrorMessage(error: unknown): string {

@@ -1,5 +1,5 @@
 import { Component, input, output, ChangeDetectionStrategy, model, computed } from '@angular/core';
-import { FormValueControl, ValidationError } from '@angular/forms/signals';
+import { ValidationError } from '@angular/forms/signals';
 
 type InputType =
   | 'text'

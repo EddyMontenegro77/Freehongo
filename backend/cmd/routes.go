@@ -6,6 +6,10 @@ import (
 	"freehongo-api/internal/auth/services"
 	japaneseHandlers "freehongo-api/internal/japanese/handlers"
 	japaneseServices "freehongo-api/internal/japanese/services"
+	listHandlers "freehongo-api/internal/lists/handlers"
+	listServices "freehongo-api/internal/lists/services"
+	quizHandlers "freehongo-api/internal/quizes/handlers"
+	quizServices "freehongo-api/internal/quizes/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
 
@@ -21,8 +25,9 @@ type Deps struct {
 	GoogleAuth     gin.HandlerFunc
 	RequireAuth    gin.HandlerFunc
 	RateLimiters   *ratelimitmiddleware.Limiters
-
 	JapaneseService *japaneseServices.JapaneseService
+	ListService		*listServices.ListService
+	QuizService		*quizServices.QuizService
 }
 
 func SetupRoutes(router *gin.Engine, d Deps) {
@@ -60,4 +65,37 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	public.POST("/auth/verify-email/request", d.RateLimiters.Verify(), authHandlers.PostRequestVerificationByEmail(d.EmailFlows))
 	public.POST("/auth/password-reset/request", d.RateLimiters.Reset(), authHandlers.PostRequestPasswordReset(d.EmailFlows))
 	public.POST("/auth/password-reset", d.RateLimiters.Reset(), authHandlers.PostResetPassword(d.EmailFlows))
+
+	// Lists Endpoints
+
+	// User Lists
+	authProtected.GET("/lists/preview", listHandlers.GetListPreview(d.ListService))
+	authProtected.GET("/lists/detail", listHandlers.GetListDetail(d.ListService))
+	authProtected.GET("/lists/user", listHandlers.GetUserLists(d.ListService))
+
+	authProtected.POST("/lists/create", listHandlers.PostCreateList(d.ListService))
+	authProtected.DELETE("/lists/delete", listHandlers.DeleteList(d.ListService))
+	authProtected.PUT("/lists/update", listHandlers.PutUpdateList(d.ListService))
+
+	authProtected.POST("/lists/add/characters", listHandlers.PostAddListCharacters(d.ListService))
+	authProtected.DELETE("/lists/delete/characters", listHandlers.DeleteListCharacters(d.ListService))
+	authProtected.PUT("/lists/update/characters", listHandlers.PutUpdateListCharacters(d.ListService))
+
+	// Public Lists
+	public.GET("/lists/public/detail", listHandlers.GetPublicListDetail(d.ListService))
+	public.GET("/lists/public/preview", listHandlers.GetPublicListsPreview(d.ListService))
+
+	// Official Lists
+	public.GET("/lists/official/detail", listHandlers.GetOfficialListDetail(d.ListService))
+	public.GET("/lists/official/preview", listHandlers.GetOfficialListsPreview(d.ListService))
+
+	// Quizes Endpoints
+	authProtected.POST("/quizes/submit", quizHandlers.PostSubmitQuizSession(d.QuizService))
+
+	authProtected.GET("/quizes/sessions", quizHandlers.GetUserQuizSessions(d.QuizService))
+	authProtected.GET("/quizes/sessions/detail", quizHandlers.GetQuizSessionDetail(d.QuizService))
+
+	authProtected.GET("/quizes/stats/characters", quizHandlers.GetCharacterStats(d.QuizService))
+	authProtected.GET("/quizes/stats/list", quizHandlers.GetListStats(d.QuizService))
+	authProtected.GET("/quizes/stats/weak", quizHandlers.GetWeakCharacters(d.QuizService))
 }

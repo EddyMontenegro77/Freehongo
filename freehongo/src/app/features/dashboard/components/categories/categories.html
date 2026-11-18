@@ -1,0 +1,19 @@
+<div class="categories__container">
+  <h2>Categories</h2>
+  @if (data(); as categories) {
+    <div class="category__group">
+      @for (item of categories | keyvalue; track item.key) {
+        <section class="category">
+          <h3>{{ item.value.category }}</h3>
+
+          <p>Total: {{ item.value.totalCharacters }}</p>
+
+          <p>New: {{ item.value.levelDistribution.new }}</p>
+          <p>Beginner: {{ item.value.levelDistribution.beginner }}</p>
+          <p>Intermediate: {{ item.value.levelDistribution.intermediate }}</p>
+          <p>Mastered: {{ item.value.levelDistribution.mastered }}</p>
+        </section>
+      }
+    </div>
+  }
+</div>

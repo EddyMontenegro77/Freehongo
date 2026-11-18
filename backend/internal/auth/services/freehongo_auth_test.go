@@ -10,17 +10,18 @@ import (
 	"freehongo-api/internal/auth/models"
 	"freehongo-api/internal/auth/repository"
 	"freehongo-api/internal/auth/utils"
+	"freehongo-api/internal/db"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func TestSignInRejectsUnverifiedUser(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	hash, err := utils.HashPassword("password123")
 	if err != nil {
@@ -33,7 +34,7 @@ func TestSignInRejectsUnverifiedUser(t *testing.T) {
 			AddRow("user-id", hash, nil))
 	mock.ExpectRollback()
 
-	service := NewFreeHongoAuthService(repository.NewUserRepository(db))
+	service := NewFreeHongoAuthService(repository.NewUserRepository(db.NewTxManager(mockDB)))
 	_, err = service.SignIn(context.Background(), models.LoginRequest{
 		Email: "user@example.com", Password: "password123",
 	})
@@ -46,11 +47,11 @@ func TestSignInRejectsUnverifiedUser(t *testing.T) {
 }
 
 func TestSignInCreatesSessionForVerifiedUser(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	hash, err := utils.HashPassword("password123")
 	if err != nil {
@@ -68,7 +69,7 @@ func TestSignInCreatesSessionForVerifiedUser(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	service := NewFreeHongoAuthService(repository.NewUserRepository(db))
+	service := NewFreeHongoAuthService(repository.NewUserRepository(db.NewTxManager(mockDB)))
 	if _, err := service.SignIn(context.Background(), models.LoginRequest{
 		Email: "user@example.com", Password: "password123",
 	}); err != nil {
@@ -80,11 +81,11 @@ func TestSignInCreatesSessionForVerifiedUser(t *testing.T) {
 }
 
 func TestSignUpDoesNotCreateSession(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectExec(`SELECT set_config\('app.current_user_id', \$1, true\)`).
@@ -94,7 +95,7 @@ func TestSignUpDoesNotCreateSession(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"user_id"}).AddRow("user-id"))
 	mock.ExpectCommit()
 
-	service := NewFreeHongoAuthService(repository.NewUserRepository(db))
+	service := NewFreeHongoAuthService(repository.NewUserRepository(db.NewTxManager(mockDB)))
 	if err := service.SignUp(context.Background(), models.RegisterRequest{
 		Name: "User", Email: "user@example.com", Password: "password123",
 	}); err != nil {
@@ -106,11 +107,11 @@ func TestSignUpDoesNotCreateSession(t *testing.T) {
 }
 
 func TestSignUpRejectsDuplicateEmail(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectExec(`SELECT set_config\('app.current_user_id', \$1, true\)`).
@@ -119,7 +120,7 @@ func TestSignUpRejectsDuplicateEmail(t *testing.T) {
 		WillReturnError(&pgconn.PgError{Code: "23505"})
 	mock.ExpectRollback()
 
-	service := NewFreeHongoAuthService(repository.NewUserRepository(db))
+	service := NewFreeHongoAuthService(repository.NewUserRepository(db.NewTxManager(mockDB)))
 	err = service.SignUp(context.Background(), models.RegisterRequest{
 		Name: "User", Email: "user@example.com", Password: "password123",
 	})
@@ -139,11 +140,11 @@ func TestGoogleSignInRejectsUnverifiedGoogleClaims(t *testing.T) {
 }
 
 func TestGoogleSignInCreatesVerifiedAccountAndSession(t *testing.T) {
-	db, mock, err := sqlmock.New()
+	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer mockDB.Close()
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(`SELECT app\.find_user_by_identity`).
@@ -164,7 +165,7 @@ func TestGoogleSignInCreatesVerifiedAccountAndSession(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
-	service := NewGoogleSignInService(repository.NewUserRepository(db))
+	service := NewGoogleSignInService(repository.NewUserRepository(db.NewTxManager(mockDB)))
 	result, err := service.SignIn(context.Background(), models.GoogleIdentity{
 		Email: "user@example.com", Name: "User", Verified: true,
 		Subject: "google-subject", PictureUrl: "https://example.com/avatar.jpg",
