@@ -18,6 +18,7 @@ import { ResetPassword } from './core/auth/pages/reset-password/reset-password';
 import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 import { Logout } from './core/auth/pages/logout/logout';
 import { QuizSessionDetails } from './features/quizes/pages/quiz-session-details/quiz-session-details';
+import { StylesTest } from './core/pages/styles-test/styles-test';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -36,6 +37,7 @@ export const routes: Routes = [
   { path: 'auth/reset-password', component: ResetPassword },
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
   { path: 'dashboard', component: Dashboard },
+  { path: 'styles/test', component: StylesTest },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];
