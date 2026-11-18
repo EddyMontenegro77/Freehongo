@@ -97,17 +97,20 @@ export class QuizHistory {
     }
   }
 
-  clearFilters = (): void => {
+  clearFilters = async (): Promise<void> => {
     this.finishedAt.set('');
     this.listName.set('');
     this.answerType.set('all');
     this.characterQuizType.set('all');
     this.order.set(true);
+    await this.filterQuizes();
   };
 
   filterQuizes = async (): Promise<void> => {
     const filters: FetchQuizSessionFilters = {
       descOrder: this.order(),
+      listName: this.listName() || undefined,
+      finishedAt: this.finishedAt() || undefined,
       answerType: this.answerType() === 'all' ? undefined : (this.answerType() as AnswerType),
       characterQuizType:
         this.characterQuizType() === 'all'
@@ -118,7 +121,6 @@ export class QuizHistory {
     this.allSessions.set(await this.dashboardFacadeService.fetchQuizSessions(filters));
     this.visibleCount.set(PAGE_SIZE);
   };
-
   viewAction(sessionId: string): () => Promise<void> {
     let action = this.viewActions.get(sessionId);
     if (!action) {
