@@ -33,7 +33,7 @@
             >Type: {{ currentList.type }} · {{ currentList.isPublic ? 'Public' : 'Private' }}</span
           >
         </div>
-        <app-action-btn title="Edit" [action]="enterEditMode" variant="primary" />
+        <app-action-btn title="Edit" [action]="enterEditMode" />
       }
 
       @if (saveError(); as error) {

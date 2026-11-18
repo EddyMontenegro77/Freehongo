@@ -1,10 +1,5 @@
 <div class="pagination__wrapper">
-  <app-action-btn
-    title="Previous"
-    [action]="previousPage"
-    [disabled]="currentPage() <= 1"
-    variant="primary"
-  />
+  <app-action-btn title="Previous" [action]="previousPage" [disabled]="currentPage() <= 1" />
 
   <label class="pagination__field">
     <span class="pagination__label">Page</span>
