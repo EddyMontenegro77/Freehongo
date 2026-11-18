@@ -11,6 +11,7 @@ import { input } from '@angular/core';
 export class IconBtn {
   title = input.required<string>();
   action = input.required<() => void | Promise<void>>();
+  showText = input<boolean>(false);
   iconSrc = input.required<string>();
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);

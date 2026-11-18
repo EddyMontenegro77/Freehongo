@@ -1,8 +1,19 @@
 <div class="test-container">
-  <app-action-btn title="Action" variant="light" [action]="nothing" />
-  <app-action-btn title="Action" variant="dark" [action]="nothing" />
-  <app-action-btn title="Action" variant="accent" [action]="nothing" />
-  <app-action-btn title="Action" variant="danger" [action]="nothing" />
-  <app-action-btn title="Action" variant="success" [action]="nothing" />
-  <app-action-btn title="Action" variant="success" [disabled]="true" [action]="nothing" />
+  <div class="actions">
+    <app-action-btn title="Light" variant="light" [action]="nothing" />
+    <app-action-btn title="Dark" variant="dark" [action]="nothing" />
+    <app-action-btn title="Accent" variant="accent" [action]="nothing" />
+    <app-action-btn title="Danger" variant="danger" [action]="nothing" />
+    <app-action-btn title="Success" variant="success" [action]="nothing" />
+    <app-action-btn title="Disabled" variant="success" [disabled]="true" [action]="nothing" />
+  </div>
+  <div class="icons">
+    <app-icon-btn iconSrc="add_icon_dark.svg" title="" [action]="nothing" />
+    <app-icon-btn
+      iconSrc="add_icon_dark.svg"
+      [showText]="true"
+      title="Bookmark"
+      [action]="nothing"
+    />
+  </div>
 </div>

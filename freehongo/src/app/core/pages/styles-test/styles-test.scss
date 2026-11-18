@@ -2,3 +2,9 @@ div {
   box-sizing: border-box;
   padding: 3%;
 }
+.actions,
+.icons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
