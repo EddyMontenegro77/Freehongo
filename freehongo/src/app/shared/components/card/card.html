@@ -5,6 +5,7 @@
   [class.card--sm]="size() === 'sm'"
   [class.card--md]="size() === 'md'"
   [class.card--lg]="size() === 'lg'"
+  [class.card--hoverable]="hoverable()"
 >
   <header class="card__header">
     <ng-content select="[card-header]"></ng-content>

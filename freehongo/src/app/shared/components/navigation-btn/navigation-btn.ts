@@ -13,7 +13,7 @@ export class NavigationBtn {
 
   title = input.required<string>();
   icon = input<string | null>(null);
-
+  showText = input<boolean>(true);
   route = input<string[] | undefined>(undefined);
 
   disabled = input<boolean>(false);

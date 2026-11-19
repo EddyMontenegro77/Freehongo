@@ -17,9 +17,9 @@
   <div class="list-filters">
     <h3>Search lists</h3>
     <app-input
-      label="Name"
+      label="List name"
       [value]="listName.value ?? ''"
-      placeholder="List name"
+      placeholder="My list"
       (valueChange)="listName.setValue($event)"
     />
     <app-segmented-control

@@ -1,4 +1,4 @@
-import { Component, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy, booleanAttribute } from '@angular/core';
 
 type CardVariant = 'outline' | 'elevated';
 type CardSize = 'sm' | 'md' | 'lg';
@@ -13,4 +13,5 @@ type CardSize = 'sm' | 'md' | 'lg';
 export class Card {
   variant = input<CardVariant>('outline');
   size = input<CardSize>('md');
+  hoverable = input(false, { transform: booleanAttribute });
 }

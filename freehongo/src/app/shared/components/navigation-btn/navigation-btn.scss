@@ -1,33 +1,80 @@
 button {
-  display: flex;
-  flex-flow: row nowrap;
-  width: 100%;
+  appearance: none;
   border: none;
-  background-color: rgb(var(--action-btn-hover-bg) / 70%);
-  color: var(--action-btn-hover-text);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
+
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  width: auto;
+  min-height: var(--icon-btn-size, 2.5rem);
+  padding: 0.5rem 0.75rem;
+
+  border-radius: var(--radius-sm);
+
+  background-color: color-mix(in srgb, var(--color-secondary) 0%, transparent);
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 4px;
+
   font: inherit;
-  font-weight: 600;
+
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+
   transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast),
     background-color 350ms ease,
     color var(--transition-normal);
-  justify-content: baseline;
-  gap: 0.5rem;
 
-  &:hover {
-    transform: translateY(-1px);
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-secondary) 100%, transparent);
+    transform: scale(1.08);
     box-shadow: var(--shadow-md);
-    background-color: var(--action-btn-bg);
-    color: var(--action-btn-text);
+    color: var(--text-secondary);
   }
 
-  &:active {
-    transform: translateY(0);
+  &:active:not(:disabled) {
+    transform: scale(0.95);
     box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-bittersweet);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    background-color: var(--color-disabled);
+    color: var(--color-pampas);
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+  }
+}
+
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--icon-btn-size, 1.75rem);
+  height: var(--icon-btn-size, 1.75rem);
+  background-color: currentColor;
+
+  -webkit-mask: var(--icon-url) center / contain no-repeat;
+  mask: var(--icon-url) center / contain no-repeat;
+}
+
+.label {
+  font-size: var(--font-size-md);
+  line-height: 1.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
   }
 }

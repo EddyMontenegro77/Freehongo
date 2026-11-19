@@ -2,18 +2,30 @@
   display: inline-flex;
 }
 
+.chip ::ng-deep strong {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-accent);
+}
+
+.chip ::ng-deep img,
+.chip ::ng-deep svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.4rem;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.25rem;
   padding: 0.35rem 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 20%, transparent);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--color-accent);
+  color: var(--text-accent);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-semibold);
   line-height: 1.2;
   box-shadow: var(--shadow-sm);
 }

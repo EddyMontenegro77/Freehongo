@@ -8,27 +8,22 @@
   flex-direction: column;
   gap: 0.55rem;
   width: 100%;
-  color: var(--text);
-}
-
-.segmented--disabled {
-  opacity: 0.72;
+  color: var(--text-primary);
 }
 
 .segmented__label {
   font-size: 0.92rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .segmented__group {
   display: flex;
   width: 100%;
   overflow: hidden;
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
+  background: var(--color-secondary);
+  box-shadow: var(--shadow);
 }
 
 .segmented__option {
@@ -36,11 +31,11 @@
   min-width: 0;
   padding: 0.85rem 1rem;
   border: none;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid color-mix(in srgb, var(--text-secondary) 80%, transparent);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   transition:
     background-color var(--transition-fast),
@@ -52,8 +47,8 @@
   }
 
   &:hover:not(:disabled):not(.segmented__option--active) {
-    background: rgba(165, 222, 241, 0.14);
-    color: var(--text);
+    background: color-mix(in srgb, var(--color-accent) 80%, transparent);
+    color: var(--text-primary);
   }
 
   &:active:not(:disabled) {
@@ -74,30 +69,46 @@
 }
 
 .segmented__option--active {
-  background: var(--primary);
-  color: var(--cta-btn-text);
+  background: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .segmented__option--active:hover:not(:disabled) {
-  background: var(--primary);
-  color: var(--cta-btn-text);
+  background: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .segmented__option:disabled {
+  background: transparent;
+  color: color-mix(in srgb, var(--text-secondary) 45%, transparent);
   cursor: not-allowed;
+  transform: none;
+}
+
+.segmented__option--active:disabled {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  color: color-mix(in srgb, var(--text-accent) 60%, transparent);
+}
+
+.segmented--disabled .segmented__label {
+  color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+}
+
+.segmented--disabled .segmented__group {
+  box-shadow: none;
 }
 
 @media (max-width: 768px) {
-  .segmented__group {
-    flex-direction: column;
-  }
-
   .segmented__option {
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 20%, transparent);
   }
 
   .segmented__option:last-child {
     border-bottom: none;
+  }
+
+  .segmented__group {
+    flex-direction: column;
   }
 }
