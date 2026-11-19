@@ -37,7 +37,7 @@ export const routes: Routes = [
   { path: 'auth/reset-password', component: ResetPassword },
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
   { path: 'dashboard', component: Dashboard },
-  { path: 'styles/test', component: StylesTest },
+  { path: 'docs/styles', component: StylesTest },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];
