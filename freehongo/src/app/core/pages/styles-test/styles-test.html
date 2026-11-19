@@ -4,443 +4,495 @@
     <p>Reusable components of the project, with live examples and the code to use them.</p>
   </header>
 
-  <section class="category">
-    <h2 class="category__title">Buttons</h2>
+  <div class="docs-layout">
+    <nav class="index" aria-label="Components index">
+      @for (category of index; track category.id) {
+        <div class="index__group">
+          <button type="button" class="index__category" (click)="scrollTo(category.id)">
+            {{ category.label }}
+          </button>
 
-    <app-demo-block
-      heading="Action button"
-      description="Triggers an action. Available in several variants."
-      [code]="snippets.actionBtn"
-    >
-      <div class="component-display-flex">
-        <app-action-btn title="Primary" variant="primary" [action]="nothing" />
-        <app-action-btn title="Secondary" variant="secondary" [action]="nothing" />
-        <app-action-btn title="Light" variant="light" [action]="nothing" />
-        <app-action-btn title="Dark" variant="dark" [action]="nothing" />
-        <app-action-btn title="Accent" variant="accent" [action]="nothing" />
-        <app-action-btn title="Danger" variant="danger" [action]="nothing" />
-        <app-action-btn title="Success" variant="success" [action]="nothing" />
-        <app-action-btn title="Disabled" variant="success" [disabled]="true" [action]="nothing" />
-      </div>
-    </app-demo-block>
+          <ul class="index__items">
+            @for (item of category.items; track item.id) {
+              <li>
+                <button type="button" class="index__item" (click)="scrollTo(item.id)">
+                  {{ item.label }}
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
 
-    <app-demo-block
-      heading="Icon button"
-      description="Icon only, or icon with text."
-      [code]="snippets.iconBtn"
-    >
-      <div class="component-display-flex">
-        <app-icon-btn iconSrc="add_icon_dark.svg" title="" [action]="nothing" />
-        <app-icon-btn
-          iconSrc="add_icon_dark.svg"
-          [showText]="true"
-          title="Bookmark"
-          [action]="nothing"
-        />
-      </div>
-    </app-demo-block>
+    <div class="docs-content">
+      <section class="category" id="demo-buttons">
+        <h2 class="category__title">Buttons</h2>
 
-    <app-demo-block
-      heading="Navigation button"
-      description="Navigates to a route."
-      [code]="snippets.navigationBtn"
-    >
-      <div class="component-display-flex">
-        <app-navigation-btn title="Navigation" />
-        <app-navigation-btn
-          title="Navigation"
-          icon="add_icon_dark.svg"
-          [showText]="true"
-          [route]="['/']"
-        />
-      </div>
-    </app-demo-block>
-  </section>
+        <app-demo-block
+          id="demo-action-button"
+          heading="Action button"
+          description="Triggers an action. Available in several variants."
+          [code]="snippets.actionBtn"
+        >
+          <div class="component-display-flex">
+            <app-action-btn title="Primary" variant="primary" [action]="nothing" />
+            <app-action-btn title="Secondary" variant="secondary" [action]="nothing" />
+            <app-action-btn title="Light" variant="light" [action]="nothing" />
+            <app-action-btn title="Dark" variant="dark" [action]="nothing" />
+            <app-action-btn title="Accent" variant="accent" [action]="nothing" />
+            <app-action-btn title="Danger" variant="danger" [action]="nothing" />
+            <app-action-btn title="Success" variant="success" [action]="nothing" />
+            <app-action-btn
+              title="Disabled"
+              variant="success"
+              [disabled]="true"
+              [action]="nothing"
+            />
+          </div>
+        </app-demo-block>
 
-  <section class="category">
-    <h2 class="category__title">Forms</h2>
+        <app-demo-block
+          id="demo-icon-button"
+          heading="Icon button"
+          description="Icon only, or icon with text."
+          [code]="snippets.iconBtn"
+        >
+          <div class="component-display-flex">
+            <app-icon-btn iconSrc="add_icon_dark.svg" title="" [action]="nothing" />
+            <app-icon-btn
+              iconSrc="add_icon_dark.svg"
+              [showText]="true"
+              title="Bookmark"
+              [action]="nothing"
+            />
+          </div>
+        </app-demo-block>
 
-    <app-demo-block
-      heading="Toggle"
-      description="On/off switch with a label and customizable state text."
-      [code]="snippets.toggle"
-    >
-      <div class="component-display-toggles">
-        <app-toggle-button
-          label="Toggle"
-          [checked]="toggle()"
-          [disabled]="false"
-          (checkedChange)="onToggleChange($event)"
-        />
-        <app-toggle-button
-          label="Custom label"
-          [checked]="toggle()"
-          onLabel="Enabled"
-          offLabel="Disabled"
-          [disabled]="false"
-          (checkedChange)="onToggleChange($event)"
-        />
-      </div>
-    </app-demo-block>
+        <app-demo-block
+          id="demo-navigation-button"
+          heading="Navigation button"
+          description="Navigates to a route."
+          [code]="snippets.navigationBtn"
+        >
+          <div class="component-display-flex">
+            <app-navigation-btn title="Navigation" />
+            <app-navigation-btn
+              title="Navigation"
+              icon="add_icon_dark.svg"
+              [showText]="true"
+              [route]="['/']"
+            />
+          </div>
+        </app-demo-block>
+      </section>
 
-    <app-demo-block
-      heading="Segmented control"
-      description="Selects one option out of a small set."
-      [code]="snippets.segmented"
-    >
-      <app-segmented-control
-        label="Display mode"
-        [value]="segmentedSelected()"
-        [options]="[
-          { label: 'Grid', value: 'grid' },
-          { label: 'List', value: 'list' },
-          { label: 'Compact', value: 'compact' },
-          { label: 'Disabled', value: 'disabled', disabled: true },
-        ]"
-        [disabled]="false"
-        [wrap]="false"
-        (valueChange)="onDisplayModeChange($event)"
-      />
-    </app-demo-block>
+      <section class="category" id="demo-forms">
+        <h2 class="category__title">Forms</h2>
 
-    <app-demo-block
-      heading="Pagination controller"
-      description="Previous, next and go to page."
-      [code]="snippets.pagination"
-    >
-      <app-table [headers]="columns" [rows]="pagedProjects()" />
+        <app-demo-block
+          id="demo-toggle"
+          heading="Toggle"
+          description="On/off switch with a label and customizable state text."
+          [code]="snippets.toggle"
+        >
+          <div class="component-display-toggles">
+            <app-toggle-button
+              label="Toggle"
+              [checked]="toggle()"
+              [disabled]="false"
+              (checkedChange)="onToggleChange($event)"
+            />
+            <app-toggle-button
+              label="Custom label"
+              [checked]="toggle()"
+              onLabel="Enabled"
+              offLabel="Disabled"
+              [disabled]="false"
+              (checkedChange)="onToggleChange($event)"
+            />
+          </div>
+        </app-demo-block>
 
-      <app-pagination-controller
-        [currentPage]="currentPage()"
-        [totalPages]="totalPages()"
-        (pageChange)="onPageChange($event)"
-      />
-    </app-demo-block>
+        <app-demo-block
+          id="demo-segmented"
+          heading="Segmented control"
+          description="Selects one option out of a small set."
+          [code]="snippets.segmented"
+        >
+          <app-segmented-control
+            label="Display mode"
+            [value]="segmentedSelected()"
+            [options]="[
+              { label: 'Grid', value: 'grid' },
+              { label: 'List', value: 'list' },
+              { label: 'Compact', value: 'compact' },
+              { label: 'Disabled', value: 'disabled', disabled: true },
+            ]"
+            [disabled]="false"
+            [wrap]="false"
+            (valueChange)="onDisplayModeChange($event)"
+          />
+        </app-demo-block>
 
-    <app-demo-block
-      heading="Input"
-      description="Supports all the native input types."
-      [code]="snippets.input"
-    >
-      <div class="input-samples">
-        <app-input
-          label="Full Name"
-          type="text"
-          placeholder="Ex. John Smith"
-          helperText="Enter your full name"
-        />
-        <app-input
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-          helperText="At least 8 characters"
-          [required]="true"
-        />
-        <app-input
-          label="Email Address"
-          type="email"
-          placeholder="user@example.com"
-          helperText="Enter a valid email address"
-          autocomplete="email"
-          [required]="true"
-        />
-        <app-input
-          label="Age"
-          type="number"
-          placeholder="Ex. 23"
-          [min]="1"
-          [max]="120"
-          [step]="1"
-          helperText="Age in years"
-        />
-        <app-input
-          label="Search"
-          type="search"
-          placeholder="Search..."
-          helperText="Search by name or description"
-        />
-        <app-input
-          label="Phone Number"
-          type="tel"
-          placeholder="+1 123-456-7890"
-          autocomplete="tel"
-          helperText="Include your country code"
-        />
-        <app-input
-          label="Website"
-          type="url"
-          placeholder="https://example.com"
-          helperText="Enter a valid URL"
-        />
-        <app-input label="Date of Birth" type="date" helperText="Select your date of birth" />
-        <app-input label="Time" type="time" helperText="Select a time" />
-        <app-input
-          label="Date and Time"
-          type="datetime-local"
-          helperText="Select a date and time"
-        />
-        <app-input
-          label="Disabled"
-          type="text"
-          placeholder="Ex. John Smith"
-          helperText="Enter your full name"
-          [disabled]="true"
-        />
-      </div>
-    </app-demo-block>
+        <app-demo-block
+          id="demo-pagination"
+          heading="Pagination controller"
+          description="Previous, next and go to page."
+          [code]="snippets.pagination"
+        >
+          <app-table [headers]="columns" [rows]="pagedProjects()" />
 
-    <app-demo-block
-      heading="Select"
-      description="Native select with label, helper and error text."
-      [code]="snippets.select"
-    >
-      <app-select
-        label="Preferred language"
-        [value]="selectedLanguage()"
-        [options]="languageOptions"
-        placeholder="Select a language"
-        helperText="Choose your preferred programming language."
-        errorText=""
-        [disabled]="false"
-        [required]="true"
-        (valueChange)="onLanguageChange($event)"
-      />
-    </app-demo-block>
+          <app-pagination-controller
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </app-demo-block>
 
-    <app-demo-block
-      heading="File upload"
-      description="Drag and drop, validation by size and count, reorderable."
-      [code]="snippets.fileUpload"
-    >
-      <app-file-upload
-        label="Upload your files"
-        hint="Drag and drop your files here or click to browse."
-        accept="image/*,.pdf,.doc,.docx"
-        [multiple]="true"
-        [maxFiles]="5"
-        [maxSizeBytes]="5242880"
-        [disabled]="false"
-        [allowReorder]="true"
-        (filesChange)="onFilesChange($event)"
-        (validationError)="onValidationError($event)"
-      />
-    </app-demo-block>
-  </section>
+        <app-demo-block
+          id="demo-input"
+          heading="Input"
+          description="Supports all the native input types."
+          [code]="snippets.input"
+        >
+          <div class="input-samples">
+            <app-input
+              label="Full Name"
+              type="text"
+              placeholder="Ex. John Smith"
+              helperText="Enter your full name"
+            />
+            <app-input
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              helperText="At least 8 characters"
+              [required]="true"
+            />
+            <app-input
+              label="Email Address"
+              type="email"
+              placeholder="user@example.com"
+              helperText="Enter a valid email address"
+              autocomplete="email"
+              [required]="true"
+            />
+            <app-input
+              label="Age"
+              type="number"
+              placeholder="Ex. 23"
+              [min]="1"
+              [max]="120"
+              [step]="1"
+              helperText="Age in years"
+            />
+            <app-input
+              label="Search"
+              type="search"
+              placeholder="Search..."
+              helperText="Search by name or description"
+            />
+            <app-input
+              label="Phone Number"
+              type="tel"
+              placeholder="+1 123-456-7890"
+              autocomplete="tel"
+              helperText="Include your country code"
+            />
+            <app-input
+              label="Website"
+              type="url"
+              placeholder="https://example.com"
+              helperText="Enter a valid URL"
+            />
+            <app-input label="Date of Birth" type="date" helperText="Select your date of birth" />
+            <app-input label="Time" type="time" helperText="Select a time" />
+            <app-input
+              label="Date and Time"
+              type="datetime-local"
+              helperText="Select a date and time"
+            />
+            <app-input
+              label="Disabled"
+              type="text"
+              placeholder="Ex. John Smith"
+              helperText="Enter your full name"
+              [disabled]="true"
+            />
+          </div>
+        </app-demo-block>
 
-  <section class="category">
-    <h2 class="category__title">Data display</h2>
+        <app-demo-block
+          id="demo-select"
+          heading="Select"
+          description="Native select with label, helper and error text."
+          [code]="snippets.select"
+        >
+          <app-select
+            label="Preferred language"
+            [value]="selectedLanguage()"
+            [options]="languageOptions"
+            placeholder="Select a language"
+            helperText="Choose your preferred programming language."
+            errorText=""
+            [disabled]="false"
+            [required]="true"
+            (valueChange)="onLanguageChange($event)"
+          />
+        </app-demo-block>
 
-    <app-demo-block
-      heading="Chip and chip group"
-      description="Compact tags for technologies, statuses or categories."
-      [code]="snippets.chip"
-    >
-      <div class="component-display-flex">
-        <app-chip>Angular</app-chip>
-        <app-chip>TypeScript</app-chip>
-        <app-chip>Node.js</app-chip>
-        <app-chip>PostgreSQL</app-chip>
-      </div>
+        <app-demo-block
+          id="demo-file-upload"
+          heading="File upload"
+          description="Drag and drop, validation by size and count, reorderable."
+          [code]="snippets.fileUpload"
+        >
+          <app-file-upload
+            label="Upload your files"
+            hint="Drag and drop your files here or click to browse."
+            accept="image/*,.pdf,.doc,.docx"
+            [multiple]="true"
+            [maxFiles]="5"
+            [maxSizeBytes]="5242880"
+            [disabled]="false"
+            [allowReorder]="true"
+            (filesChange)="onFilesChange($event)"
+            (validationError)="onValidationError($event)"
+          />
+        </app-demo-block>
+      </section>
 
-      <div class="component-display-flex">
-        <app-chip-group title="Technologies (wrap)" layout="wrap">
-          <app-chip>Angular</app-chip>
-          <app-chip>TypeScript</app-chip>
-          <app-chip>Node.js</app-chip>
-          <app-chip>PostgreSQL</app-chip>
-          <app-chip>Docker</app-chip>
-          <app-chip>Git</app-chip>
-        </app-chip-group>
+      <section class="category" id="demo-data-display">
+        <h2 class="category__title">Data display</h2>
 
-        <app-chip-group title="Project categories (stack)" layout="stack">
-          <app-chip>Frontend</app-chip>
-          <app-chip>Backend</app-chip>
-          <app-chip>Database</app-chip>
-          <app-chip>DevOps</app-chip>
-        </app-chip-group>
-      </div>
-    </app-demo-block>
+        <app-demo-block
+          id="demo-chips"
+          heading="Chip and chip group"
+          description="Compact tags for technologies, statuses or categories."
+          [code]="snippets.chip"
+        >
+          <div class="component-display-flex">
+            <app-chip>Angular</app-chip>
+            <app-chip>TypeScript</app-chip>
+            <app-chip>Node.js</app-chip>
+            <app-chip>PostgreSQL</app-chip>
+          </div>
 
-    <app-demo-block
-      heading="List"
-      description="Unordered and ordered lists with a custom marker."
-      [code]="snippets.list"
-    >
-      <div class="component-display-flex">
-        <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="disc" />
-        <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="circle" />
-        <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="square" />
-        <app-list
-          [items]="['Install dependencies', 'Configure environment', 'Run application']"
-          listType="ol"
-          marker="decimal"
-        />
-      </div>
-    </app-demo-block>
-
-    <app-demo-block
-      heading="Table"
-      description="Typed columns, formatters, row filtering and alignment."
-      [code]="snippets.table"
-    >
-      <div class="component-display-flex-col">
-        <app-table [headers]="columns" [rows]="projects" tableAlignment="left" />
-        <app-table
-          [headers]="columns"
-          [rows]="projects"
-          [showRow]="hideArchived"
-          tableAlignment="center"
-        />
-        <app-table [headers]="columns" [rows]="projects" tableAlignment="right" />
-      </div>
-    </app-demo-block>
-
-    <app-demo-block
-      heading="Card"
-      description="Container with header, body and footer slots."
-      [code]="snippets.card"
-    >
-      <div class="component-display-cards">
-        <app-card variant="outline" size="md" hoverable>
-          <h3 card-header>FreeHongo</h3>
-
-          <div card-body>
-            <p>App to learn Japanese: hiragana, katakana and more than 6400 kanji.</p>
-            <app-chip-group title="Stack" layout="wrap">
+          <div class="component-display-flex">
+            <app-chip-group title="Technologies (wrap)" layout="wrap">
               <app-chip>Angular</app-chip>
-              <app-chip>GSAP</app-chip>
+              <app-chip>TypeScript</app-chip>
+              <app-chip>Node.js</app-chip>
+              <app-chip>PostgreSQL</app-chip>
+              <app-chip>Docker</app-chip>
+              <app-chip>Git</app-chip>
+            </app-chip-group>
+
+            <app-chip-group title="Project categories (stack)" layout="stack">
+              <app-chip>Frontend</app-chip>
+              <app-chip>Backend</app-chip>
+              <app-chip>Database</app-chip>
+              <app-chip>DevOps</app-chip>
             </app-chip-group>
           </div>
+        </app-demo-block>
 
-          <div card-footer>
-            <app-action-btn title="View project" variant="accent" [action]="openProject" />
+        <app-demo-block
+          id="demo-list"
+          heading="List"
+          description="Unordered and ordered lists with a custom marker."
+          [code]="snippets.list"
+        >
+          <div class="component-display-flex">
+            <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="disc" />
+            <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="circle" />
+            <app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="square" />
+            <app-list
+              [items]="['Install dependencies', 'Configure environment', 'Run application']"
+              listType="ol"
+              marker="decimal"
+            />
           </div>
-        </app-card>
+        </app-demo-block>
 
-        <app-card variant="elevated" size="sm">
-          <h3 card-header>Sleeper</h3>
-
-          <p card-body>Control shutdown and sleep timers from a web interface.</p>
-
-          <div card-footer>
-            <app-action-btn title="View project" variant="light" [action]="openProject" />
+        <app-demo-block
+          id="demo-table"
+          heading="Table"
+          description="Typed columns, formatters, row filtering and alignment."
+          [code]="snippets.table"
+        >
+          <div class="component-display-flex-col">
+            <app-table [headers]="columns" [rows]="projects" tableAlignment="left" />
+            <app-table
+              [headers]="columns"
+              [rows]="projects"
+              [showRow]="hideArchived"
+              tableAlignment="center"
+            />
+            <app-table [headers]="columns" [rows]="projects" tableAlignment="right" />
           </div>
-        </app-card>
-      </div>
-    </app-demo-block>
+        </app-demo-block>
 
-    <app-demo-block
-      heading="Progress bar"
-      description="Progress with optional milestones that turn green once reached."
-      [code]="snippets.progressbar"
-    >
-      <app-progressbar
-        [value]="progress()"
-        [max]="100"
-        [milestones]="milestones"
-        barAriaLabel="Course progress"
-      />
+        <app-demo-block
+          id="demo-card"
+          heading="Card"
+          description="Container with header, body and footer slots."
+          [code]="snippets.card"
+        >
+          <div class="component-display-cards">
+            <app-card variant="outline" size="md" hoverable>
+              <h3 card-header>FreeHongo</h3>
 
-      <div class="component-display-flex">
-        <app-action-btn title="-10" variant="secondary" [action]="decreaseProgress" />
-        <app-action-btn title="+10" variant="accent" [action]="increaseProgress" />
-      </div>
-    </app-demo-block>
-  </section>
+              <div card-body>
+                <p>App to learn Japanese: hiragana, katakana and more than 6400 kanji.</p>
+                <app-chip-group title="Stack" layout="wrap">
+                  <app-chip>Angular</app-chip>
+                  <app-chip>GSAP</app-chip>
+                </app-chip-group>
+              </div>
 
-  <section class="category">
-    <h2 class="category__title">Feedback</h2>
+              <div card-footer>
+                <app-action-btn title="View project" variant="accent" [action]="openProject" />
+              </div>
+            </app-card>
 
-    <app-demo-block
-      heading="Loading state"
-      description="Spinner with an optional message."
-      [code]="snippets.loadingState"
-    >
-      <div class="component-display-grid">
-        <app-loading-state />
-        <app-loading-state message="Loading projects..." />
-      </div>
-    </app-demo-block>
+            <app-card variant="elevated" size="sm">
+              <h3 card-header>Sleeper</h3>
 
-    <app-demo-block
-      heading="Error state"
-      description="Error message with an optional retry action."
-      [code]="snippets.errorState"
-    >
-      <div class="component-display-grid">
-        <app-error-state
-          title="Something went wrong"
-          message="We couldn't load your projects. Check your connection and try again."
-          [action]="retry"
-        />
-        <app-error-state
-          title="Custom action"
-          message="The session expired."
-          actionTitle="Sign in again"
-          [action]="nothing"
-        />
-        <app-error-state title="Not found" message="This project doesn't exist or was deleted." />
-      </div>
-    </app-demo-block>
+              <p card-body>Control shutdown and sleep timers from a web interface.</p>
 
-    <app-demo-block
-      heading="Loading, error and content together"
-      description="Typical pattern to switch between the three states."
-    >
-      <div class="component-display-flex">
-        <app-action-btn title="Simulate load" variant="accent" [action]="simulateLoad" />
-        <app-action-btn title="Simulate error" variant="danger" [action]="simulateError" />
-      </div>
+              <div card-footer>
+                <app-action-btn title="View project" variant="light" [action]="openProject" />
+              </div>
+            </app-card>
+          </div>
+        </app-demo-block>
 
-      @if (loading()) {
-        <app-loading-state message="Loading projects..." />
-      } @else if (hasError()) {
-        <app-error-state
-          title="Couldn't load projects"
-          message="Please try again in a few seconds."
-          [action]="retry"
-        />
-      } @else {
-        <app-table [headers]="columns" [rows]="projects" />
-      }
-    </app-demo-block>
+        <app-demo-block
+          id="demo-progress-bar"
+          heading="Progress bar"
+          description="Progress with optional milestones that turn green once reached."
+          [code]="snippets.progressbar"
+        >
+          <app-progressbar
+            [value]="progress()"
+            [max]="100"
+            [milestones]="milestones"
+            barAriaLabel="Course progress"
+          />
 
-    <app-demo-block
-      heading="Feedback toast"
-      description="Temporary message triggered from code."
-      [code]="snippets.toast"
-    >
-      <div class="component-display-flex">
-        <app-action-btn title="Toast default" variant="secondary" [action]="showDefault" />
-        <app-action-btn title="Toast short" variant="secondary" [action]="showShort" />
-        <app-action-btn title="Toast long" variant="secondary" [action]="showLong" />
-      </div>
-    </app-demo-block>
-  </section>
+          <div class="component-display-flex">
+            <app-action-btn title="-10" variant="secondary" [action]="decreaseProgress" />
+            <app-action-btn title="+10" variant="accent" [action]="increaseProgress" />
+          </div>
+        </app-demo-block>
+      </section>
 
-  <section class="category">
-    <h2 class="category__title">Overlays</h2>
+      <section class="category" id="demo-feedback">
+        <h2 class="category__title">Feedback</h2>
 
-    <app-demo-block
-      heading="Modal"
-      description="Dialog with header, body and footer slots."
-      [code]="snippets.modal"
-    >
-      <app-action-btn title="Open modal" variant="accent" [action]="openModal" />
-    </app-demo-block>
+        <app-demo-block
+          id="demo-loading-state"
+          heading="Loading state"
+          description="Spinner with an optional message."
+          [code]="snippets.loadingState"
+        >
+          <div class="component-display-grid">
+            <app-loading-state />
+            <app-loading-state message="Loading projects..." />
+          </div>
+        </app-demo-block>
 
-    <app-demo-block
-      heading="Confirmation"
-      description="Confirm or cancel a sensitive action. The parent controls it with open."
-      [code]="snippets.confirmation"
-    >
-      <div class="component-display-flex">
-        <app-action-btn title="Delete project" variant="danger" [action]="openDelete" />
-        <app-action-btn title="Discard changes" variant="dark" [action]="openDiscard" />
-        <app-action-btn title="Log out" variant="light" [action]="openLogout" />
-      </div>
-    </app-demo-block>
-  </section>
+        <app-demo-block
+          id="demo-error-state"
+          heading="Error state"
+          description="Error message with an optional retry action."
+          [code]="snippets.errorState"
+        >
+          <div class="component-display-grid">
+            <app-error-state
+              title="Something went wrong"
+              message="We couldn't load your projects. Check your connection and try again."
+              [action]="retry"
+            />
+            <app-error-state
+              title="Custom action"
+              message="The session expired."
+              actionTitle="Sign in again"
+              [action]="nothing"
+            />
+            <app-error-state
+              title="Not found"
+              message="This project doesn't exist or was deleted."
+            />
+          </div>
+        </app-demo-block>
+
+        <app-demo-block
+          id="demo-state-switching"
+          heading="Loading, error and content together"
+          description="Typical pattern to switch between the three states."
+        >
+          <div class="component-display-flex">
+            <app-action-btn title="Simulate load" variant="accent" [action]="simulateLoad" />
+            <app-action-btn title="Simulate error" variant="danger" [action]="simulateError" />
+          </div>
+
+          @if (loading()) {
+            <app-loading-state message="Loading projects..." />
+          } @else if (hasError()) {
+            <app-error-state
+              title="Couldn't load projects"
+              message="Please try again in a few seconds."
+              [action]="retry"
+            />
+          } @else {
+            <app-table [headers]="columns" [rows]="projects" />
+          }
+        </app-demo-block>
+
+        <app-demo-block
+          id="demo-toast"
+          heading="Feedback toast"
+          description="Temporary message triggered from code."
+          [code]="snippets.toast"
+        >
+          <div class="component-display-flex">
+            <app-action-btn title="Toast default" variant="secondary" [action]="showDefault" />
+            <app-action-btn title="Toast short" variant="secondary" [action]="showShort" />
+            <app-action-btn title="Toast long" variant="secondary" [action]="showLong" />
+          </div>
+        </app-demo-block>
+      </section>
+
+      <section class="category" id="demo-overlays">
+        <h2 class="category__title">Overlays</h2>
+
+        <app-demo-block
+          id="demo-modal"
+          heading="Modal"
+          description="Dialog with header, body and footer slots."
+          [code]="snippets.modal"
+        >
+          <app-action-btn title="Open modal" variant="accent" [action]="openModal" />
+        </app-demo-block>
+
+        <app-demo-block
+          id="demo-confirmation"
+          heading="Confirmation"
+          description="Confirm or cancel a sensitive action. The parent controls it with open."
+          [code]="snippets.confirmation"
+        >
+          <div class="component-display-flex">
+            <app-action-btn title="Delete project" variant="danger" [action]="openDelete" />
+            <app-action-btn title="Discard changes" variant="dark" [action]="openDiscard" />
+            <app-action-btn title="Log out" variant="light" [action]="openLogout" />
+          </div>
+        </app-demo-block>
+      </section>
+    </div>
+  </div>
 </div>
 
 <app-modal title="Confirm action" #confirmModal>

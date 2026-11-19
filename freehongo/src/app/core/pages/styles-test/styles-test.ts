@@ -32,6 +32,12 @@ interface Project {
   deadline: string;
 }
 
+interface IndexCategory {
+  id: string;
+  label: string;
+  items: { id: string; label: string }[];
+}
+
 @Component({
   imports: [
     ActionBtn,
@@ -85,6 +91,59 @@ export class StylesTest {
     const start = (this.currentPage() - 1) * this.pageSize();
     return this.allProjects.slice(start, start + this.pageSize());
   });
+
+  index: IndexCategory[] = [
+    {
+      id: 'demo-buttons',
+      label: 'Buttons',
+      items: [
+        { id: 'demo-action-button', label: 'Action button' },
+        { id: 'demo-icon-button', label: 'Icon button' },
+        { id: 'demo-navigation-button', label: 'Navigation button' },
+      ],
+    },
+    {
+      id: 'demo-forms',
+      label: 'Forms',
+      items: [
+        { id: 'demo-toggle', label: 'Toggle' },
+        { id: 'demo-segmented', label: 'Segmented control' },
+        { id: 'demo-pagination', label: 'Pagination' },
+        { id: 'demo-input', label: 'Input' },
+        { id: 'demo-select', label: 'Select' },
+        { id: 'demo-file-upload', label: 'File upload' },
+      ],
+    },
+    {
+      id: 'demo-data-display',
+      label: 'Data display',
+      items: [
+        { id: 'demo-chips', label: 'Chips' },
+        { id: 'demo-list', label: 'List' },
+        { id: 'demo-table', label: 'Table' },
+        { id: 'demo-card', label: 'Card' },
+        { id: 'demo-progress-bar', label: 'Progress bar' },
+      ],
+    },
+    {
+      id: 'demo-feedback',
+      label: 'Feedback',
+      items: [
+        { id: 'demo-loading-state', label: 'Loading state' },
+        { id: 'demo-error-state', label: 'Error state' },
+        { id: 'demo-state-switching', label: 'States together' },
+        { id: 'demo-toast', label: 'Toast' },
+      ],
+    },
+    {
+      id: 'demo-overlays',
+      label: 'Overlays',
+      items: [
+        { id: 'demo-modal', label: 'Modal' },
+        { id: 'demo-confirmation', label: 'Confirmation' },
+      ],
+    },
+  ];
 
   languageOptions: SelectOption[] = [
     { label: 'TypeScript', value: 'typescript' },
@@ -246,4 +305,13 @@ export class StylesTest {
 
   increaseProgress = (): void => this.progress.update((v) => Math.min(100, v + 10));
   decreaseProgress = (): void => this.progress.update((v) => Math.max(0, v - 10));
+
+  scrollTo = (id: string): void => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.getElementById(id)?.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  };
 }
