@@ -19,9 +19,18 @@
 .open__btns {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   justify-items: center;
   gap: 0.75rem;
+}
+
+.btn-full-width {
+  width: 100%;
+  display: none;
+}
+
+.btn-normal {
+  display: grid;
 }
 
 @media (width < 1024px) {
@@ -35,12 +44,15 @@
 
   .open__btns {
     grid-template-columns: 1fr;
-    justify-items: stretch;
+    justify-content: center;
+    padding-inline: 1rem;
   }
 
-  .open__btns > * {
-    width: 100%;
-    max-width: none;
-    box-sizing: border-box;
+  .btn-full-width {
+    display: grid;
+  }
+
+  .btn-normal {
+    display: none;
   }
 }
