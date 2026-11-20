@@ -20,9 +20,9 @@ export const SNIPPETS = {
 
 // variants: primary | secondary | light | dark | accent | danger | success | outline`,
 
-  iconBtn: `<app-icon-btn iconSrc="add_icon_dark.svg" title="" [action]="onClick" />
+  iconBtn: `<app-icon-btn iconSrc="add_icon.svg" title="" [action]="onClick" />
 <app-icon-btn
-  iconSrc="add_icon_dark.svg"
+  iconSrc="add_icon.svg"
   [showText]="true"
   title="Bookmark"
   [fullWidth]="false"
@@ -41,7 +41,7 @@ export const SNIPPETS = {
   navigationBtn: `<app-navigation-btn title="Navigation" />
 <app-navigation-btn
   title="Navigation"
-  icon="add_icon_dark.svg"
+  icon="add_icon.svg"
   [showText]="true"
   [fullWidth]="false"
   [route]="['/']"

@@ -51,7 +51,7 @@
           <div card-header>
             <app-icon-btn
               title="View details"
-              iconSrc="eye_dark.svg"
+              iconSrc="eye.svg"
               [action]="() => goToCharacterDetails(char)"
               class="view-details-btn"
             />
@@ -65,7 +65,7 @@
             @if (editMode) {
               <app-icon-btn
                 title="Remove"
-                iconSrc="/close_dark.svg"
+                iconSrc="/close.svg"
                 [action]="() => requestRemoveCharacter(char)"
                 class="remove-btn"
               />
