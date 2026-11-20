@@ -35,6 +35,7 @@ export class ActionBtn implements OnDestroy {
   busyTitle = input<string>('');
   cooldownSeconds = input<number>(0);
   cooldownLabel = input<string>('Retry in');
+  fullWidth = input<boolean>(false);
   busy = signal<boolean>(false);
   cooldownRemaining = signal(0);
   displayTitle = computed(() => {

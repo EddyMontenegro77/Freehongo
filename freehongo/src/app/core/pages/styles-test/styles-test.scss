@@ -115,6 +115,11 @@ app-demo-block {
   font-size: 1.4rem;
 }
 
+.component-display-full {
+  width: 100%;
+  min-width: 0;
+}
+
 .component-display-flex {
   display: flex;
   flex-direction: row;

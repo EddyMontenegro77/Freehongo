@@ -1,4 +1,9 @@
-<button type="button" (click)="navigate()" [disabled]="disabled() || busy()">
+<button
+  type="button"
+  [class.full-width]="fullWidth()"
+  (click)="navigate()"
+  [disabled]="disabled() || busy()"
+>
   @if (icon()) {
     <span class="icon" aria-hidden="true" [style.--icon-url]="'url(' + icon() + ')'"></span>
   }

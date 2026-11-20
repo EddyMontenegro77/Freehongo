@@ -18,6 +18,7 @@ export class NavigationBtn {
 
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);
+  fullWidth = input<boolean>(false);
 
   async navigate(): Promise<void> {
     if (this.disabled() || this.busy()) return;

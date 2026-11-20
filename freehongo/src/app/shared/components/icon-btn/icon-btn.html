@@ -1,4 +1,9 @@
-<button type="button" (click)="handleClick()" [disabled]="disabled() || busy()">
+<button
+  type="button"
+  [class.full-width]="fullWidth()"
+  (click)="handleClick()"
+  [disabled]="disabled() || busy()"
+>
   <span
     class="icon"
     aria-hidden="true"

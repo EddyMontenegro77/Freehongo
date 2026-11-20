@@ -1,6 +1,22 @@
 export const SNIPPETS = {
-  actionBtn: `<app-action-btn title="Accent" variant="accent" [action]="onClick" />
-<app-action-btn title="Disabled" variant="success" [disabled]="true" [action]="onClick" />
+  actionBtn: `
+<app-action-btn
+  title="Accent"
+  variant="accent"
+  [action]="onClick"
+/>
+<app-action-btn
+  title="Disabled"
+  variant="success"
+  [disabled]="true"
+  [action]="onClick"
+/>
+<app-action-btn
+  title="Full Width"
+  variant="primary"
+  [fullWidth]="true"
+  [action]="onClick"
+/>
 
 // variants: primary | secondary | light | dark | accent | danger | success | outline`,
 
@@ -9,6 +25,7 @@ export const SNIPPETS = {
   iconSrc="add_icon_dark.svg"
   [showText]="true"
   title="Bookmark"
+  [fullWidth]="false"
   [action]="onClick"
 />
 
@@ -26,6 +43,7 @@ export const SNIPPETS = {
   title="Navigation"
   icon="add_icon_dark.svg"
   [showText]="true"
+  [fullWidth]="false"
   [route]="['/']"
 />`,
 

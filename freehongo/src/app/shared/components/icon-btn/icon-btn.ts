@@ -15,6 +15,7 @@ export class IconBtn {
   iconSrc = input.required<string>();
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);
+  fullWidth = input<boolean>(false);
 
   async handleClick(): Promise<void> {
     if (this.disabled() || this.busy()) return;

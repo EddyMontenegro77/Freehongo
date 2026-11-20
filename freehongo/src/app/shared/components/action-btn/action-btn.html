@@ -2,6 +2,7 @@
   (click)="handleClick()"
   [disabled]="disabled() || busy() || cooldownRemaining() > 0"
   [class]="variant()"
+  [class.full-width]="fullWidth()"
   [class.disabled]="disabled() || busy() || cooldownRemaining() > 0"
   [type]="type()"
 >

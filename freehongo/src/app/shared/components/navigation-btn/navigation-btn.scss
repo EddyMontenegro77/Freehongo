@@ -73,6 +73,10 @@ button {
   line-height: 1.2;
 }
 
+.full-width {
+  width: 100%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   button {
     transition: none;
