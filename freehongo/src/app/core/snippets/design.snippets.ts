@@ -45,7 +45,13 @@ export const SNIPPETS = {
   [showText]="true"
   [fullWidth]="false"
   [route]="['/']"
-/>`,
+/>
+
+// Override the color or size from the outside:
+// app-navigation-btn {
+//   --icon-btn-color: var(--color-accent);
+//   --icon-btn-size: 2rem;
+// }`,
 
   toggle: `<app-toggle-button
   label="Toggle"

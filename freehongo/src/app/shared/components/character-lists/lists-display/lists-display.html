@@ -1,15 +1,39 @@
 <div class="lists-container" [class.lists-container--compact]="compact()">
   <header class="lists-header">
-    <div>
-      <p class="lists-eyebrow">Study collection</p>
-      <h2>My lists</h2>
+    <div class="header-items">
+      @if (mode() === 'quiz') {
+        <h1 class="list-display-title">Quizzes</h1>
+      } @else {
+        <h1 class="list-display-title">Lists</h1>
+      }
     </div>
     <div class="lists-header-actions">
+      @if (mode() !== 'select') {
+        <app-segmented-control
+          class="multiple-large-screen"
+          label="Source"
+          [options]="listPublicOptions"
+          [value]="listPublicOptionSelected.value ?? 'private'"
+          (valueChange)="listPublicOptionSelected.setValue($event)"
+        />
+        <app-select
+          class="multiple-small-screen"
+          label="Source"
+          [options]="listPublicOptions"
+          [value]="listPublicOptionSelected.value ?? 'private'"
+          (valueChange)="listPublicOptionSelected.setValue($event)"
+        />
+      }
       @if (auth.isAuth()) {
-        <app-action-btn title="Sync lists" [action]="trySync" />
+        <app-icon-btn title="Sync lists" iconSrc="sync.svg" [showText]="true" [action]="trySync" />
       }
       @if (!creatingList()) {
-        <app-action-btn title="Create a new list" [action]="toggleCreatingList" variant="accent" />
+        <app-icon-btn
+          title="New list"
+          [action]="toggleCreatingList"
+          iconSrc="create_list_icon.svg"
+          [showText]="true"
+        />
       }
     </div>
   </header>
@@ -23,7 +47,8 @@
       (valueChange)="listName.setValue($event)"
     />
     <app-segmented-control
-      label=""
+      class="multiple-large-screen"
+      label="Character Options"
       [options]="characterOptions"
       [value]="characterType.value ?? 'any'"
       (valueChange)="characterType.setValue($event)"
@@ -52,8 +77,8 @@
         (checkedChange)="updatePublic($event)"
       />
       <div class="create-actions">
-        <app-action-btn title="Create" [action]="createList" variant="success" />
         <app-action-btn title="Cancel" [action]="toggleCreatingList" variant="danger" />
+        <app-action-btn title="Create" [action]="createList" variant="success" />
       </div>
     </div>
   }
@@ -62,15 +87,74 @@
     <app-error-state title="List action failed" [message]="error" />
   }
 
-  @if (isLoading()) {
+  @if (isPublicView()) {
+    @if (publicListsFacade.isLoading() && !publicListsFacade.lists().length) {
+      <app-loading-state message="Loading lists..." />
+    } @else if (publicListsFacade.loadError(); as error) {
+      <app-error-state title="Could not load lists" [message]="error" [action]="retryPublic" />
+    } @else {
+      <div class="lists-grid">
+        @for (list of publicListsFacade.lists(); track list.listId) {
+          <app-card class="list-display">
+            <div card-header class="list-display-header">
+              <div>
+                <h3>{{ list.name }}</h3>
+                <div class="list-tags">
+                  <span class="list-type">{{ list.listType }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div card-body class="under-header">
+              <span>Created {{ list.createdAt | date: 'dd/MM/yyyy' }}</span>
+              @if (list.updatedAt) {
+                <span>Updated {{ list.updatedAt | date: 'dd/MM/yyyy' }}</span>
+              }
+            </div>
+
+            <div card-body class="character-preview">
+              @for (char of list.charUnicodes; track char) {
+                {{ char | unicodeCharacter }}
+              }
+            </div>
+
+            <div card-footer class="list-actions">
+              @if (mode() === 'select') {
+                <app-icon-btn
+                  title="Add character"
+                  iconSrc="/add_icon.svg"
+                  [action]="() => listSelected.emit(list.listId)"
+                />
+              } @else if (mode() === 'quiz') {
+                <app-action-btn title="Take quiz" [action]="() => quizSelected.emit(quizSelection(list.listId))" />
+              }
+            </div>
+          </app-card>
+        } @empty {
+          <div class="empty-state">
+            <p>Lists not found</p>
+          </div>
+        }
+      </div>
+
+      @if (publicListsFacade.hasMore()) {
+        <app-action-btn
+          title="Load more"
+          variant="outline"
+          [action]="loadMorePublic"
+          [disabled]="publicListsFacade.isLoading()"
+        />
+      }
+    }
+  } @else if (isLoading()) {
     <app-loading-state message="Loading lists..." />
   } @else if (loadError(); as error) {
     <app-error-state title="Could not load lists" [message]="error" [action]="fetchUserLists" />
   } @else {
     <div class="lists-grid">
       @for (list of filteredLists(); track list.listId) {
-        <div class="list-display">
-          <div class="list-display-header">
+        <app-card class="list-display">
+          <div card-header class="list-display-header">
             <div>
               <h3>{{ list.name }}</h3>
               <div class="list-tags">
@@ -78,22 +162,22 @@
                 <span class="list-visibility" [class.list-visibility--public]="list.isPublic">
                   {{ list.isPublic ? 'Public' : 'Private' }}
                 </span>
-                <span class="sync-status" [attr.data-status]="list.syncStatus"
-                  >Sync: {{ list.syncStatus }}</span
-                >
+                <span class="sync-status" [attr.data-status]="list.syncStatus">
+                  Sync: {{ list.syncStatus }}
+                </span>
               </div>
             </div>
             <span class="character-count">{{ list.characters.length }} chars</span>
           </div>
 
-          <div class="under-header">
+          <div card-body class="under-header">
             <span>Created {{ list.createdAt | date: 'dd/MM/yyyy' }}</span>
             @if (list.updatedAt) {
               <span>Updated {{ list.updatedAt | date: 'dd/MM/yyyy' }}</span>
             }
           </div>
 
-          <div class="character-preview">
+          <div card-body class="character-preview">
             @for (char of list.characters.slice(0, 5); track char) {
               {{ char | unicodeCharacter }}
             }
@@ -102,7 +186,7 @@
             }
           </div>
 
-          <div class="list-actions">
+          <div card-footer class="list-actions">
             @if (mode() === 'select') {
               <app-icon-btn
                 title="Add character"
@@ -112,7 +196,11 @@
             } @else if (mode() === 'quiz') {
               <app-action-btn title="Take quiz" [action]="() => quizSelected.emit(list.listId)" />
             } @else {
-              <app-navigation-btn title="Edit" icon="" [route]="['lists', 'edit', list.listId]" />
+              <app-navigation-btn
+                title="Edit"
+                icon="edit.svg"
+                [route]="['lists', 'edit', list.listId]"
+              />
               <app-action-btn
                 title="Delete"
                 [action]="() => requestDeleteList(list.listId)"
@@ -120,7 +208,7 @@
               />
             }
           </div>
-        </div>
+        </app-card>
       } @empty {
         <div class="empty-state">
           <p>Lists not found</p>

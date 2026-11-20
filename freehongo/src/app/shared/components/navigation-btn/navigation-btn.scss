@@ -1,7 +1,7 @@
 button {
   appearance: none;
   border: none;
-
+  color: var(--icon-btn-color, inherit);
   display: inline-flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -15,7 +15,6 @@ button {
   border-radius: var(--radius-sm);
 
   background-color: color-mix(in srgb, var(--color-secondary) 0%, transparent);
-  color: var(--text-primary);
   text-decoration: underline;
   text-decoration-color: var(--color-accent);
   text-underline-offset: 7px;
