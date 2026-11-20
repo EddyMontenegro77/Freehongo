@@ -48,6 +48,12 @@
     border-right: none;
   }
 
+  &:focus-visible:not(:disabled) {
+    outline: 3px solid var(--color-accent);
+    outline-offset: -3px;
+    z-index: 1;
+  }
+
   &:hover:not(:disabled):not(.segmented__option--active) {
     background: color-mix(in srgb, var(--color-accent) 80%, transparent);
     color: var(--text-primary);
@@ -55,6 +61,10 @@
 
   &:active:not(:disabled) {
     transform: translateY(1px);
+  }
+
+  &.segmented__option--active:focus-visible:not(:disabled) {
+    outline-color: #000;
   }
 }
 
