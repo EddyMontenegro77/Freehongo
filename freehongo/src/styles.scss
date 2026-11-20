@@ -6,7 +6,7 @@
   --color-pampas: #f2f0eb;
   --color-danger: #c65d5d;
   --color-success: #56866d;
-  --color-disabled: #414653;
+  --color-disabled: #a2a49b;
 
   --color-accent: var(--color-bittersweet);
   --text-accent: #252a34;
@@ -21,6 +21,7 @@
 
   --text-primary: var(--color-charade);
   --text-secondary: var(--color-pampas);
+  --text-input-default: var(--color-accent);
 
   --color-background: var(--color-primary);
 
@@ -35,6 +36,7 @@
 
   --text-primary: var(--color-pampas);
   --text-secondary: var(--color-charade);
+  --text-input-default: var(--color-charade);
 
   --color-background: var(--color-primary);
 
