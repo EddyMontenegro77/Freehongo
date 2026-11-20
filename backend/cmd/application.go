@@ -57,7 +57,7 @@ func NewApplication(config Config) (*Application, error) {
 	kanaRepository := japaneseRepository.NewKanaRepository(database)
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
 	japaneseService := japaneseServices.NewJapaneseService(kanaRepository, kanjiRepository)
-	listService		:= listServices.NewListService(txm)
+	listService		:= listServices.NewListService(txm, config.OfficialUserId)
 	quizService		:= quizServices.NewQuizService(txm)
 
 	router := gin.Default()

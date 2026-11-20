@@ -28,7 +28,9 @@ type ListService struct {
 	systemUserID string
 }
 
-func NewListService(txm *db.TxManager) *ListService { return &ListService{txm: txm} }
+func NewListService(txm *db.TxManager, systemUserID string) *ListService {
+	return &ListService{txm: txm, systemUserID: systemUserID}
+}
 
 func validateListFields(name, listType string) (string, string, error) {
 	name = strings.TrimSpace(name)
