@@ -44,7 +44,7 @@
     background-color var(--transition-fast);
 
   &:focus {
-    outline: none;
+    outline: 3px solid var(--color-accent);
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 80%, transparent);
   }
@@ -79,6 +79,9 @@
 .field__control option {
   padding: 0.6rem 0.8rem;
   color: var(--text-secondary);
+  &:focus {
+    outline: 3px solid var(--color-accent);
+  }
 }
 
 .field__control option:hover {
@@ -89,6 +92,10 @@
 .field__control option:checked {
   background: var(--color-accent);
   color: var(--text-accent);
+
+  &:focus {
+    outline: 3px solid var(--color-primary);
+  }
 }
 
 .field__control option:disabled {

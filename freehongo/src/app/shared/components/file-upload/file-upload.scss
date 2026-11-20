@@ -31,6 +31,10 @@
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast);
+
+  &:focus {
+    outline: 3px solid var(--color-accent);
+  }
 }
 
 .file-upload__dropzone:hover,
@@ -113,4 +117,8 @@
   background: var(--color-accent);
   color: var(--text-accent);
   cursor: pointer;
+
+  &:focus {
+    outline: 3px solid var(--color-secondary);
+  }
 }
