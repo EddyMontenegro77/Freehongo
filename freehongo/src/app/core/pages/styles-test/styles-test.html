@@ -43,6 +43,7 @@
             <app-action-btn title="Accent" variant="accent" [action]="nothing" />
             <app-action-btn title="Danger" variant="danger" [action]="nothing" />
             <app-action-btn title="Success" variant="success" [action]="nothing" />
+            <app-action-btn title="Outline" variant="outline" [action]="nothing" />
             <app-action-btn
               title="Disabled"
               variant="success"
@@ -214,6 +215,14 @@
               helperText="Select a date and time"
             />
             <app-input
+              label="Address"
+              type="text"
+              variant="outline"
+              [required]="true"
+              placeholder="742 Evergreen Terrace, Springfield"
+              helperText="Enter your address"
+            />
+            <app-input
               label="Disabled"
               type="text"
               placeholder="Ex. John Smith"
@@ -275,7 +284,7 @@
           <div class="component-display-flex">
             <app-chip>Angular</app-chip>
             <app-chip>TypeScript</app-chip>
-            <app-chip>Node.js</app-chip>
+            <app-chip>Go</app-chip>
             <app-chip>PostgreSQL</app-chip>
           </div>
 
@@ -283,9 +292,8 @@
             <app-chip-group title="Technologies (wrap)" layout="wrap">
               <app-chip>Angular</app-chip>
               <app-chip>TypeScript</app-chip>
-              <app-chip>Node.js</app-chip>
+              <app-chip>Go</app-chip>
               <app-chip>PostgreSQL</app-chip>
-              <app-chip>Docker</app-chip>
               <app-chip>Git</app-chip>
             </app-chip-group>
 

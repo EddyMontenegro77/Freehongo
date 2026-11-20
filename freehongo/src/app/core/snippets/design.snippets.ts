@@ -2,7 +2,7 @@ export const SNIPPETS = {
   actionBtn: `<app-action-btn title="Accent" variant="accent" [action]="onClick" />
 <app-action-btn title="Disabled" variant="success" [disabled]="true" [action]="onClick" />
 
-// variants: primary | secondary | light | dark | accent | danger | success`,
+// variants: primary | secondary | light | dark | accent | danger | success | outline`,
 
   iconBtn: `<app-icon-btn iconSrc="add_icon_dark.svg" title="" [action]="onClick" />
 <app-icon-btn
@@ -79,13 +79,15 @@ pagedItems = computed(() => {
   input: `<app-input
   label="Email Address"
   type="email"
+  variant="default"
   placeholder="user@example.com"
   helperText="Enter a valid email address"
   autocomplete="email"
   [required]="true"
 />
 
-// types: text | password | email | number | search | tel | url | date | time | datetime-local`,
+// types: text | password | email | number | search | tel | url | date | time | datetime-local
+// variants: disabled`,
 
   fileUpload: `<app-file-upload
   label="Upload your files"
