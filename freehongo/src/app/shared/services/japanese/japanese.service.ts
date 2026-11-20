@@ -109,7 +109,6 @@ export class JapaneseService {
    */
   getKanaWriting(unicode: string): Observable<KanaWriting> {
     return this.http.get<KanaWritingData>(`${this.apiUrl}/kana/writing/${unicode}`).pipe(
-      // Convert raw Point[][] from API into Stroke[] for canvas rendering
       map((data: KanaWritingData) => ({
         ...data,
         strokes: data.strokes.map((s) => Stroke.fromStrokeData(s)),
@@ -123,7 +122,6 @@ export class JapaneseService {
    */
   getKanjiWriting(unicode: string): Observable<KanjiWriting> {
     return this.http.get<KanjiWritingData>(`${this.apiUrl}/kanji/writing/${unicode}`).pipe(
-      // Convert raw Point[][] from API into Stroke[] for canvas rendering
       map((data: KanjiWritingData) => ({
         ...data,
         strokes: data.strokes.map((s) => Stroke.fromStrokeData(s)),
@@ -132,9 +130,6 @@ export class JapaneseService {
     );
   }
 
-  /**
-   * Builds HttpParams while skipping empty values.
-   */
   private buildHttpParams(
     params: ReadonlyArray<readonly [string, string | number | undefined | null]>,
   ): HttpParams {

@@ -5,6 +5,7 @@ import { CharacterType } from '../../../../shared/models/japanese/character.type
 import { Character } from '../../../../shared/models/japanese/character.model';
 import { LoadingState } from '../../../../shared/components/app-state/loading-state/loading-state';
 import { ErrorState } from '../../../../shared/components/app-state/error-state/error-state';
+import { Stroke } from '../../../../shared/models/writing/stroke.model';
 
 @Component({
   selector: 'app-character-info',
@@ -22,6 +23,7 @@ export class CharacterInfo {
   expectedUrl = signal<string>('');
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
+  strokes = signal<Stroke[]>([]);
 
   constructor(private characterInfoFacade: CharacterInfoFacadeService) {}
 
@@ -43,6 +45,7 @@ export class CharacterInfo {
           this.type(),
         );
         this.expectedUrl.set(expectedCharacterUrl);
+        this.loadStrokes();
       },
       error: (err: unknown) => {
         console.error(err);
@@ -53,4 +56,11 @@ export class CharacterInfo {
       },
     });
   };
+
+  private loadStrokes(): void {
+    this.characterInfoFacade.loadStrokes(this.unicode(), this.type()).subscribe({
+      next: (strokes) => this.strokes.set(strokes),
+      error: () => this.strokes.set([]),
+    });
+  }
 }

@@ -7,6 +7,7 @@ import {
   KanaCharacter,
   KanjiCharacter,
 } from '../../../shared/models/japanese/character.model';
+import { Stroke } from '../../../shared/models/writing/stroke.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,5 +41,14 @@ export class CharacterInfoFacadeService {
   loadExpectedUrl(unicode: string, type: CharacterType): string {
     if (type == 'kanji') return this.japaneseService.getKanjiSVG(unicode);
     else return this.japaneseService.getKanaSVG(unicode);
+  }
+
+  loadStrokes(unicode: string, type: CharacterType): Observable<Stroke[]> {
+    const writing$ =
+      type === 'kana'
+        ? this.japaneseService.getKanaWriting(unicode)
+        : this.japaneseService.getKanjiWriting(unicode);
+
+    return writing$.pipe(map((writing) => writing.strokes));
   }
 }
