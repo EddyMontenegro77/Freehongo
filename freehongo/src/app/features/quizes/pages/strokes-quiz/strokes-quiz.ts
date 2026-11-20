@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { WritingPractice } from '../../../writing/components/writing-practice/writing-practice';
 import { ListService } from '../../../lists/services/list.service';
+import { PublicListsFacadeService } from '../../../lists/services/public-lists.facade.service';
 import { QuizEvaluationStorageService } from '../../services/quiz-evaluation-storage.service';
 import { CharacterResult, fromValidation, notAttempted } from '../../utils/stroke-quiz-results';
 
@@ -25,6 +26,7 @@ import { CharacterType } from '../../../../shared/models/japanese/character.type
 import { getCharacterTypeFromUnicode } from '../../../../shared/models/japanese/character.helper';
 import { shuffleCharacters } from '../../../../shared/models/lists/list.model';
 import { expandUuid } from '../../../../shared/utils/urls.utils';
+import { ListSource } from '../../../../shared/models/lists/list.model';
 import { nowIso } from '../../../../shared/utils/date.utils';
 import { UnicodeCharacterPipe } from '../../../../shared/pipes/unicode.pipe';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
@@ -51,6 +53,7 @@ export class StrokesQuiz {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly listService = inject(ListService);
+  private readonly publicListsFacade = inject(PublicListsFacadeService, { optional: true });
   private readonly evaluationStorage = inject(QuizEvaluationStorageService);
 
   readonly mode = signal<QuizMode>('practice');
@@ -97,6 +100,7 @@ export class StrokesQuiz {
     const shortListId = this.route.snapshot.paramMap.get('listId');
     const order = this.route.snapshot.queryParamMap.get('order');
     const quizType = this.route.snapshot.queryParamMap.get('type');
+    const source = this.readSource(this.route.snapshot.queryParamMap.get('source'));
 
     if (mode !== 'practice' && mode !== 'evaluation') {
       console.warn('mode inválido', mode);
@@ -117,7 +121,7 @@ export class StrokesQuiz {
       return;
     }
 
-    const list = await this.listService.getListById(listId);
+    const list = await this.loadList(listId, source);
 
     if (!list || list.characters.length < 2) {
       console.warn('lista inválida o con menos de 2 caracteres', list);
@@ -128,6 +132,16 @@ export class StrokesQuiz {
     this.sourceCharacters = list.characters;
     this.shuffle = order === 'random';
     this.startSession();
+  }
+
+  private readSource(value: string | null): ListSource {
+    return value === 'public' || value === 'official' ? value : 'private';
+  }
+
+  private loadList(listId: string, source: ListSource) {
+    if (source === 'private') return this.listService.getListById(listId);
+    if (!this.publicListsFacade) return Promise.resolve(undefined);
+    return this.publicListsFacade.getListById(source, listId);
   }
 
   previousCharacter = (): void => {

@@ -14,6 +14,7 @@ import {
 } from '../../../../shared/models/quizes/quizes.interface';
 import { CharacterQuizFacade } from '../../services/character-quiz.facade.service';
 import { expandUuid } from '../../../../shared/utils/urls.utils';
+import { ListSource } from '../../../../shared/models/lists/list.model';
 
 @Component({
   selector: 'app-character-quiz',
@@ -71,11 +72,21 @@ export class CharacterQuiz {
   private readConfig(): CharacterQuizConfig {
     return {
       listId: this.readListId(this.route.snapshot.paramMap.get('listId')),
+      ...this.readSourceConfig(this.route.snapshot.queryParamMap.get('source')),
       mode: this.readMode(this.route.snapshot.paramMap.get('mode')),
       characterQuizType: this.readQuizType(this.route.snapshot.queryParamMap.get('type')),
       answerType: this.readAnswerType(this.route.snapshot.queryParamMap.get('answerType')),
       order: this.readOrder(this.route.snapshot.queryParamMap.get('order')),
     };
+  }
+
+  private readSource(value: string | null): ListSource {
+    return value === 'public' || value === 'official' ? value : 'private';
+  }
+
+  private readSourceConfig(value: string | null): { source?: ListSource } {
+    const source = this.readSource(value);
+    return source === 'private' ? {} : { source };
   }
 
   private readListId(value: string | null): string {

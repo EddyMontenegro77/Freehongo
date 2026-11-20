@@ -18,15 +18,13 @@ import { ListsFacade } from '../../lists/services/lists.facade.service';
 import { QuizQuestionService } from './quiz-question.service';
 import { QuizEvaluationStorageService } from './quiz-evaluation-storage.service';
 import { newId } from '../../../shared/utils/uuid.utils';
+import { ListSource } from '../../../shared/models/lists/list.model';
+import { PublicListsFacadeService } from '../../lists/services/public-lists.facade.service';
 
 const MIN_CHARACTERS_AMOUNT = 2;
 const SUPPORTED_ANSWER_TYPES: readonly string[] = ['multiple', 'open', 'strokeWriting'];
 
 type AnswerResult = ChoiceAnswerResult | WritingAnswerResult;
-
-// ─────────────────────────────────────────────────────────────
-// Pure helpers
-// ─────────────────────────────────────────────────────────────
 
 function assertSupportedAnswerType(config: CharacterQuizConfig): void {
   if (!SUPPORTED_ANSWER_TYPES.includes(config.answerType)) {
@@ -44,17 +42,12 @@ function isAnswerCorrect(answer: string, question: CharacterQuizQuestion): boole
   return question.acceptedAnswers.some((accepted) => answersMatch(answer, accepted));
 }
 
-/** Compares an answer using the format expected by the question. */
 function answersMatch(answer: string, expectedAnswer: string): boolean {
   return (
     normalizeAnswer(answer, expectedAnswer) === normalizeAnswer(expectedAnswer, expectedAnswer)
   );
 }
 
-/**
- * Normalizes Japanese readings to hiragana so kana and romaji answers match.
- * Other answers, such as English meanings or kanji, remain plain text.
- */
 function normalizeAnswer(answer: string, expectedAnswer: string): string {
   const normalized = katakanaToHiragana(answer.trim().normalize('NFKC').toLocaleLowerCase());
 
@@ -81,13 +74,10 @@ function isJapaneseReading(value: string): boolean {
   return /^[\u3040-\u30ffー・.\s]+$/u.test(value);
 }
 
-// ─────────────────────────────────────────────────────────────
-// Facade
-// ─────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class CharacterQuizFacade {
   private readonly listsFacade = inject(ListsFacade);
+  private readonly publicListsFacade = inject(PublicListsFacadeService, { optional: true });
   private readonly japaneseService = inject(JapaneseService);
   private readonly questionService = inject(QuizQuestionService);
   private readonly evaluationStorage = inject(QuizEvaluationStorageService);
@@ -123,7 +113,7 @@ export class CharacterQuizFacade {
     try {
       assertSupportedAnswerType(config);
 
-      const list = await this.listsFacade.getListById(config.listId);
+      const list = await this.loadList(config.listId, config.source ?? 'private');
 
       if (!list || list.characters.length === 0) {
         this.emptyList.set(true);
@@ -144,6 +134,12 @@ export class CharacterQuizFacade {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  private loadList(listId: string, source: ListSource) {
+    if (source === 'private') return this.listsFacade.getListById(listId);
+    if (!this.publicListsFacade) throw new Error('Public list service is unavailable.');
+    return this.publicListsFacade.getListById(source, listId);
   }
 
   /** Records a multiple-choice or open answer, comparing it after normalizing its format. */

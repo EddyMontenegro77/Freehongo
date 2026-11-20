@@ -1,4 +1,5 @@
 import { StrokeValidationResult } from '../../../features/writing/models/stroke-validation-result.interface';
+import { ListSource } from '../lists/list.model';
 
 export type CharacterQuizType =
   | 'characterToReading'
@@ -24,6 +25,7 @@ export interface QuizSettings {
 
 export interface CharacterQuizConfig extends QuizSettings {
   listId: string;
+  source?: ListSource;
 }
 
 export interface CharacterQuizQuestion {
