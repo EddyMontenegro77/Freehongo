@@ -51,6 +51,7 @@ export class CharacterPicker {
   private readonly pageSize = 20;
 
   characters = signal<CharacterPickerItem[]>([]);
+  totalCount = signal<number>(0);
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
 
@@ -94,20 +95,21 @@ export class CharacterPicker {
   sortBy = new FormControl<string>('literal');
   sortByOptions: SegmentedOption<string>[] = [
     { label: 'Literal', value: 'literal' },
-    { label: 'Frequency', value: 'frequency_of_use' },
+    { label: 'Usage', value: 'frequency_of_use' },
     { label: 'JLPT', value: 'jlpt_level' },
     { label: 'Grade', value: 'grade_level' },
   ];
   jlptLevelOptions: SegmentedOption<string>[] = [
+    { label: 'Any', value: '' },
     { label: '1', value: '1' },
     { label: '2', value: '2' },
     { label: '3', value: '3' },
     { label: '4', value: '4' },
   ];
-  gradeLevelOptions = Array.from({ length: 10 }, (_, index) => {
-    const level = index + 1;
-    return { label: `g${level}`, value: `g${level}` };
-  });
+  gradeLevelOptions = [
+    { label: 'Any', value: '' },
+    ...Array.from({ length: 10 }, (_, i) => ({ label: `g${i + 1}`, value: `g${i + 1}` })),
+  ];
   kanjiReading = new FormControl<string>('');
   kanjiMeaning = new FormControl<string>('');
   kanjiNanori = new FormControl<string>('');
@@ -154,12 +156,14 @@ export class CharacterPicker {
     this.characterPickerFacadeService.loadCharacters(this.buildFilters()).subscribe({
       next: (result: CharacterPickerPageResult) => {
         this.characters.set(result.items);
+        this.totalCount.set(result.totalCount);
         this.totalPages = Math.max(1, Math.ceil(result.totalCount / this.pageSize));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error(err);
         this.characters.set([]);
+        this.totalCount.set(0);
         this.loadError.set('Could not load characters.');
         this.isLoading.set(false);
       },
@@ -195,5 +199,4 @@ export class CharacterPicker {
       page: this.currentPage,
     };
   }
-
 }

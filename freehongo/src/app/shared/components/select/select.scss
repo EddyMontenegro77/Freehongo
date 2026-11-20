@@ -19,7 +19,7 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.92rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
@@ -36,7 +36,7 @@
   border-radius: var(--radius-sm);
   background: var(--color-secondary);
   color: var(--text-secondary);
-  font: inherit;
+  font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-sm);
   transition:
     border-color var(--transition-fast),
@@ -73,6 +73,7 @@
   border-radius: var(--radius-sm);
   background: var(--color-secondary);
   box-shadow: var(--shadow);
+  font-weight: var(--font-weight-semibold);
 }
 
 .field__control option {

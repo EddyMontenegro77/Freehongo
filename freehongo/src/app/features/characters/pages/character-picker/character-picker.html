@@ -1,6 +1,13 @@
 <div class="picker__wrapper">
+  <header class="picker__header">
+    <h1 class="picker__title">Characters</h1>
+    @if (!isLoading() && !loadError()) {
+      <p class="picker__count">{{ totalCount() }} {{ characterType.value }}</p>
+    }
+  </header>
+
   <form class="picker__form">
-    <div class="picker__row picker__row--four">
+    <div class="form-input">
       <app-input
         label="Unicode"
         type="text"
@@ -17,6 +24,49 @@
         (valueChange)="literal.setValue($event)"
       />
 
+      @if (characterType.value === 'kana') {
+        <app-input
+          label="Reading"
+          type="text"
+          placeholder="ga"
+          [value]="kanaReading.value ?? ''"
+          (valueChange)="kanaReading.setValue($event)"
+        />
+      } @else {
+        <app-input
+          label="Reading"
+          type="text"
+          placeholder="にち"
+          [value]="kanjiReading.value ?? ''"
+          (valueChange)="kanjiReading.setValue($event)"
+        />
+
+        <app-input
+          label="Meaning"
+          type="text"
+          placeholder="sun"
+          [value]="kanjiMeaning.value ?? ''"
+          (valueChange)="kanjiMeaning.setValue($event)"
+        />
+
+        <app-input
+          label="Radical"
+          type="text"
+          placeholder="water"
+          [value]="radicalName.value ?? ''"
+          (valueChange)="radicalName.setValue($event)"
+        />
+
+        <app-input
+          label="Nanori"
+          type="text"
+          placeholder="hi"
+          [value]="kanjiNanori.value ?? ''"
+          (valueChange)="kanjiNanori.setValue($event)"
+        />
+      }
+    </div>
+    <div class="form-multiple" [class.form-multiple--kana]="characterType.value === 'kana'">
       <app-segmented-control
         label="Type"
         [options]="characterOptions"
@@ -33,89 +83,58 @@
         />
       } @else {
         <app-segmented-control
+          class="segmented-large-screen"
           label="Sort"
           [options]="sortByOptions"
           [value]="sortBy.value ?? 'literal'"
           (valueChange)="sortBy.setValue($event)"
         />
-      }
-    </div>
-
-    <div class="picker__row picker__row--four">
-      @if (characterType.value === 'kana') {
-        <app-input
-          label="Reading"
-          type="text"
-          placeholder="ga"
-          [value]="kanaReading.value ?? ''"
-          (valueChange)="kanaReading.setValue($event)"
+        <app-select
+          class="select-small-screen"
+          label="Sort"
+          [options]="sortByOptions"
+          [value]="sortBy.value ?? 'literal'"
+          (valueChange)="sortBy.setValue($event)"
         />
-      } @else {
         <app-segmented-control
-          class="small-segmented"
+          class="segmented-large-screen"
           label="JLPT"
           [options]="jlptLevelOptions"
           [value]="jlptLevel.value ?? ''"
           (valueChange)="jlptLevel.setValue($event)"
         />
-
         <app-select
-          class="small-selection"
+          class="select-small-screen"
+          label="JLPT"
+          [options]="jlptLevelOptions"
+          [value]="jlptLevel.value ?? ''"
+          (valueChange)="jlptLevel.setValue($event)"
+        />
+        <app-select
           label="Grade"
           [options]="gradeLevelOptions"
           [value]="gradeLevel.value ?? ''"
           (valueChange)="gradeLevel.setValue($event)"
         />
-
-        <app-input
-          label="Reading"
-          type="text"
-          placeholder="にち"
-          [value]="kanjiReading.value ?? ''"
-          (valueChange)="kanjiReading.setValue($event)"
-        />
-
-        <app-input
-          label="Meaning"
-          type="text"
-          placeholder="sun"
-          [value]="kanjiMeaning.value ?? ''"
-          (valueChange)="kanjiMeaning.setValue($event)"
-        />
       }
     </div>
-
-    @if (characterType.value !== 'kana') {
-      <div class="picker__row picker__row--three">
-        <app-input
-          label="Radical"
-          type="text"
-          placeholder="water"
-          [value]="radicalName.value ?? ''"
-          (valueChange)="radicalName.setValue($event)"
-        />
-
-        <app-input
-          label="Nanori"
-          type="text"
-          placeholder="hi"
-          [value]="kanjiNanori.value ?? ''"
-          (valueChange)="kanjiNanori.setValue($event)"
-        />
-      </div>
-    }
   </form>
 
   <div class="picker__actions">
-    <app-action-btn title="Reset filters" [action]="resetFilters" [disabled]="isLoading()" />
+    <app-action-btn
+      title="Reset filters"
+      variant="outline"
+      [action]="resetFilters"
+      [disabled]="isLoading()"
+    />
     <app-action-btn
       title="Filter"
+      variant="secondary"
       [action]="applyFilters"
       [disabled]="isLoading()"
-      variant="light"
     />
   </div>
-
+  <hr />
   <section class="character__results">
     @if (isLoading()) {
       <div class="character__results-state">
@@ -132,7 +151,7 @@
       </div>
     } @else {
       <div class="character__cards__grid">
-        @for (character of characters(); track $index) {
+        @for (character of characters(); track character.unicode) {
           <div class="character__card-item">
             <app-character-card
               [unicode]="character.unicode"
@@ -146,6 +165,11 @@
               [action]="listPopup.openlistPopupModal"
               iconSrc="add_icon_dark.svg"
             />
+          </div>
+        } @empty {
+          <div class="character__empty">
+            <p>No characters match these filters.</p>
+            <app-action-btn title="Reset filters" variant="outline" [action]="resetFilters" />
           </div>
         }
       </div>
