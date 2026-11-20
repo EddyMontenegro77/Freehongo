@@ -33,10 +33,7 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0.8rem 0.95rem;
-  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--color-secondary);
-  color: var(--text-secondary);
   font: inherit;
   box-shadow: var(--shadow-sm);
   transition:
@@ -71,6 +68,26 @@
   }
 }
 
+.default {
+  border: none;
+  color: var(--text-input-default);
+  background: var(--color-secondary);
+  &input::placeholder {
+    color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+    opacity: 1;
+  }
+}
+
+.outline {
+  border: 1px solid var(--color-secondary);
+  color: var(--text-primary);
+  background-color: color-mix(in srgb, var(--color-disabled) 10%, transparent);
+
+  &input::placeholder {
+    color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  }
+}
+
 .field__helper {
   font-size: 0.82rem;
   color: var(--text-primary);
@@ -79,11 +96,6 @@
 .field__error {
   font-size: 0.82rem;
   color: var(--color-danger);
-}
-
-input::placeholder {
-  color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
-  opacity: 1;
 }
 
 @media (max-width: 768px) {

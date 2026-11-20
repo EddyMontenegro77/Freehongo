@@ -14,7 +14,8 @@ export type ButtonVariant =
   | 'light'
   | 'accent'
   | 'danger'
-  | 'success';
+  | 'success'
+  | 'outline';
 export type ButtonType = 'button' | 'submit';
 
 @Component({

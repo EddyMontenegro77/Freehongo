@@ -31,6 +31,8 @@
   min-width: 0;
   padding: 0.85rem 1rem;
   border: none;
+  white-space: nowrap;
+  text-overflow: clip;
   border-right: 1px solid color-mix(in srgb, var(--text-secondary) 80%, transparent);
   background: transparent;
   color: var(--text-secondary);
@@ -59,6 +61,9 @@
 .segmented__group--wrap {
   flex-wrap: wrap;
   overflow: visible;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .segmented__group--wrap .segmented__option {

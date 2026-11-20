@@ -67,6 +67,12 @@ button {
   color: var(--color-pampas);
 }
 
+.outline {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-secondary);
+  color: var(--text-primary);
+}
+
 button:disabled {
   background-color: var(--color-disabled);
   color: var(--color-pampas);
