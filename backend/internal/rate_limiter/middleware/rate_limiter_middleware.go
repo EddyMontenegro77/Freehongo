@@ -14,7 +14,7 @@ import (
 const (
 	GeneralMaxRequests     = 100
 	AuthMaxRequests        = 5
-	ResetMaxRequests       = 2
+	ResetMaxRequests       = 4
 	VerifyMaxRequests      = 2
 	FailedLoginMaxAttempts = 10
 
