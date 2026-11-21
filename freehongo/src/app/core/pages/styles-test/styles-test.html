@@ -394,6 +394,14 @@
           <app-progressbar
             [value]="progress()"
             [max]="100"
+            variant="default"
+            [milestones]="milestones"
+            barAriaLabel="Course progress"
+          />
+          <app-progressbar
+            [value]="progress()"
+            [max]="100"
+            variant="accent"
             [milestones]="milestones"
             barAriaLabel="Course progress"
           />

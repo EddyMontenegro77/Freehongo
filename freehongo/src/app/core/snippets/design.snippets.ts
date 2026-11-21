@@ -185,6 +185,7 @@ pagedItems = computed(() => {
   [value]="progress()"
   [max]="100"
   [milestones]="milestones"
+  variant="default"
   barAriaLabel="Course progress"
 />
 
@@ -192,7 +193,13 @@ pagedItems = computed(() => {
 //   { value: 0, label: 'Start' },
 //   { value: 50, label: 'Halfway' },
 //   { value: 100, label: 'Done' },
-// ];`,
+// ];
+//
+// For item-based progress, include the current item:
+// progress = computed(() => total ? ((currentIndex() + 1) / total) * 100 : 0);
+// Use max="100" when value is expressed as a percentage.
+//
+// variant: 'default' | 'accent'`,
 
   loadingState: `<app-loading-state />
 <app-loading-state message="Loading projects..." />`,
