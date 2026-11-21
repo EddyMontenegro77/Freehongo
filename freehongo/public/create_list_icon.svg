@@ -1,7 +1,5 @@
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 0 32 32" xml:space="preserve" fill="#000000">
-<g id="SVGRepo_bgCarrier" stroke-width="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <style type="text/css"> .stone_een{fill:#ebf7fd;} </style> <path class="stone_een" d="M17,15h3v2h-3v3h-2v-3h-3v-2h3v-3h2V15z M27,10.243V27c0,1.657-1.343,3-3,3H8c-1.657,0-3-1.343-3-3V5 c0-1.657,1.343-3,3-3h10.757C19.192,2,19.612,2.102,20,2.279V7c0,1.103,0.897,2,2,2h4.721C26.898,9.388,27,9.808,27,10.243z M21,15 c0-0.552-0.448-1-1-1h-2v-2c0-0.552-0.448-1-1-1h-2c-0.552,0-1,0.448-1,1v2h-2c-0.552,0-1,0.448-1,1v2c0,0.552,0.448,1,1,1h2v2 c0,0.552,0.448,1,1,1h2c0.552,0,1-0.448,1-1v-2h2c0.552,0,1-0.448,1-1V15z M22,8h4l-5-5v4C21,7.552,21.448,8,22,8z"/> </g>
-</svg>
+<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.43 5.43V6.77C10.81 6.98 9.32 8.66 9.32 11.43V16H5.43C3.14 16 2 14.86 2 12.57V5.43C2 3.14 3.14 2 5.43 2H10C12.29 2 13.43 3.14 13.43 5.43Z" fill="#292D32"/>
+<path d="M18.5703 8H14.0003C11.7103 8 10.5703 9.14 10.5703 11.43V18.57C10.5703 20.86 11.7103 22 14.0003 22H18.5703C20.8603 22 22.0003 20.86 22.0003 18.57V11.43C22.0003 9.14 20.8603 8 18.5703 8ZM18.1303 15.75H17.2503V16.63C17.2503 17.04 16.9103 17.38 16.5003 17.38C16.0903 17.38 15.7503 17.04 15.7503 16.63V15.75H14.8703C14.4603 15.75 14.1203 15.41 14.1203 15C14.1203 14.59 14.4603 14.25 14.8703 14.25H15.7503V13.37C15.7503 12.96 16.0903 12.62 16.5003 12.62C16.9103 12.62 17.2503 12.96 17.2503 13.37V14.25H18.1303C18.5403 14.25 18.8803 14.59 18.8803 15C18.8803 15.41 18.5403 15.75 18.1303 15.75Z" fill="#292D32"/>
+</svg>
