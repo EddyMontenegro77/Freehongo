@@ -14,8 +14,8 @@ import (
 const (
 	GeneralMaxRequests     = 100
 	AuthMaxRequests        = 5
-	ResetMaxRequests       = 1
-	VerifyMaxRequests      = 1
+	ResetMaxRequests       = 2
+	VerifyMaxRequests      = 2
 	FailedLoginMaxAttempts = 10
 
 	GeneralWindow     = time.Minute
