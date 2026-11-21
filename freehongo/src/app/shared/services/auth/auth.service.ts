@@ -205,6 +205,24 @@ export class AuthService {
     }
   }
 
+  async updateProfilePicture(picture: File): Promise<void> {
+    this.lastError.set(null);
+    const formData = new FormData();
+    formData.append('picture', picture);
+
+    try {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/auth/profile/picture`, formData, {
+          withCredentials: true,
+        }),
+      );
+      await this.loadSession();
+    } catch (error) {
+      this.lastError.set(this.getErrorMessage(error));
+      throw error;
+    }
+  }
+
   async deleteProfile(): Promise<void> {
     this.lastError.set(null);
 

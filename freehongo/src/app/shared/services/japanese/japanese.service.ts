@@ -98,6 +98,7 @@ export class JapaneseService {
           ['meaning', params.meaning],
           ['nanori', params.nanori],
           ['sort_by', params.sortBy],
+          ['sort_order', params.sortOrder],
           ['offset', params.offset],
         ]),
       })
