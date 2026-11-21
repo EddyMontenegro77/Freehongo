@@ -1,19 +1,40 @@
-<nav class="nav__wrapper">
+<nav class="nav__wrapper" aria-label="Main navigation" (keydown.escape)="closeMenu()">
   <app-navigation-btn [title]="'FreeHongo'" class="title" />
-  <div class="navigation__btns">
-    <app-navigation-btn [title]="'Characters'" [route]="['/characters/picker']" />
-    <app-navigation-btn [title]="'Lists'" [route]="['/lists']" />
-    <app-navigation-btn [title]="'Quizzes'" [route]="['/quizzes']" />
-    <app-navigation-btn [title]="'Dashboard'" [route]="['/dashboard']" />
+
+  <div id="nav-menu" class="nav__menu" [class.nav__menu--open]="menuOpen()" (click)="closeMenu()">
+    <div class="navigation__btns">
+      <app-navigation-btn [title]="'Characters'" [route]="['/characters/picker']" />
+      <app-navigation-btn [title]="'Lists'" [route]="['/lists']" />
+      <app-navigation-btn [title]="'Quizzes'" [route]="['/quizzes']" />
+      <app-navigation-btn [title]="'Dashboard'" [route]="['/dashboard']" />
+    </div>
+
+    <div class="auth__btns">
+      @if (!auth.isAuth()) {
+        <app-navigation-btn [title]="'Login'" [route]="['/auth/login']" />
+        <app-navigation-btn [title]="'Signup'" [route]="['/auth/signup']" />
+      } @else {
+        <app-navigation-btn [title]="'Profile'" [route]="['/user/profile']" />
+        <app-icon-btn title="Logout" iconSrc="logout.svg" [showText]="true" [action]="logOut" />
+      }
+    </div>
   </div>
-  <div class="auth__btns">
-    @if (!auth.isAuth()) {
-      <app-navigation-btn [title]="'Login'" [route]="['/auth/login']" />
-      <app-navigation-btn [title]="'Signup'" [route]="['/auth/signup']" />
-    } @else {
-      <app-navigation-btn [title]="'Profile'" [route]="['/user/profile']" />
-      <app-action-btn title="Logout" [action]="logOut" />
-    }
-    <app-action-btn title="theme temp" [action]="changeTheme" />
+
+  <div class="nav__controls">
+    <app-icon-btn
+      title="Theme"
+      [iconSrc]="theme.getTheme() === 'dark' ? 'sun.svg' : 'moon.svg'"
+      [action]="changeTheme"
+    />
+    <button
+      type="button"
+      class="nav__toggle"
+      aria-label="Toggle menu"
+      aria-controls="nav-menu"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="toggleMenu()"
+    >
+      <span class="nav__toggle-icon" aria-hidden="true"></span>
+    </button>
   </div>
 </nav>

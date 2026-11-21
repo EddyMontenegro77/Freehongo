@@ -1,22 +1,163 @@
-.nav__wrapper {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
+:host {
+  display: block;
   position: sticky;
   top: 0;
-  padding: 0.5rem;
+  z-index: 100;
+  background-color: var(--color-primary);
+}
+
+.nav__wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 1rem;
+}
+
+.nav__menu {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.navigation__btns {
+  display: flex;
+  flex: 1;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 2vw, 2rem);
+}
+
+.auth__btns {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--color-bittersweet);
+    outline-offset: 3px;
+  }
+}
+
+.nav__toggle-icon,
+.nav__toggle-icon::before,
+.nav__toggle-icon::after {
+  display: block;
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.nav__toggle-icon {
+  position: relative;
+}
+
+.nav__toggle-icon::before,
+.nav__toggle-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.nav__toggle-icon::before {
+  top: -6px;
+}
+
+.nav__toggle-icon::after {
+  top: 6px;
+}
+
+.nav__toggle[aria-expanded='true'] .nav__toggle-icon {
+  background-color: transparent;
+}
+
+.nav__toggle[aria-expanded='true'] .nav__toggle-icon::before {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav__toggle[aria-expanded='true'] .nav__toggle-icon::after {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+@media (width < 900px) {
+  .nav__toggle {
+    display: inline-flex;
+  }
+
+  .title {
+    order: 1;
+  }
+
+  .nav__controls {
+    order: 2;
+  }
+
+  .nav__menu {
+    order: 3;
+    display: none;
+    flex: 1 0 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem 0 0.5rem;
+    border-top: 1px solid var(--color-secondary);
+    border-bottom: 1px solid var(--color-secondary);
+  }
+
+  .nav__menu--open {
+    display: flex;
+  }
 
   .navigation__btns {
-    flex-grow: 2;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    gap: 2rem;
+    flex: none;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .auth__btns {
-    display: flex;
     flex-flow: row wrap;
-    gap: 1rem;
+    justify-content: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-secondary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__toggle-icon,
+  .nav__toggle-icon::before,
+  .nav__toggle-icon::after {
+    transition: none;
   }
 }
