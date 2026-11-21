@@ -6,21 +6,34 @@
   @if (auth.isProcessing()) {
     <app-loading-state message="Creating account..." />
   } @else {
+    <h1>Create your account</h1>
+
+    <div class="social-auth">
+      <app-google-login-btn class="google" />
+    </div>
+
+    <div class="auth-divider">
+      <span>OR</span>
+    </div>
+
     <app-input label="Name" placeholder="John Doe" [formField]="signUpForm.name" />
 
     <app-input label="Email" placeholder="JohnDoe@mail.com" [formField]="signUpForm.email" />
+
     <app-input
       label="Password"
       type="password"
       placeholder="Type your password"
       [formField]="signUpForm.password"
     />
+
     <app-input
       label="Password Confirmation"
       type="password"
       placeholder="Type your password again"
       [formField]="signUpForm.passwordConfirmation"
     />
+
     <app-file-upload
       label="Profile picture (optional)"
       hint="JPG, PNG, GIF or WebP · maximum 1 MB"
@@ -31,12 +44,19 @@
       (filesChange)="onPictureChange($event)"
       (validationError)="onPictureError($event)"
     />
+
     @if (pictureError(); as error) {
       <p class="auth-error" role="alert">{{ error }}</p>
     }
-    <app-action-btn title="Submit" type="submit" variant="accent" />
+
+    <div class="actions">
+      <app-action-btn
+        class="signup-btn"
+        title="Create account"
+        [fullWidth]="true"
+        type="submit"
+        variant="accent"
+      />
+    </div>
   }
 </form>
-@if (!auth.isProcessing()) {
-  <app-google-login-btn />
-}

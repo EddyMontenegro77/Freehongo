@@ -1,4 +1,4 @@
-<form class="signup-form" [formRoot]="loginForm">
+<form class="login-form" [formRoot]="loginForm">
   @if (auth.lastError(); as error) {
     <p class="auth-error" role="alert">{{ error }}</p>
   }
@@ -6,26 +6,43 @@
   @if (auth.isProcessing()) {
     <app-loading-state message="Logging in..." />
   } @else {
+    <h1>Welcome to FreeHongo!</h1>
+    <hr />
+
     <app-input
       label="Email"
       type="email"
       placeholder="JohnDoe@mail.com"
       [formField]="loginForm.email"
     />
+
     <app-input
       label="Password"
       type="password"
       placeholder="Type your password"
       [formField]="loginForm.password"
     />
-    <app-action-btn title="Submit" type="submit" variant="accent" />
-    <app-action-btn title="Forgot password?" [action]="requestPasswordReset" />
+
+    <div class="actions">
+      <app-action-btn
+        class="login-btn"
+        title="Login"
+        type="submit"
+        variant="accent"
+        [fullWidth]="true"
+      />
+
+      <app-action-btn title="Forgot password?" variant="outline" [action]="requestPasswordReset" />
+
+      <div class="auth-divider">
+        <span>Or try with Google</span>
+      </div>
+
+      <app-google-login-btn class="google" />
+    </div>
+
     @if (resetMessage(); as message) {
       <p class="auth-message" role="status">{{ message }}</p>
     }
   }
 </form>
-
-@if (!auth.isProcessing()) {
-  <app-google-login-btn />
-}

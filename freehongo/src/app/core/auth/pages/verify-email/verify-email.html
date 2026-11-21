@@ -4,9 +4,10 @@
   } @else if (isPending()) {
     <h1>Check your email</h1>
     <p>We sent you a verification link. Verify your email before logging in.</p>
-    <label for="verification-email">Email</label>
-    <input
+    <app-input
       id="verification-email"
+      label="Verification email"
+      placeholder="Your email address..."
       type="email"
       [value]="email()"
       (input)="email.set($any($event.target).value)"
@@ -29,6 +30,6 @@
     <app-action-btn title="Go home" [action]="goToHome" variant="accent" />
   } @else if (error(); as error) {
     <p role="alert">{{ error }}</p>
-    <app-action-btn title="Ir al login" [action]="goToLogin" />
+    <app-action-btn title="Go to login" variant="outline" [action]="goToLogin" />
   }
 </section>
