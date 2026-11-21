@@ -13,5 +13,6 @@ type CardSize = 'sm' | 'md' | 'lg';
 export class Card {
   variant = input<CardVariant>('outline');
   size = input<CardSize>('md');
+  transparent = input<boolean>(false);
   hoverable = input(false, { transform: booleanAttribute });
 }

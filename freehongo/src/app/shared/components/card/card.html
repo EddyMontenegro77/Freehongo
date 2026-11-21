@@ -11,7 +11,7 @@
     <ng-content select="[card-header]"></ng-content>
   </header>
 
-  <section class="card__body">
+  <section class="card__body" [class.card__body--transparent]="transparent()">
     <ng-content select="[card-body]"></ng-content>
   </section>
 

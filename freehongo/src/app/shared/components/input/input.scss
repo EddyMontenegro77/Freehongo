@@ -22,7 +22,7 @@
   gap: 0.25rem;
   font-size: 0.92rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--input-label-color, var(--text-primary));
 }
 
 .field__required {
@@ -72,19 +72,25 @@
   border: none;
   color: var(--text-input-default);
   background: var(--color-secondary);
-  &input::placeholder {
+  &::placeholder {
     color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
     opacity: 1;
   }
 }
 
 .outline {
-  border: 1px solid var(--color-secondary);
-  color: var(--text-primary);
-  background-color: color-mix(in srgb, var(--color-disabled) 10%, transparent);
+  border: 1px solid var(--input-outline-border, var(--color-secondary));
+  color: var(--input-outline-color, var(--text-primary));
+  background-color: var(
+    --input-outline-background,
+    color-mix(in srgb, var(--color-disabled) 10%, transparent)
+  );
 
-  &input::placeholder {
-    color: color-mix(in srgb, var(--text-primary) 70%, transparent);
+  &::placeholder {
+    color: var(
+      --input-outline-placeholder,
+      color-mix(in srgb, var(--text-primary) 70%, transparent)
+    );
   }
 }
 

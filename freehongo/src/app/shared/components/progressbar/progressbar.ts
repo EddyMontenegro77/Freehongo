@@ -1,4 +1,6 @@
-import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy, signal } from '@angular/core';
+
+export type ProgressBarVariant = 'default' | 'accent';
 
 export interface Milestone {
   value: number;
@@ -17,6 +19,7 @@ export class Progressbar {
   max = input<number>(100);
   milestones = input<Milestone[]>([]);
   barAriaLabel = input<string>('Progress bar');
+  variant = input<ProgressBarVariant>('default');
 
   percent = computed(() => this.toPercent(this.value()));
 

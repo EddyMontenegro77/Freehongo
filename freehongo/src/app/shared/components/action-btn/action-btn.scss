@@ -20,6 +20,9 @@ button {
 
   &:hover:not(:disabled) {
     cursor: pointer;
+    box-shadow:
+      var(--shadow),
+      0 0 0 2px var(--color-accent);
   }
 
   &:active:not(:disabled) {
@@ -55,16 +58,37 @@ button {
 .accent {
   background-color: var(--color-bittersweet);
   color: var(--text-accent);
+
+  &:hover:not(:disabled) {
+    cursor: pointer;
+    box-shadow:
+      var(--shadow),
+      0 0 0 2px var(--color-secondary);
+  }
 }
 
 .danger {
   background-color: var(--color-danger);
   color: var(--color-pampas);
+
+  &:hover:not(:disabled) {
+    cursor: pointer;
+    box-shadow:
+      var(--shadow),
+      0 0 0 2px var(--color-secondary);
+  }
 }
 
 .success {
   background-color: var(--color-success);
   color: var(--color-pampas);
+
+  &:hover:not(:disabled) {
+    cursor: pointer;
+    box-shadow:
+      var(--shadow),
+      0 0 0 2px var(--color-secondary);
+  }
 }
 
 .outline {

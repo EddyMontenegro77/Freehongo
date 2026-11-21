@@ -126,7 +126,11 @@
                   [action]="() => listSelected.emit(list.listId)"
                 />
               } @else if (mode() === 'quiz') {
-                <app-action-btn title="Take quiz" [action]="() => quizSelected.emit(quizSelection(list.listId))" />
+                <app-action-btn
+                  title="Take quiz"
+                  variant="accent"
+                  [action]="() => quizSelected.emit(quizSelection(list.listId))"
+                />
               }
             </div>
           </app-card>
@@ -194,7 +198,11 @@
                 [action]="() => listSelected.emit(list.listId)"
               />
             } @else if (mode() === 'quiz') {
-              <app-action-btn title="Take quiz" [action]="() => quizSelected.emit(list.listId)" />
+              <app-action-btn
+                title="Take quiz"
+                variant="accent"
+                [action]="() => quizSelected.emit(list.listId)"
+              />
             } @else {
               <app-navigation-btn
                 title="Edit"

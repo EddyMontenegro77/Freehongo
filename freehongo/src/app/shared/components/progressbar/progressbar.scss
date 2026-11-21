@@ -35,6 +35,7 @@
   border: 2px solid var(--color-accent);
   border-radius: 50%;
   background: var(--color-background);
+
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -51,15 +52,39 @@
   color: var(--text-secondary);
 }
 
-.milestone.reached .dot {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  transform: scale(1.15);
+.milestone.reached {
+  .dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    transform: scale(1.15);
+  }
+
+  .label {
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
-.milestone.reached .label {
-  color: var(--color-secondary);
-  font-weight: var(--font-weight-semibold);
+.track.accent {
+  .fill {
+    background: var(--color-accent);
+  }
+
+  .dot {
+    background: var(--color-primary);
+    border-color: var(--color-accent);
+  }
+
+  .label {
+    color: var(--text-primary);
+  }
+
+  .milestone.reached {
+    .dot {
+      border-color: var(--color-secondary);
+      background: var(--color-secondary);
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
