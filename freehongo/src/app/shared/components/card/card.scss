@@ -75,8 +75,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: var(--card-footer-justify, flex-end);
   gap: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid color-mix(in srgb, var(--text-primary) 20%, transparent);
   margin-top: auto;
 }
