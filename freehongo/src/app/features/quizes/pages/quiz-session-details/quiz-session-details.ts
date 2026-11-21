@@ -12,6 +12,7 @@ import { CharacterQuizTypePipe } from '../../../../shared/pipes/character-quiz-t
 import { AnswerTypePipe } from '../../../../shared/pipes/answer-type.pipe';
 import { Card } from '../../../../shared/components/card/card';
 import { UnicodeCharacterPipe } from '../../../../shared/pipes/unicode.pipe';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 
 @Component({
   imports: [
@@ -22,6 +23,7 @@ import { UnicodeCharacterPipe } from '../../../../shared/pipes/unicode.pipe';
     AnswerTypePipe,
     UnicodeCharacterPipe,
     Card,
+    IconBtn,
   ],
   selector: 'app-quiz-session-details',
   styleUrl: './quiz-session-details.scss',
@@ -81,7 +83,7 @@ export class QuizSessionDetails {
     }
   }
 
-  back(): void {
+  back = async (): Promise<void> => {
     this.location.back();
-  }
+  };
 }
