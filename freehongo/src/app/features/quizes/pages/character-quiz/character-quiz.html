@@ -4,6 +4,9 @@
   } @else if (quizFacade.error(); as error) {
     <app-error-state title="Could not load quiz" [message]="error" [action]="retry" />
   } @else if (quizFacade.isFinished()) {
+    @let total = quizFacade.questions().length;
+    @let correct = quizFacade.score();
+
     <section class="quiz-result">
       <p class="quiz-eyebrow">
         @if (isPractice()) {
@@ -12,6 +15,7 @@
           Evaluation complete
         }
       </p>
+
       <h1>
         @if (isPractice()) {
           Practice finished
@@ -19,13 +23,41 @@
           Your result
         }
       </h1>
-      <p class="quiz-score">
-        {{ quizFacade.score() }} / {{ quizFacade.questions().length }} correct
-      </p>
+
+      <p class="quiz-score">{{ correct }} / {{ total }} correct</p>
+      <p class="quiz-percent">{{ accuracy() }}%</p>
+      <p class="quiz-message">{{ resultMessage() }}</p>
+
+      <div class="quiz-stats">
+        <div class="quiz-stat">
+          <span class="quiz-stat-value">{{ correct }}</span>
+          <span class="quiz-stat-label">Correct</span>
+        </div>
+
+        <div class="quiz-stat">
+          <span class="quiz-stat-value">{{ total - correct }}</span>
+          <span class="quiz-stat-label">Incorrect</span>
+        </div>
+
+        <div class="quiz-stat">
+          <span class="quiz-stat-value">{{ totalTimeLabel() }}</span>
+          <span class="quiz-stat-label">Total time</span>
+        </div>
+
+        <div class="quiz-stat">
+          <span class="quiz-stat-value">{{ averageTimeLabel() }}</span>
+          <span class="quiz-stat-label">Per question</span>
+        </div>
+      </div>
+
+      @if (!isPractice() && quizFacade.saveFailed()) {
+        <p class="quiz-warning">Could not save this result.</p>
+      }
 
       @if (!isPractice()) {
         <div class="quiz-review">
           <h2>Review</h2>
+
           @for (question of quizFacade.questions(); track question.characterUnicode) {
             @if (getAnswerResult(question.characterUnicode); as result) {
               <article class="quiz-review-item" [class.quiz-review-item--correct]="result.correct">
@@ -34,80 +66,148 @@
                   <span>Your answer: {{ result.answer || 'No answer' }}</span>
                   <span>Expected: {{ question.acceptedAnswers.join(', ') }}</span>
                 </div>
-                <span>{{ result.correct ? 'Correct:' : 'Incorrect:' }}</span>
+
+                <span>{{ result.correct ? 'Correct' : 'Incorrect' }}</span>
               </article>
             }
           }
         </div>
       }
 
-      <app-action-btn title="Back to quizzes" [action]="goToQuizMenu" />
+      <div class="quiz-back-container">
+        <app-action-btn
+          class="quiz-back-btn"
+          title="Back to quizzes"
+          variant="accent"
+          [fullWidth]="true"
+          [action]="goToQuizMenu"
+        />
+      </div>
     </section>
   } @else if (quizFacade.currentQuestion(); as question) {
-    <section class="quiz-card">
-      <header class="quiz-header">
+    @let total = quizFacade.questions().length;
+
+    <app-card class="quiz-card">
+      <header card-header class="quiz-header">
         <div>
-          <p class="quiz-eyebrow">{{ config()?.mode }}</p>
+          <p class="quiz-eyebrow">{{ isPractice() ? 'Practice' : 'Evaluation' }}</p>
           <h1>Character quiz</h1>
         </div>
+
         <span class="quiz-progress">
-          {{ quizFacade.currentIndex() + 1 }} / {{ quizFacade.questions().length }}
+          Question {{ quizFacade.currentIndex() + 1 }} of {{ total }}
         </span>
       </header>
 
-      <p class="quiz-prompt">{{ question.prompt }}</p>
+      <div card-header class="quiz-meta">
+        <div class="quiz-tags">
+          @for (tag of quizTags(); track tag) {
+            <span class="quiz-tag">{{ tag }}</span>
+          }
+        </div>
+
+        <app-progressbar
+          [value]="quizFacade.answers().length"
+          [max]="total"
+          variant="accent"
+          barAriaLabel="Quiz progress"
+        />
+
+        <p class="quiz-note">
+          @if (isPractice()) {
+            You will see the correct answer after each question. Score: {{ quizFacade.score() }}
+          } @else {
+            No feedback until the end. Your result will be saved when you finish.
+          }
+        </p>
+      </div>
+
+      <p card-header class="quiz-instruction">{{ quizInstruction() }}</p>
+      <p card-header class="quiz-prompt">{{ question.prompt }}</p>
 
       @if (config()?.answerType === 'multiple') {
-        <div class="quiz-options">
+        <div card-body class="quiz-options">
           @for (option of question.options ?? []; track option.value) {
-            <button
-              type="button"
+            <app-action-btn
               class="quiz-option"
-              [class.quiz-option--correct]="
-                isPractice() &&
-                quizFacade.hasAnswered() &&
-                question.acceptedAnswers.includes(option.value)
-              "
-              [class.quiz-option--wrong]="
-                isPractice() &&
-                quizFacade.hasAnswered() &&
-                !question.acceptedAnswers.includes(option.value)
-              "
-              [disabled]="quizFacade.hasAnswered()"
-              (click)="submitAnswer(option.value)"
-            >
-              {{ option.label }}
-            </button>
+              [class.quiz-option--locked]="quizFacade.hasAnswered()"
+              [title]="option.label"
+              [variant]="optionVariant(question.acceptedAnswers.includes(option.value))"
+              [fullWidth]="true"
+              [action]="() => submitAnswer(option.value)"
+            />
           }
         </div>
       } @else {
-        <div class="quiz-open-answer">
+        <div card-body class="quiz-open-answer">
           <app-input
-            label="Your answer"
+            class="quiz-answer-input"
+            label="Answer"
+            type="text"
+            variant="outline"
+            [required]="false"
             [value]="answer()"
+            placeholder="Type your answer..."
             [disabled]="quizFacade.hasAnswered()"
             (valueChange)="answer.set($event)"
           />
-          @if (!quizFacade.hasAnswered()) {
-            <app-action-btn title="Submit" [action]="submitOpenAnswer" variant="light" />
-          }
+
+          <div class="quiz-open-answer-footer">
+            @if (quizFacade.hasAnswered() && isPractice()) {
+              <p class="quiz-hint" [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()">
+                @if (quizFacade.lastAnswerCorrect()) {
+                  Correct
+                } @else {
+                  Incorrect. Accepted answer: {{ question.acceptedAnswers[0] }}
+                }
+              </p>
+            } @else if (!quizFacade.hasAnswered()) {
+              <p class="quiz-hint">{{ answerHint() }}</p>
+            }
+
+            @if (!quizFacade.hasAnswered()) {
+              <app-action-btn
+                class="quiz-submit-btn"
+                title="Submit"
+                [action]="submitOpenAnswer"
+                variant="primary"
+              />
+            } @else {
+              @if (isPractice()) {
+                <app-action-btn
+                  [title]="quizFacade.currentIndex() + 1 === total ? 'Finish' : 'Next'"
+                  [action]="nextQuestion"
+                  variant="accent"
+                />
+              }
+            }
+          </div>
         </div>
       }
 
-      @if (quizFacade.hasAnswered() && isPractice()) {
-        <p class="quiz-feedback" [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()">
-          @if (quizFacade.lastAnswerCorrect()) {
-            Correct
-          } @else {
-            Incorrect. Accepted answer: {{ question.acceptedAnswers[0] }}
+      @if (quizFacade.hasAnswered() && config()?.answerType === 'multiple') {
+        <div card-footer class="quiz-answer-footer">
+          @if (isPractice()) {
+            <p
+              class="quiz-feedback"
+              [class.quiz-feedback--correct]="quizFacade.lastAnswerCorrect()"
+            >
+              @if (quizFacade.lastAnswerCorrect()) {
+                Correct
+              } @else {
+                Incorrect. Accepted answer: {{ question.acceptedAnswers[0] }}
+              }
+            </p>
           }
-        </p>
-      }
 
-      @if (quizFacade.hasAnswered()) {
-        <app-action-btn title="Next" [action]="nextQuestion" variant="accent" />
+          <app-action-btn
+            [title]="quizFacade.currentIndex() + 1 === total ? 'Finish' : 'Next'"
+            [action]="nextQuestion"
+            variant="accent"
+          />
+        </div>
       }
-    </section>
+    </app-card>
   }
 </main>
 
