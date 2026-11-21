@@ -198,12 +198,14 @@ func buildKanjiDisplayItemsQuery(searchParameters *models.KanjiSearch, limit, of
 	baseQuery, args, argPos := buildKanjiDisplayBase(searchParameters)
 
 	sortBy := ""
+	sortOrder := ""
 	if searchParameters != nil {
 		sortBy = searchParameters.SortBy
+		sortOrder = searchParameters.SortOrder
 	}
 
 	query := "SELECT unicode, literal " + baseQuery
-	query += buildKanjiDisplayOrderBy(sortBy)
+	query += buildKanjiDisplayOrderBy(sortBy, sortOrder)
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPos, argPos+1)
 	args = append(args, limit, offset)
 
