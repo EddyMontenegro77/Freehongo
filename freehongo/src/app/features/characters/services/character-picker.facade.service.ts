@@ -44,6 +44,7 @@ export interface CharacterPickerKanaFilters {
 export interface CharacterPickerKanjiFilters {
   radicalName?: string;
   sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   jlptLevel?: string;
   gradeLevel?: string;
   kanjiReading?: string;
@@ -130,6 +131,7 @@ export class characterPickerFacadeService {
       meaning: kanji.kanjiMeaning,
       nanori: kanji.kanjiNanori,
       sortBy: kanji.sortBy,
+      sortOrder: kanji.sortOrder as 'asc' | 'desc' | undefined,
       offset,
     };
 
