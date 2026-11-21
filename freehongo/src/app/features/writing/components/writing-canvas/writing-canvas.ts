@@ -7,7 +7,7 @@ import {
   output,
   signal,
   ViewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
@@ -25,11 +25,12 @@ import {
   WritingUiOptions,
   WritingValidationEvent,
 } from '../../../../shared/models/quizes/quizes.interface';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 
 @Component({
   selector: 'app-writing-canvas',
   standalone: true,
-  imports: [ActionBtn, WritingValidation, WritingStrokeGuide],
+  imports: [ActionBtn, WritingValidation, WritingStrokeGuide, IconBtn],
   templateUrl: './writing-canvas.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './writing-canvas.scss',

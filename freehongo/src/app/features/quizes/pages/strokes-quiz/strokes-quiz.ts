@@ -29,9 +29,10 @@ import { expandUuid } from '../../../../shared/utils/urls.utils';
 import { ListSource } from '../../../../shared/models/lists/list.model';
 import { nowIso } from '../../../../shared/utils/date.utils';
 import { UnicodeCharacterPipe } from '../../../../shared/pipes/unicode.pipe';
-import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokesQuizSummary } from '../../components/stroke-quiz-summary/stroke-quiz-summary';
 import { newId } from '../../../../shared/utils/uuid.utils';
+import { Milestone, Progressbar } from '../../../../shared/components/progressbar/progressbar';
+import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 
 interface RecordedAttempt {
   event: WritingValidationEvent;
@@ -41,7 +42,7 @@ interface RecordedAttempt {
 
 @Component({
   selector: 'app-strokes-quiz',
-  imports: [WritingPractice, UnicodeCharacterPipe, ActionBtn, StrokesQuizSummary],
+  imports: [WritingPractice, UnicodeCharacterPipe, StrokesQuizSummary, Progressbar, ActionBtn],
   templateUrl: './strokes-quiz.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './strokes-quiz.scss',
@@ -85,6 +86,15 @@ export class StrokesQuiz {
     this.characters().map((unicode) => this.results().get(unicode) ?? notAttempted(unicode)),
   );
 
+  readonly progress = computed(() => {
+    const total = this.characters().length;
+
+    if (total === 0) return 0;
+
+    // The visible character counts as progress, so the first character starts at 1/total.
+    return ((this.currentIndex() + 1) / total) * 100;
+  });
+
   readonly writingUi = computed<Partial<WritingUiOptions>>(() =>
     this.mode() === 'evaluation'
       ? {
@@ -94,6 +104,13 @@ export class StrokesQuiz {
         }
       : {},
   );
+
+  readonly milestones = computed<Milestone[]>(() => [
+    {
+      value: 100,
+      label: this.mode() === 'evaluation' ? 'Submit evaluation' : 'Finish practice',
+    },
+  ]);
 
   async ngOnInit(): Promise<void> {
     const mode = this.route.snapshot.paramMap.get('mode');
