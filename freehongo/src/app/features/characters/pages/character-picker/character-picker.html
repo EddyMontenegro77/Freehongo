@@ -98,6 +98,20 @@
         />
         <app-segmented-control
           class="segmented-large-screen"
+          label="Order"
+          [options]="sortOrderOptions"
+          [value]="sortOrder.value ?? ''"
+          (valueChange)="sortOrder.setValue($event)"
+        />
+        <app-select
+          class="select-small-screen"
+          label="Order"
+          [options]="sortOrderOptions"
+          [value]="sortOrder.value ?? ''"
+          (valueChange)="sortOrder.setValue($event)"
+        />
+        <app-segmented-control
+          class="segmented-large-screen"
           label="JLPT"
           [options]="jlptLevelOptions"
           [value]="jlptLevel.value ?? ''"

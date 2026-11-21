@@ -53,6 +53,13 @@
       [value]="characterType.value ?? 'any'"
       (valueChange)="characterType.setValue($event)"
     />
+    <app-select
+      class="multiple-small-screen"
+      label="Character Options"
+      [options]="characterOptions"
+      [value]="characterType.value ?? 'any'"
+      (valueChange)="characterType.setValue($event)"
+    />
   </div>
 
   @if (creatingList()) {
@@ -86,7 +93,7 @@
   @if (operationError(); as error) {
     <app-error-state title="List action failed" [message]="error" />
   }
-
+  <hr />
   @if (isPublicView()) {
     @if (publicListsFacade.isLoading() && !publicListsFacade.lists().length) {
       <app-loading-state message="Loading lists..." />

@@ -4,9 +4,9 @@
 
 .lists-container {
   box-sizing: border-box;
-  width: min(100% - 2rem, 72rem);
+  width: min(100% - 2rem);
   margin: 0 auto;
-  padding: 2rem 0 3rem;
+  padding: 0 0 3rem;
 }
 
 .lists-container--compact {
@@ -25,7 +25,6 @@
 
 .list-display-title {
   font-size: var(--font-size-main);
-  padding-left: 1rem;
 }
 
 .lists-header,
@@ -48,6 +47,14 @@
   grid-column: 1 / -1;
 }
 
+hr {
+  border: none;
+  height: 5px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  background-color: var(--color-accent);
+}
+
 .lists-eyebrow {
   margin: 0 0 0.25rem;
   color: var(--text-muted);
@@ -58,27 +65,27 @@
 
 .list-filters {
   display: grid;
-  grid-template-columns: minmax(10rem, 0.8fr) minmax(18rem, 1.4fr);
+  grid-template-columns: auto 1fr auto;
   gap: 1rem;
   align-items: end;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+}
+
+.list-filters app-segmented-control {
+  width: 50%;
 }
 
 .lists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: 1rem;
   margin-top: 1.5rem;
 }
-
 .list-display {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   min-width: 0;
+  --card-footer-justify: center;
 }
 
 .list-display-header {
@@ -155,10 +162,16 @@
 }
 
 .list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-top: auto;
-  width: 100%;
+  gap: 0.75rem 1rem;
+}
+
+.list-actions app-action-btn,
+.list-actions app-navigation-btn {
+  width: auto;
 }
 
 .lists-header-actions {
@@ -232,6 +245,10 @@
 
   .create-actions app-action-btn {
     flex: 1;
+  }
+
+  .list-filters {
+    grid-template-columns: 1fr;
   }
 }
 

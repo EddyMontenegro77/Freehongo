@@ -57,7 +57,6 @@
             {{ currentList.isPublic ? 'Anyone can see this list.' : 'Only you can see this list.' }}
           </p>
         </div>
-        <app-action-btn title="Edit" variant="accent" [action]="enterEditMode" />
       }
     </header>
 
@@ -90,6 +89,13 @@
           <span class="stat__value">{{ currentList.updatedAt | date: 'mediumDate' }}</span>
         </div>
       }
+      <app-icon-btn
+        title="Edit"
+        iconSrc="edit.svg"
+        [showText]="true"
+        variant="accent"
+        [action]="enterEditMode"
+      />
     </section>
 
     <hr />

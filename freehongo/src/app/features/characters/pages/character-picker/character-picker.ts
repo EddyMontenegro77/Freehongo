@@ -93,11 +93,17 @@ export class CharacterPicker {
   jlptLevel = new FormControl<string>('');
   gradeLevel = new FormControl<string>('');
   sortBy = new FormControl<string>('literal');
+  sortOrder = new FormControl<string>('');
   sortByOptions: SegmentedOption<string>[] = [
     { label: 'Literal', value: 'literal' },
     { label: 'Usage', value: 'frequency_of_use' },
     { label: 'JLPT', value: 'jlpt_level' },
     { label: 'Grade', value: 'grade_level' },
+  ];
+  sortOrderOptions: SegmentedOption<string>[] = [
+    { label: 'Default', value: '' },
+    { label: 'ASC', value: 'asc' },
+    { label: 'DESC', value: 'desc' },
   ];
   jlptLevelOptions: SegmentedOption<string>[] = [
     { label: 'Any', value: '' },
@@ -141,6 +147,7 @@ export class CharacterPicker {
     this.jlptLevel.reset('');
     this.gradeLevel.reset('');
     this.sortBy.reset('literal');
+    this.sortOrder.reset('');
     this.kanjiReading.reset('');
     this.kanjiMeaning.reset('');
     this.kanjiNanori.reset('');
@@ -184,6 +191,7 @@ export class CharacterPicker {
     const kanji: CharacterPickerKanjiFilters = {
       radicalName: this.radicalName.value as string,
       sortBy: this.sortBy.value as string,
+      sortOrder: this.sortOrder.value as 'asc' | 'desc' | undefined,
       jlptLevel: this.jlptLevel.value as string,
       gradeLevel: this.gradeLevel.value as string,
       kanjiReading: this.kanjiReading.value as string,

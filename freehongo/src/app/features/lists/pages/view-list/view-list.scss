@@ -4,9 +4,9 @@
 
 .edit-list-container {
   box-sizing: border-box;
-  width: min(100% - 2rem, 72rem);
+  width: min(100% - 2rem);
   margin: 0 auto;
-  padding: 2rem 0 3rem;
+  padding: 0 0 3rem;
 }
 
 .list-header {
@@ -26,13 +26,14 @@
 
 .list-heading {
   margin: 0;
+  font-size: var(--font-size-main);
   overflow-wrap: anywhere;
 }
 
 .list-subtitle {
   margin: 0;
   max-width: 40rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -74,6 +75,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 1px;
+  align-items: center;
   margin-bottom: 2rem;
   overflow: hidden;
   background: var(--color-background);
@@ -88,12 +90,12 @@
 
 .stat__label {
   color: var(--text-primary);
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
 .stat__value {
   color: var(--text-primary);
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: var(--font-weight-semibold);
 
   &--public {
@@ -192,7 +194,7 @@
 
 hr {
   border: 0;
-  border-top: 3px solid var(--color-accent);
+  border-top: 5px solid var(--color-accent);
 }
 
 .dot {
