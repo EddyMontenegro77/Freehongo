@@ -142,7 +142,8 @@ pagedItems = computed(() => {
   <app-chip>TypeScript</app-chip>
 </app-chip-group>
 
-// layout: wrap | stack`,
+// layout: wrap | stack
+// variant: default | success | danger`,
 
   list: `<app-list [items]="['Angular', 'React', 'Vue']" listType="ul" marker="disc" />
 
