@@ -4,12 +4,14 @@
   --color-bittersweet: #ff7160;
   --color-charade: #252a34;
   --color-pampas: #f2f0eb;
-  --color-danger: #c65d5d;
-  --color-success: #56866d;
+  --color-danger: #c94141;
+  --color-success: #56d895;
   --color-disabled: #a2a49b;
+  --color-warning: #ecdd6f;
 
   --color-accent: var(--color-bittersweet);
   --text-accent: #252a34;
+  --color-temp: #7387af;
 }
 
 :root,
@@ -32,7 +34,7 @@
   color-scheme: dark;
 
   --color-primary: var(--color-charade);
-  --color-secondary: var(--color-pampas);
+  --color-secondary: var(--color-temp);
 
   --text-primary: var(--color-pampas);
   --text-secondary: var(--color-charade);
