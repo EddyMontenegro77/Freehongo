@@ -173,13 +173,11 @@
                 variant="primary"
               />
             } @else {
-              @if (isPractice()) {
-                <app-action-btn
-                  [title]="quizFacade.currentIndex() + 1 === total ? 'Finish' : 'Next'"
-                  [action]="nextQuestion"
-                  variant="accent"
-                />
-              }
+              <app-action-btn
+                [title]="quizFacade.currentIndex() + 1 === total ? 'Finish' : 'Next'"
+                [action]="nextQuestion"
+                variant="accent"
+              />
             }
           </div>
         </div>

@@ -27,7 +27,7 @@
         <section class="session-summary">
           <app-card>
             <div card-body class="summary-item">
-              <span class="summary-label">Accuracy</span>
+              <span class="summary-label">ACCURACY</span>
               <b class="summary-value" [class]="accuracy() > 60 ? 'success' : 'danger'"
                 >{{ accuracy() }}%</b
               >
@@ -35,7 +35,7 @@
           </app-card>
           <app-card>
             <div card-body class="summary-item">
-              <span class="summary-label">Correct</span>
+              <span class="summary-label">CORRECT</span>
               <b class="summary-value success" [class]="accuracy() > 60 ? 'success' : 'danger'"
                 >{{ correctCount() }}/{{ d.answers.length }}</b
               >
@@ -43,7 +43,7 @@
           </app-card>
           <app-card>
             <div card-body class="summary-item">
-              <span class="summary-label">Avg. response</span>
+              <span class="summary-label">AVG. RESPONSE</span>
               <b class="summary-value">{{ averageResponseMs() | responseTime }}</b>
             </div>
           </app-card>
@@ -51,15 +51,15 @@
 
         <section class="session-meta">
           <div class="meta-item">
-            <span class="meta-label">Quiz type</span>
+            <span class="meta-label">QUIZ TYPE</span>
             <b>{{ d.session.characterQuizType | characterQuizTypeLabel }}</b>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Question order</span>
+            <span class="meta-label">QUESTION ORDER</span>
             <b>{{ d.session.randomOrder ? 'Random' : 'Sequential' }}</b>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Duration</span>
+            <span class="meta-label">DURATION</span>
             <b>{{ durationMs() | responseTime }}</b>
           </div>
         </section>

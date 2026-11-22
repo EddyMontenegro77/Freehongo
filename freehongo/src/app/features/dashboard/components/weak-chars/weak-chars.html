@@ -1,20 +1,76 @@
-<app-card class="weak-chars">
-  <h2 card-header>Weak characters</h2>
-  <div card-body class="weak-list">
-    @for (stat of data(); track stat.unicode + stat.answerType) {
-      <button type="button" class="weak-row" (click)="characterSelected.emit(stat.unicode)">
-        <span class="weak-char">{{ stat.unicode | unicodeCharacter }}</span>
-        <span class="weak-info">
-          <span class="weak-badge">{{ stat.answerType | answerTypeLabel }}</span>
-          <span class="weak-meta">
-            {{ stat.correctCount }}/{{ stat.attempts }} correct · last seen
-            {{ stat.lastSeenAt | date: 'dd/MM/yyyy' }}
+<div class="weak__container">
+  <header class="weak__title">
+    <h2>Weak characters</h2>
+    <app-icon-btn title="Weak characters info" iconSrc="info.svg" [action]="openModal" />
+  </header>
+
+  @if (data().length) {
+    <div class="weak__list">
+      @for (stat of data(); track stat.unicode + stat.answerType) {
+        <button type="button" class="weak" (click)="characterSelected.emit(stat.unicode)">
+          <span class="weak__char">{{ stat.unicode | unicodeCharacter }}</span>
+
+          <span class="weak__info">
+            <app-chip>{{ stat.answerType | answerTypeLabel }}</app-chip>
+            <span class="weak__meta">
+              {{ stat.correctCount }}/{{ stat.attempts }} correct · last seen
+              {{ stat.lastSeenAt | date: 'dd/MM/yyyy' }}
+            </span>
           </span>
-        </span>
-        <b class="weak-accuracy">{{ accuracy(stat) }}%</b>
-      </button>
-    } @empty {
-      <p class="weak-empty">No weak characters yet. Keep practicing!</p>
-    }
+
+          <span class="weak__accuracy">{{ accuracy(stat) }}%</span>
+
+          <app-progressbar
+            class="weak__bar"
+            [value]="accuracy(stat)"
+            [max]="100"
+            variant="accent"
+            [barAriaLabel]="'Accuracy ' + (stat.unicode | unicodeCharacter)"
+          />
+        </button>
+      }
+    </div>
+  } @else {
+    <p class="weak__empty">No weak characters yet. Keep practicing!</p>
+  }
+</div>
+
+<app-modal title="How weak characters work" #infoModal>
+  <div modal-body class="weak-info-modal">
+    <p>
+      This list highlights the characters you struggle with most, so you know what to review first.
+    </p>
+
+    <dl class="weak-info-modal__items">
+      <div>
+        <dt>Each row</dt>
+        <dd>
+          A character in one skill. The same character can appear more than once if it is weak in
+          different skills.
+        </dd>
+      </div>
+      <div>
+        <dt>Chip</dt>
+        <dd>The skill or answer type where you are having trouble.</dd>
+      </div>
+      <div>
+        <dt>Correct / attempts</dt>
+        <dd>How many of your answers were right out of all the times you practiced it.</dd>
+      </div>
+      <div>
+        <dt>Percentage and bar</dt>
+        <dd>Your accuracy for that character in that skill.</dd>
+      </div>
+      <div>
+        <dt>Last seen</dt>
+        <dd>The last day you practiced it.</dd>
+      </div>
+    </dl>
+
+    <p>Select a row to see the details of that character.</p>
   </div>
-</app-card>
+
+  <div modal-footer>
+    <app-action-btn title="Got it" variant="accent" [action]="closeModal" />
+  </div>
+</app-modal>

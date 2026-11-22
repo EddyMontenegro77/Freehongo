@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { categoryOf, kanaOrKanji, levelOf } from '../../utils/dashboard.utils';
 import {
   CharacterDetail,
@@ -14,9 +23,25 @@ import {
 import { AnswerTypePipe } from '../../../../shared/pipes/answer-type.pipe';
 import { InputField } from '../../../../shared/components/input/input';
 import { InViewDirective } from '../../../../shared/directives/in-view.directive';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { Card } from '../../../../shared/components/card/card';
 import { RouterLink } from '@angular/router';
+import { Modal } from '../../../../shared/components/modal/modal';
+import { SelectField } from '../../../../shared/components/select/select';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
+import { Progressbar } from '../../../../shared/components/progressbar/progressbar';
+import { Chip } from '../../../../shared/components/chip/chip';
+import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
+import { convertRomajiToJapanese } from '../../../../shared/utils/japanese.utils';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+
+export const LEVEL_CRITERIA = [
+  { label: 'New', description: 'Little or no practice yet.' },
+  { label: 'Beginner', description: 'You have started practicing, but the score is still low.' },
+  { label: 'Intermediate', description: 'Mostly correct answers with a fair amount of practice.' },
+  { label: 'Mastered', description: 'High accuracy sustained over enough attempts.' },
+] as const;
 
 type CategoryFilter = DashboardCategory | 'all';
 type SortKey = 'masteryAsc' | 'masteryDesc' | 'attempts' | 'recent';
@@ -31,17 +56,24 @@ const SORTERS: Record<SortKey, (a: PracticedCharacter, b: PracticedCharacter) =>
   recent: (a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime(),
 };
 
+const STROKE_OK_THRESHOLD = 0.7;
+
 @Component({
   imports: [
     AnswerTypePipe,
     UnicodeCharacterPipe,
     InputField,
     SegmentedControl,
-    DecimalPipe,
     DatePipe,
     InViewDirective,
-    Card,
     RouterLink,
+    SelectField,
+    IconBtn,
+    Progressbar,
+    Chip,
+    Modal,
+    ActionBtn,
+    TitleCasePipe,
   ],
   selector: 'app-master-details',
   styleUrl: './master-details.scss',
@@ -51,6 +83,8 @@ export class MasterDetails {
   private readonly facade = inject(DashboardFacadeService);
 
   readonly data = input.required<PracticedCharacter[]>();
+
+  readonly criteria = LEVEL_CRITERIA;
 
   readonly categoryOptions: ReadonlyArray<SegmentedOption<CategoryFilter>> = [
     { label: 'All', value: 'all' },
@@ -78,15 +112,19 @@ export class MasterDetails {
   private loadToken = 0;
 
   readonly filtered = computed(() => {
-    const term = this.search().trim().toLowerCase();
+    const { raw, kana } = this.searchTerm();
     const category = this.category();
 
     return this.data()
       .filter((c) => {
         if (category !== 'all' && categoryOf(c.unicode) !== category) return false;
-        if (!term) return true;
+        if (!raw) return true;
+
+        const char = unicodeChar.transform(c.unicode);
         return (
-          unicodeChar.transform(c.unicode).includes(term) || c.unicode.toLowerCase().includes(term)
+          char.includes(raw) ||
+          kana.some((k) => char.includes(k)) ||
+          c.unicode.toLowerCase().includes(raw)
         );
       })
       .sort(SORTERS[this.sortBy()]);
@@ -98,6 +136,8 @@ export class MasterDetails {
   protected readonly categoryOf = categoryOf;
   protected readonly levelOf = levelOf;
   protected readonly kanaOrKanji = kanaOrKanji;
+
+  infoModal = viewChild<Modal>('infoModal');
 
   constructor() {
     effect(() => {
@@ -111,6 +151,19 @@ export class MasterDetails {
         if (!this.selected() && first) this.select(first.unicode);
       });
     });
+  }
+
+  openModal = (): void => this.infoModal()?.open();
+  closeModal = (): void => this.infoModal()?.close();
+
+  onCategorySelect(raw: string): void {
+    const option = this.categoryOptions.find((o) => o.value === raw);
+    if (option) this.category.set(option.value);
+  }
+
+  onSortSelect(raw: string): void {
+    const option = this.sortOptions.find((o) => o.value === raw);
+    if (option) this.sortBy.set(option.value);
   }
 
   loadMore(): void {
@@ -142,7 +195,24 @@ export class MasterDetails {
     return attempts ? Math.round((correct / attempts) * 100) : 0;
   }
 
-  protected strokeColor(rate: number): string {
-    return `hsl(${Math.round(rate * 120)}, 60%, 42%)`;
+  protected strokeClass(rate: number | null | undefined): string {
+    if (rate == null || Number.isNaN(rate)) return 'stroke-empty';
+    return rate >= STROKE_OK_THRESHOLD ? 'stroke-success' : 'stroke-danger';
   }
+
+  private readonly searchTerm = toSignal(
+    toObservable(this.search).pipe(
+      debounceTime(300),
+      map((value) => value.trim().toLowerCase()),
+      distinctUntilChanged(),
+      map((raw) => ({
+        raw,
+        kana: [
+          convertRomajiToJapanese(raw, 'hiragana'),
+          convertRomajiToJapanese(raw, 'katakana'),
+        ].filter(Boolean),
+      })),
+    ),
+    { initialValue: { raw: '', kana: [] as string[] } },
+  );
 }

@@ -24,6 +24,7 @@ import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { CharacterCard } from '../../components/character-card/character-card';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { ListPopup } from '../../../../shared/components/character-lists/list-popup/list-popup';
+import { convertRomajiToJapanese, JapaneseScript } from '../../../../shared/utils/japanese.utils';
 
 @Component({
   selector: 'app-character-picker',
@@ -55,7 +56,6 @@ export class CharacterPicker {
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
 
-  // General filters
   unicode = new FormControl<string>('');
   literal = new FormControl<string>('');
   characterType = new FormControl<CharacterType>('kanji');
@@ -70,7 +70,6 @@ export class CharacterPicker {
     },
   ];
 
-  // Kana filters
   kanaType = new FormControl<kanaType>('all');
   kanaTypeOptions: SegmentedOption<kanaType>[] = [
     {
@@ -88,7 +87,6 @@ export class CharacterPicker {
   ];
   kanaReading = new FormControl<string>('');
 
-  // Kanji filters
   radicalName = new FormControl<string>('');
   jlptLevel = new FormControl<string>('');
   gradeLevel = new FormControl<string>('');
@@ -156,6 +154,11 @@ export class CharacterPicker {
     this.loadCharacters();
   };
 
+  private toKana(value: string | null, script: JapaneseScript = 'hiragana'): string {
+    const text = (value ?? '').trim();
+    return convertRomajiToJapanese(text, script) || text;
+  }
+
   private loadCharacters(): void {
     this.isLoading.set(true);
     this.loadError.set(null);
@@ -178,9 +181,11 @@ export class CharacterPicker {
   }
 
   buildFilters(): CharacterPickerFilters {
+    const script: JapaneseScript = this.kanaType.value === 'katakana' ? 'katakana' : 'hiragana';
+
     const general: CharacterPickerGeneralFilters = {
       unicode: this.unicode.value as string,
-      literal: this.literal.value as string,
+      literal: this.toKana(this.literal.value, script),
     };
 
     const kana: CharacterPickerKanaFilters = {

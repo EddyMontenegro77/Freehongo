@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal, viewChild } from '@angular/core';
 import { Card } from '../../../../shared/components/card/card';
 import {
   SegmentedControl,
@@ -14,18 +14,27 @@ import {
 } from '../../models/dashboard.models';
 import { comparePeriods, filterBuckets, toSeries, totalsOf } from '../../utils/dashboard.utils';
 import { TrendChart } from '../trend-chart/trend-chart';
+import { Chip } from '../../../../shared/components/chip/chip';
+import { SelectField, SelectOption } from '../../../../shared/components/select/select';
+import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
+import { Modal } from '../../../../shared/components/modal/modal';
+import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 
 type SkillFilter = DashboardSkill | 'all';
 
 const SKILLS: DashboardSkill[] = ['reading', 'meaning', 'writing'];
 
-const SKILL_COLORS: Record<DashboardSkill, string> = {
-  reading: '#4f8cff',
-  meaning: '#f5a524',
-  writing: '#3ecf8e',
+const SKILL_COLOR_VARS: Record<DashboardSkill, string> = {
+  reading: '--color-temp',
+  meaning: '--color-bittersweet',
+  writing: '--color-success',
 };
 
-// 'YYYY-MM-DD' -> 'DD/MM'
+const cssVar = (name: string): string =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+export const skillColor = (skill: DashboardSkill): string => cssVar(SKILL_COLOR_VARS[skill]);
+
 const labelOf = (dateKey: string): string => `${dateKey.slice(8, 10)}/${dateKey.slice(5, 7)}`;
 
 interface SummaryCard {
@@ -36,13 +45,37 @@ interface SummaryCard {
 }
 
 @Component({
-  imports: [Card, SegmentedControl, TrendChart],
+  imports: [Card, SegmentedControl, TrendChart, Chip, SelectField, IconBtn, ActionBtn, Modal],
   selector: 'app-trends',
   styleUrl: './trends.scss',
   templateUrl: './trends.html',
 })
 export class Trends {
   readonly data = input.required<TrendsData>();
+  infoModal = viewChild<Modal>('infoModal');
+
+  onPeriodSelect(raw: string): void {
+    const value = this.fromSelectValue(this.periodOptions, raw);
+    if (value !== undefined) this.period.set(value);
+  }
+
+  onSkillSelect(raw: string): void {
+    const value = this.fromSelectValue(this.skillOptions, raw);
+    if (value !== undefined) this.skill.set(value);
+  }
+
+  private toSelectOptions<T extends string | number>(
+    options: readonly SegmentedOption<T>[],
+  ): SelectOption<string>[] {
+    return options.map((o) => ({ ...o, value: String(o.value) }));
+  }
+
+  private fromSelectValue<T extends string | number>(
+    options: readonly SegmentedOption<T>[],
+    raw: string,
+  ): T | undefined {
+    return options.find((o) => String(o.value) === raw)?.value;
+  }
 
   readonly periodOptions: ReadonlyArray<SegmentedOption<TrendPeriod>> = [
     { label: '7 days', value: 7 },
@@ -60,6 +93,14 @@ export class Trends {
 
   readonly period = signal<TrendPeriod>(30);
   readonly skill = signal<SkillFilter>('all');
+  readonly periodSelectOptions = this.toSelectOptions(this.periodOptions);
+  readonly skillSelectOptions = this.toSelectOptions(this.skillOptions);
+
+  readonly periodSelectValue = computed(() => String(this.period()));
+  readonly skillSelectValue = computed(() => String(this.skill()));
+
+  openModal = (): void => this.infoModal()?.open();
+  closeModal = (): void => this.infoModal()?.close();
 
   private readonly granularity = computed<TrendGranularity>(() =>
     this.period() === 'all' ? 'week' : 'day',
@@ -148,7 +189,7 @@ export class Trends {
           type: 'line' as const,
           yAxisID: 'y' as const,
           data: dates.map((d) => byDate.get(d) ?? null),
-          color: SKILL_COLORS[skill],
+          color: skillColor(skill),
         },
       ];
     });

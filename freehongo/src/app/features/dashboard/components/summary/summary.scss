@@ -1,4 +1,57 @@
 .summary__container {
-  display: flex;
-  flex-flow: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 300px));
+  justify-content: space-between;
+  gap: 1rem;
+
+  .summary__item {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .summary__label {
+      font-size: 1rem;
+    }
+
+    .summary__value {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .summary__value__big {
+      font-size: clamp(1.7rem, 5.5vw, 2.3rem);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+.mastery__indicator,
+.accuracy__indicator,
+.day__streak__indicator {
+  --p: clamp(0%, var(--progress), 100%);
+  --t1: clamp(0%, calc(var(--p) * 2), 100%);
+  --t2: clamp(0%, calc((var(--p) - 50%) * 2), 100%);
+
+  color: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--c0) calc(100% - var(--t1)), var(--c1) var(--t1)) calc(100% - var(--t2)),
+    var(--c2) var(--t2)
+  );
+}
+
+.mastery__indicator {
+  --c0: var(--text-secondary);
+  --c1: var(--color-warning);
+  --c2: var(--color-danger);
+}
+
+.accuracy__indicator {
+  --c0: var(--color-danger);
+  --c1: var(--color-warning);
+  --c2: var(--color-success);
+}
+.day__streak__indicator {
+  --c0: var(--text-secondary);
+  --c1: var(--color-warning);
+  --c2: var(--color-danger);
 }

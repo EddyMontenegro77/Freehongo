@@ -22,7 +22,6 @@ import { Trends } from '../../components/trends/trends';
 
 @Component({
   imports: [
-    Progressbar,
     LoadingState,
     Summary,
     Categories,

@@ -1,6 +1,12 @@
 :host {
   display: block;
   min-width: 0;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: var(--font-size-main);
+  padding-bottom: 1rem;
 }
 
 .weak-list {
