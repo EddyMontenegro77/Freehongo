@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SyncService } from './sync.service';
+import { SyncService } from '../sync.service';
 
 describe('SyncService', () => {
   let service: SyncService;

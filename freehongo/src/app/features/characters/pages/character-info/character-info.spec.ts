@@ -12,6 +12,7 @@ describe('CharacterInfo', () => {
   const characterInfoFacadeServiceMock = {
     loadCharacterInfo: vi.fn(),
     loadExpectedUrl: vi.fn(),
+    loadStrokes: vi.fn().mockReturnValue(of([])),
   };
 
   beforeEach(async () => {

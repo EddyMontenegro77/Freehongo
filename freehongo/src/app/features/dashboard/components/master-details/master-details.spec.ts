@@ -13,6 +13,7 @@ describe('MasterDetails', () => {
 
     fixture = TestBed.createComponent(MasterDetails);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('data', []);
     await fixture.whenStable();
   });
 

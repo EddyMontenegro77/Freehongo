@@ -28,6 +28,10 @@ describe('Home', () => {
     await fixture.whenStable();
   });
 
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

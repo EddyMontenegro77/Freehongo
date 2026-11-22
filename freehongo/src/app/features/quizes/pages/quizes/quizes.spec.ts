@@ -68,7 +68,7 @@ describe('Quizes', () => {
     });
 
     expect(routerMock.navigate).toHaveBeenCalledWith(
-      ['/quizes', 'evaluation', shortenUuid('list-1')],
+      ['/quizzes', 'evaluation', shortenUuid('list-1')],
       {
         queryParams: {
           type: 'readingToCharacter',
