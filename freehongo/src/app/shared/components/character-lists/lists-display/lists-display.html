@@ -2,9 +2,13 @@
   <header class="lists-header">
     <div class="header-items">
       @if (mode() === 'quiz') {
-        <h1 class="list-display-title">Quizzes</h1>
+        <div>
+          <h1 class="list-display-title">Quizzes</h1>
+          <small>Choose a list to start a quiz.</small>
+        </div>
       } @else {
         <h1 class="list-display-title">Lists</h1>
+        <small>Create and explore character lists to practice.</small>
       }
     </div>
     <div class="lists-header-actions">
@@ -214,6 +218,7 @@
               <app-navigation-btn
                 title="Edit"
                 icon="edit.svg"
+                [bold]="true"
                 [route]="['lists', 'edit', list.listId]"
               />
               <app-action-btn

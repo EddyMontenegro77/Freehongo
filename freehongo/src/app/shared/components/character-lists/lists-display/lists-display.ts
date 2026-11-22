@@ -4,6 +4,7 @@ import {
   ElementRef,
   inject,
   input,
+  OnInit,
   output,
   signal,
   ViewChild,
@@ -61,7 +62,7 @@ export type QuizListSelection = { listId: string; source: ListPublicOptions };
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lists-display.scss',
 })
-export class ListsDisplay {
+export class ListsDisplay implements OnInit {
   private readonly listsFacade = inject(ListsFacade);
   private readonly destroyRef = inject(DestroyRef);
   readonly publicListsFacade = inject(PublicListsFacadeService);
@@ -144,8 +145,7 @@ export class ListsDisplay {
   ];
 
   ngOnInit(): void {
-    this.fetchUserLists();
-
+    // La suscripción va primero para que el setValue de initLists() dispare applyFilters()
     merge(
       this.listName.valueChanges.pipe(debounceTime(300)),
       this.characterType.valueChanges,
@@ -153,6 +153,18 @@ export class ListsDisplay {
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.applyFilters());
+
+    void this.initLists();
+  }
+
+  private async initLists(): Promise<void> {
+    await this.fetchUserLists();
+
+    const noPrivateLists = this.lists().length === 0 && !this.loadError();
+
+    if (this.mode() === 'quiz' && noPrivateLists) {
+      this.listPublicOptionSelected.setValue('official');
+    }
   }
 
   applyFilters(): void {
