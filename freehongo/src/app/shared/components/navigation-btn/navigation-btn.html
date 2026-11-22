@@ -5,9 +5,14 @@
   [disabled]="disabled() || busy()"
 >
   @if (icon()) {
-    <span class="icon" aria-hidden="true" [style.--icon-url]="'url(' + icon() + ')'"></span>
+    <span
+      class="icon"
+      [class.icon--original]="keepIconColors()"
+      aria-hidden="true"
+      [style.--icon-url]="'url(' + icon() + ')'"
+    ></span>
   }
   @if (showText()) {
-    <span class="label">{{ title() }}</span>
+    <span class="label" [class.label--bold]="bold()">{{ title() }}</span>
   }
 </button>

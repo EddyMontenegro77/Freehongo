@@ -5,13 +5,14 @@
   --color-charade: #252a34;
   --color-pampas: #f2f0eb;
   --color-danger: #c94141;
-  --color-success: #56d895;
+  --color-success: #45ac77;
   --color-disabled: #a2a49b;
   --color-warning: #ecdd6f;
 
   --color-accent: var(--color-bittersweet);
   --text-accent: #252a34;
-  --color-temp: #7387af;
+  --color-secondary-dark: #464f62;
+  --color-primary-dark: #1a1d24;
 }
 
 :root,
@@ -33,12 +34,12 @@
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --color-primary: var(--color-charade);
-  --color-secondary: var(--color-temp);
+  --color-primary: var(--color-primary-dark);
+  --color-secondary: var(--color-secondary-dark);
 
   --text-primary: var(--color-pampas);
-  --text-secondary: var(--color-charade);
-  --text-input-default: var(--color-charade);
+  --text-secondary: var(--color-pampas);
+  --text-input-default: var(--color-dark);
 
   --color-background: var(--color-primary);
 

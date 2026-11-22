@@ -15,6 +15,8 @@ export class NavigationBtn {
   icon = input<string | null>(null);
   showText = input<boolean>(true);
   route = input<string[] | undefined>(undefined);
+  keepIconColors = input<boolean>(false);
+  bold = input<boolean>(false);
 
   disabled = input<boolean>(false);
   busy = signal<boolean>(false);
