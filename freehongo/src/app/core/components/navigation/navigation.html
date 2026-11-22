@@ -1,5 +1,12 @@
 <nav class="nav__wrapper" aria-label="Main navigation" (keydown.escape)="closeMenu()">
-  <app-navigation-btn [title]="'FreeHongo'" class="title" />
+  <app-navigation-btn
+    class="freeHonGo__logo"
+    [bold]="true"
+    [title]="'FreeHonGo'"
+    icon="FreeHonGo_logo.svg"
+    [keepIconColors]="true"
+    class="title"
+  />
 
   <div id="nav-menu" class="nav__menu" [class.nav__menu--open]="menuOpen()" (click)="closeMenu()">
     <div class="navigation__btns">

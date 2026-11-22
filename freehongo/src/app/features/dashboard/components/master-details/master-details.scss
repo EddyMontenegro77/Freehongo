@@ -277,11 +277,12 @@
   height: 2rem;
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
   font-variant-numeric: tabular-nums;
 
   &-success {
     background-color: var(--color-success);
-    color: var(--text-success);
+    color: var(--text-accent);
   }
 
   &-danger {

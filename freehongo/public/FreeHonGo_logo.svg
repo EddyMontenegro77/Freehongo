@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1080 1080" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:affinity="https://www.affinity.studio/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <circle cx="540" cy="540" r="540" style="fill:rgb(255,113,96);"/>
+    <g id="V2">
+        <g transform="matrix(6.569972,0,0,6.704773,-1353.298628,-2681.71518)">
+            <text x="263.096px" y="449.152px" style="font-family:'MicrosoftYaHei-Bold', 'Microsoft YaHei', sans-serif;font-weight:700;font-size:50px;fill:rgb(242,240,235);">本</text>
+        </g>
+        <g transform="matrix(6.603356,0,0,6.738842,-1365.009758,-2041.350401)">
+            <text x="263.096px" y="449.152px" style="font-family:'MicrosoftYaHei-Bold', 'Microsoft YaHei', sans-serif;font-weight:700;font-size:50px;fill:rgb(37,42,52);">語</text>
+        </g>
+        <g transform="matrix(0.989184,0,0,0.989184,180.625,635.442708)">
+            <text x="0px" y="0px" style="font-family:'Arial-BoldMT', 'Arial', sans-serif;font-weight:700;font-size:269.582px;fill:rgb(242,240,235);">FR</text>
+            <text x="359.355px" y="0px" style="font-family:'Arial-BoldMT', 'Arial', sans-serif;font-weight:700;font-size:269.582px;fill:rgb(37,42,52);">EE</text>
+        </g>
+    </g>
+</svg>
