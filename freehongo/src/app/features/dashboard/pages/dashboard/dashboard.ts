@@ -38,6 +38,16 @@ import { Trends } from '../../components/trends/trends';
 export class Dashboard {
   private readonly dashboardFacadeService = inject(DashboardFacadeService);
 
+  readonly dashboardSections = [
+    { id: 'dashboard-overview', label: 'Overview' },
+    { id: 'dashboard-categories', label: 'Categories' },
+    { id: 'dashboard-skills', label: 'Skills' },
+    { id: 'dashboard-trends', label: 'Trends' },
+    { id: 'dashboard-weak-characters', label: 'Weak characters' },
+    { id: 'dashboard-practiced-characters', label: 'Characters' },
+    { id: 'dashboard-quiz-history', label: 'Quiz history' },
+  ] as const;
+
   readonly generalSummary = signal<GeneralSummary | null>(null);
   readonly categoriesProgress = signal<Record<DashboardCategory, CategoryProgress> | null>(null);
   readonly skillsProgress = signal<Record<DashboardSkill, SkillProgress> | null>(null);
@@ -57,6 +67,14 @@ export class Dashboard {
       label: 'Eighty',
     },
   ];
+
+  scrollToSection(event: MouseEvent, sectionId: string): void {
+    event.preventDefault();
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
 
   ngOnInit(): void {
     this.loadDashboard();

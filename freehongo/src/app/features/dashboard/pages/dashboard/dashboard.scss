@@ -9,6 +9,72 @@ h1 {
   padding-bottom: 1rem;
 }
 
+.dashboard-nav {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 92%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(0.6rem);
+}
+
+.dashboard-nav a {
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-secondary);
+    color: var(--text-primary);
+    transform: scale(1.1);
+  }
+}
+
+:is(
+  app-summary,
+  app-categories,
+  app-skills,
+  app-trends,
+  app-weak-chars,
+  app-master-details,
+  app-quiz-history
+) {
+  display: block;
+  scroll-margin-top: 5rem;
+}
+
+@media (max-width: 600px) {
+  .dashboard-nav {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+  }
+
+  .dashboard-nav a {
+    flex: 0 0 auto;
+  }
+}
+
 .weak-list {
   display: flex;
   flex-direction: column;
