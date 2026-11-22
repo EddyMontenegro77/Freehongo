@@ -19,6 +19,10 @@ import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 import { Logout } from './core/auth/pages/logout/logout';
 import { QuizSessionDetails } from './features/quizes/pages/quiz-session-details/quiz-session-details';
 import { StylesTest } from './core/pages/styles-test/styles-test';
+import { TermsAndConditions } from './core/docs/legal/terms-and-conditions/terms-and-conditions';
+import { PrivacyPolicy } from './core/docs/legal/privacy-policy/privacy-policy';
+import { CreditsAndLicenses } from './core/docs/legal/credits-and-licenses/credits-and-licenses';
+import { DocsIndex } from './core/docs/docs-index/docs-index';
 
 export const routes: Routes = [
   { path: 'writing/:type/:unicode', component: WritingPractice },
@@ -38,6 +42,11 @@ export const routes: Routes = [
   { path: 'user/profile', component: Profile, canActivate: [authGuard] },
   { path: 'dashboard', component: Dashboard },
   { path: 'docs/styles', component: StylesTest },
+  { path: 'docs/legal/terms-and-conditions', component: TermsAndConditions },
+  { path: 'docs/legal/privacy-policy', component: PrivacyPolicy },
+  { path: 'docs/legal/credits-and-licences', component: CreditsAndLicenses },
+  { path: 'docs/index', component: DocsIndex },
+  { path: 'docs', component: DocsIndex },
   { path: '', component: Home },
   { path: '**', redirectTo: '' },
 ];
