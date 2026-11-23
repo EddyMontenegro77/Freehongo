@@ -20,17 +20,13 @@ h1 {
   max-width: 100%;
   margin-bottom: 1.5rem;
   padding: 0.45rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-primary) 92%, transparent);
-  box-shadow: var(--shadow-sm);
   backdrop-filter: blur(0.6rem);
 }
 
 .dashboard-nav a {
   padding: 0.45rem 0.7rem;
   border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 1rem;
   text-decoration-line: underline;
   text-decoration-color: var(--color-accent);
@@ -44,7 +40,7 @@ h1 {
   &:hover,
   &:focus-visible {
     background: var(--color-secondary);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     transform: scale(1.1);
   }
 }
