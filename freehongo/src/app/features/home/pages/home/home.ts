@@ -1,222 +1,194 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavigationBtn } from '../../../../shared/components/navigation-btn/navigation-btn';
 import { gsap } from 'gsap';
-import {
-  registerScrollTrigger,
-  revealOnScroll,
-} from '../../../../shared/utils/animations.utils';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { NavigationBtn } from '../../../../shared/components/navigation-btn/navigation-btn';
+import { Progressbar } from '../../../../shared/components/progressbar/progressbar';
+
+interface HomeFeature {
+  icon: string;
+  title: string;
+  description: string;
+  route: string[];
+  action: string;
+}
 
 @Component({
   selector: 'app-home',
-  imports: [NavigationBtn],
+  imports: [NavigationBtn, Progressbar],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.scss',
 })
 export class Home implements AfterViewInit, OnDestroy {
-  @ViewChild('heroLogo')
-  private heroLogo!: ElementRef<SVGSVGElement>;
-
-  @ViewChild('charFlip')
-  private charFlip!: ElementRef<HTMLElement>;
-
-  @ViewChild('kanjiCount')
-  private kanjiCount!: ElementRef<HTMLElement>;
-
+  private readonly router = inject(Router);
+  private readonly host = inject(ElementRef<HTMLElement>);
   private animationContext?: gsap.Context;
 
-  private readonly heroChars = ['あ', 'ア', '日', 'か', 'カ', '本', 'さ', 'サ', '水'];
+  readonly currentYear = new Date().getFullYear();
 
-  constructor(
-    private router: Router,
-    private el: ElementRef<HTMLElement>,
-  ) {}
+  readonly heroChars = ['あ', 'ア', '日', 'か', 'カ', '本', 'さ', 'サ', '水'];
+
+  readonly features: HomeFeature[] = [
+    {
+      icon: 'readings_icon.svg',
+      title: 'Explore characters',
+      description: 'Search readings, meanings, levels and usage details.',
+      route: ['/characters/picker'],
+      action: 'Open character picker',
+    },
+    {
+      icon: 'edit.svg',
+      title: 'Practice writing',
+      description: 'Follow stroke order and get immediate feedback as you write.',
+      route: ['/writing', 'kanji', '4e00'],
+      action: 'Try writing',
+    },
+    {
+      icon: 'play.svg',
+      title: 'Take a quiz',
+      description: 'Train readings, meanings, characters and stroke writing.',
+      route: ['/quizzes'],
+      action: 'Start a quiz',
+    },
+    {
+      icon: 'create_list_icon.svg',
+      title: 'Build your lists',
+      description: 'Create private lists or discover public and official collections.',
+      route: ['/lists'],
+      action: 'Manage lists',
+    },
+    {
+      icon: 'levels_icon.svg',
+      title: 'Track your progress',
+      description: 'Review accuracy, weak characters, trends and quiz history in your dashboard.',
+      route: ['/dashboard'],
+      action: 'Open dashboard',
+    },
+    {
+      icon: 'sync.svg',
+      title: 'Keep learning anywhere',
+      description: 'Work locally with your lists and synchronize your practice when you are ready.',
+      route: ['/lists'],
+      action: 'See your lists',
+    },
+  ];
 
   navigateTo(route: string): void {
-    this.router.navigate([route]);
+    void this.router.navigate([route]);
   }
 
   ngAfterViewInit(): void {
-    registerScrollTrigger();
+    if (typeof window.matchMedia !== 'function') return;
 
-    const paths = Array.from(
-      this.heroLogo.nativeElement.querySelectorAll<SVGPathElement>('path'),
-    ).filter((path) => typeof path.getTotalLength === 'function');
-    const heroSection = this.el.nativeElement.querySelector<HTMLElement>('.hero');
-    const heroText = this.el.nativeElement.querySelector<HTMLElement>('.hero-text');
-    const heroInfo = this.el.nativeElement.querySelector<HTMLElement>('.hero-info-wrapper');
-    const charsInfo = this.el.nativeElement.querySelector<HTMLElement>('.characters-info');
-    const ctaSection = this.el.nativeElement.querySelector<HTMLElement>('.cta-section');
+    gsap.registerPlugin(ScrollTrigger);
+    const root = this.host.nativeElement as HTMLElement;
 
     this.animationContext = gsap.context(() => {
-      paths.forEach((path) => {
-        const length = path.getTotalLength();
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const heroItems = root.querySelectorAll<HTMLElement>('.hero__content > *');
+      const logo = root.querySelector<HTMLElement>('.hero__logo');
+      const floatingChars = root.querySelectorAll<HTMLElement>('.hero__character');
+      const revealItems = root.querySelectorAll<HTMLElement>('[data-reveal]');
+      const practiceCharacter = root.querySelector<HTMLElement>('.practice-demo__character');
+      const kanjiCount = root.querySelector<HTMLElement>('.progress-demo__kanji-count span');
+      const progressSection = root.querySelector<HTMLElement>('.progress-section');
 
-        gsap.set(path, {
-          strokeDasharray: length,
-          strokeDashoffset: length,
-          opacity: 0,
-        });
-      });
-
-      const drawTimeline = gsap.timeline();
-
-      paths.forEach((path) => {
-        drawTimeline
-          .set(path, {
-            opacity: 1,
-          })
-          .to(path, {
-            strokeDashoffset: 0,
-            duration: 0.2,
-            ease: 'power1.inOut',
-          });
-      });
-
-      if (heroSection) {
-        const textEls = heroSection.querySelectorAll<HTMLElement>('h1, h2, p');
-
-        const darkState = {
-          '--grad-1': 'rgba(35, 49, 66, 0.78)',
-          '--grad-2': 'rgba(165, 222, 241, 0.36)',
-          '--grad-3': 'rgba(54, 80, 108, 1)',
-        };
-
-        const lightState = {
-          '--grad-1': 'rgba(54, 80, 108, 0.85)',
-          '--grad-2': 'rgba(35, 49, 66, 0.5)',
-          '--grad-3': 'rgba(160, 200, 220, 0.55)',
-        };
-
-        gsap.set(textEls, {
-          textShadow: '0 0 0 rgba(0, 0, 0, 0)',
-        });
-
-        gsap
-          .timeline()
-          .to(
-            heroSection,
-            {
-              ...lightState,
-              duration: 3,
-              ease: 'sine.inOut',
-            },
-            0,
-          )
-          .to(
-            textEls,
-            {
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.6)',
-              duration: 3,
-            },
-            0,
-          )
-          .to(
-            {},
-            {
-              duration: 1,
-            },
-          )
-          .to(heroSection, {
-            ...darkState,
-            duration: 4,
-            ease: 'sine.inOut',
-          })
-          .to(
-            textEls,
-            {
-              textShadow: '0 0 0 rgba(0, 0, 0, 0)',
-              duration: 6,
-            },
-            '<',
-          )
-          .to(
-            {},
-            {
-              duration: 3,
-            },
-          );
-
-        if (charsInfo) {
-          this.animateCounter(this.kanjiCount.nativeElement, 6400, charsInfo);
-
-          this.cycleCharacter(this.charFlip.nativeElement, this.heroChars, charsInfo);
-        }
-
-        [heroInfo, charsInfo, ctaSection].forEach((section) => {
-          if (section) {
-            revealOnScroll(section);
-          }
-        });
-
-        if (heroText) {
-          const textItems = heroText.querySelectorAll<HTMLElement>('h1, h2, p, .cta-hero-section');
-
-          gsap.set(textItems, { opacity: 0, y: 24 });
-
-          gsap.to(textItems, {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            stagger: 0.15,
-            ease: 'power2.out',
-            delay: 0.2, // opcional: deja que el logo empiece a dibujarse primero
-          });
-        }
+      if (reduceMotion) {
+        gsap.set(heroItems, { opacity: 1, clearProps: 'transform' });
+        gsap.set(revealItems, { opacity: 1, clearProps: 'transform' });
+        if (kanjiCount) kanjiCount.textContent = '6,400';
+        return;
       }
-    }, this.el.nativeElement);
-  }
 
-  private cycleCharacter(el: HTMLElement, characters: string[], trigger: HTMLElement) {
-    let index = 0;
-
-    gsap
-      .timeline({
-        repeat: -1,
-        repeatDelay: 1.2,
-        scrollTrigger: {
-          trigger,
-          start: 'top 80%',
-          toggleActions: 'play pause resume pause',
-        },
-      })
-      .to(el, {
-        rotationX: 90,
-        duration: 0.3,
-        ease: 'power1.in',
-        onComplete: () => {
-          index = (index + 1) % characters.length;
-          el.textContent = characters[index];
-        },
-      })
-      .set(el, { rotationX: -90 })
-      .to(el, {
-        rotationX: 0,
-        duration: 0.3,
-        ease: 'power1.out',
+      gsap.fromTo(heroItems, { opacity: 0, y: 28 }, {
+        opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out',
       });
+
+      if (logo) {
+        gsap.fromTo(logo, { opacity: 0, scale: 0.82, rotation: -8 }, {
+          opacity: 1, scale: 1, rotation: 0, duration: 1.1, ease: 'back.out(1.6)', delay: 0.15,
+        });
+      }
+
+      floatingChars.forEach((character, index) => {
+        gsap.to(character, {
+          y: index % 2 === 0 ? -14 : 14,
+          rotation: index % 2 === 0 ? 4 : -4,
+          duration: 2.8 + index * 0.35,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: index * 0.2,
+        });
+      });
+
+      if (practiceCharacter) {
+        let index = 0;
+
+        gsap.timeline({ repeat: -1, repeatDelay: 1.1 }).to(practiceCharacter, {
+          rotationX: 90,
+          duration: 0.3,
+          ease: 'power1.in',
+          onComplete: () => {
+            index = (index + 1) % this.heroChars.length;
+            practiceCharacter.textContent = this.heroChars[index];
+          },
+        }).set(practiceCharacter, { rotationX: -90 }).to(practiceCharacter, {
+          rotationX: 0,
+          duration: 0.3,
+          ease: 'power1.out',
+        });
+      }
+
+      if (kanjiCount && progressSection) {
+        const counter = { value: 0 };
+
+        gsap.to(counter, {
+          value: 6400,
+          duration: 1.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: progressSection,
+            start: 'top 78%',
+            toggleActions: 'play none none none',
+          },
+          onUpdate: () => {
+            kanjiCount.textContent = Math.floor(counter.value).toLocaleString('en-US');
+          },
+        });
+      }
+
+      revealItems.forEach((section) => {
+        gsap.fromTo(section, { opacity: 0, y: 42 }, {
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 82%',
+            toggleActions: 'play none none reverse',
+          },
+        });
+      });
+
+      gsap.fromTo(root.querySelectorAll<HTMLElement>('.feature-card'), { opacity: 0, y: 24 }, {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.features-grid',
+          start: 'top 82%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+    }, root);
   }
 
   ngOnDestroy(): void {
     this.animationContext?.revert();
-  }
-
-  private animateCounter(el: HTMLElement, target: number, trigger: HTMLElement) {
-    const counter = { value: 0 };
-
-    gsap.to(counter, {
-      value: target,
-      duration: 1.5,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger,
-        start: 'top 80%',
-        toggleActions: 'play none none none',
-      },
-      onUpdate: () => {
-        el.textContent = `+${Math.floor(counter.value).toLocaleString('en-US')}`;
-      },
-    });
   }
 }

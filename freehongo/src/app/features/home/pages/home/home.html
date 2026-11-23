@@ -1,94 +1,164 @@
-<div class="hero">
-  <div class="hero-text">
-    <h1>FreeHongo!</h1>
-    <h2>Learn japanese character by character</h2>
-    <p>Practice writing with feedback and examples. Create your own study lists.</p>
-    <div class="cta-hero-section">
+<main class="home-page">
+  <section class="hero" aria-labelledby="home-title">
+    <span class="hero__character hero__character--one" aria-hidden="true">あ</span>
+    <span class="hero__character hero__character--two" aria-hidden="true">字</span>
+    <span class="hero__character hero__character--three" aria-hidden="true">学</span>
+
+    <div class="hero__content">
+      <p class="eyebrow">Japanese, one character at a time</p>
+      <h1 id="home-title">Meet every character with confidence.</h1>
+      <p class="hero__lead">
+        Explore, write and quiz yourself with a focused practice space for hiragana, katakana and
+        kanji.
+      </p>
+      <div class="hero__actions">
+        <app-navigation-btn
+          class="home-btn home-btn--primary"
+          title="Start practicing"
+          icon="internal_link_nav_icon.svg"
+          [route]="['/characters/picker']"
+          [bold]="true"
+        />
+        <app-navigation-btn
+          class="home-btn home-btn--secondary"
+          title="Explore quizzes"
+          [route]="['/quizzes']"
+        />
+      </div>
+    </div>
+
+    <div class="hero__visual" aria-label="FreeHonGo logo">
+      <img class="hero__logo" src="FreeHonGo_logo.svg" alt="FreeHonGo" />
+    </div>
+  </section>
+
+  <section class="intro-section" data-reveal aria-labelledby="intro-title">
+    <p class="eyebrow">A complete practice loop</p>
+    <h2 id="intro-title">Find it. Write it. Remember it.</h2>
+    <p>
+      FreeHonGo brings character discovery, stroke practice, custom lists and quizzes together in
+      one calm workspace.
+    </p>
+  </section>
+
+  <section class="features-section" data-reveal aria-labelledby="features-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Everything connected</p>
+        <h2 id="features-title">Tools for steady progress</h2>
+      </div>
+      <span class="section-heading__mark" aria-hidden="true">十</span>
+    </div>
+
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <article class="feature-card">
+          <span
+            class="feature-card__icon"
+            aria-hidden="true"
+            [style.--feature-icon]="'url(' + feature.icon + ')'"
+          ></span>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+          <app-navigation-btn
+            class="feature-card__action"
+            [title]="feature.action"
+            [route]="feature.route"
+          />
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="practice-section" data-reveal aria-labelledby="practice-title">
+    <div class="practice-demo">
+      <div class="practice-demo__ring" aria-hidden="true">
+        <span #charFlip class="practice-demo__character">あ</span>
+      </div>
+    </div>
+    <div class="practice-copy">
+      <p class="eyebrow">Writing practice</p>
+      <h2 id="practice-title">Make every stroke intentional.</h2>
+      <p>
+        See the expected stroke order, draw it yourself and get feedback immediately. Start with a
+        single character or practice from one of your lists.
+      </p>
       <app-navigation-btn
-        class="cta-primary"
-        icon="internal_link_nav_icon.svg"
-        title="START PRACTICING"
-        [route]="['characters/picker/']"
+        class="home-btn home-btn--primary"
+        title="Try writing"
+        [route]="['/writing/kanji/4e00']"
+        [bold]="true"
       />
     </div>
+  </section>
+
+  <section class="progress-section" data-reveal aria-labelledby="progress-title">
+    <div class="progress-copy">
+      <p class="eyebrow">A demo of your progress</p>
+      <h2 id="progress-title">Small sessions add up.</h2>
+      <p>
+        Your dashboard will turn each quiz and writing session into a clear picture of what you know
+        and what to practice next.
+      </p>
+    </div>
+
+    <div class="progress-demo" aria-label="Example progress dashboard">
+      <div class="progress-demo__topline">
+        <span>This week</span>
+        <strong>12 sessions</strong>
+      </div>
+      <div class="progress-demo__metric">
+        <span>Character recognition</span>
+        <strong>78%</strong>
+        <app-progressbar
+          [value]="78"
+          [max]="100"
+          variant="accent"
+          barAriaLabel="Character recognition"
+        />
+      </div>
+      <div class="progress-demo__metric">
+        <span>Writing accuracy</span>
+        <strong>64%</strong>
+        <app-progressbar
+          [value]="64"
+          [max]="100"
+          variant="default"
+          barAriaLabel="Writing accuracy"
+        />
+      </div>
+      <div class="progress-demo__kanji">
+        <span class="progress-demo__kanji-count">+<span #kanjiCount>0</span></span>
+        <span>kanjis ready to explore</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta" data-reveal aria-labelledby="final-title">
+    <p class="eyebrow">Your practice starts here</p>
+    <h2 id="final-title">Build a habit that sticks.</h2>
+    <app-navigation-btn
+      class="home-btn home-btn--primary"
+      title="Open character picker"
+      icon="internal_link_nav_icon.svg"
+      [route]="['/characters/picker']"
+      [bold]="true"
+    />
+  </section>
+</main>
+
+<footer class="home-footer">
+  <div class="home-footer__inner">
+    <div class="home-footer__brand">
+      <img src="FreeHonGo_logo.svg" alt="FreeHonGo" />
+      <span class="home-footer__copyright">© {{ currentYear }} FreeHonGo</span>
+    </div>
+
+    <nav class="home-footer__links" aria-label="Footer links">
+      <a href="/docs/legal/terms-and-conditions">Terms and Conditions</a>
+      <a href="/docs/legal/privacy-policy">Privacy Policy</a>
+      <a href="/docs/legal/credits-and-licences">Credits and Licenses</a>
+      <a href="/docs">Docs</a>
+    </nav>
   </div>
-  <div class="svg-container">
-    <svg
-      #heroLogo
-      width="100%"
-      height="100%"
-      viewBox="0 0 162 118"
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      xml:space="preserve"
-      xmlns:serif="http://www.serif.com/"
-      style="
-        fill-rule: evenodd;
-        clip-rule: evenodd;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-miterlimit: 1.5;
-      "
-    >
-      <path d="M6,6l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path d="M6,6l45.532,0l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path d="M6,53.994l45.532,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path d="M6,102.179l45.532,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path d="M93.467,18.6l55.388,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path d="M121.162,6l0,105.6" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-      <path
-        d="M121.162,18.6c0,0 -10.879,50.626 -34.8,59.341"
-        style="fill: none; stroke: #a5def1; stroke-width: 12px"
-      />
-      <path
-        d="M121.162,18.6c0,0 10.879,50.626 34.8,59.341"
-        style="fill: none; stroke: #a5def1; stroke-width: 12px"
-      />
-      <path d="M133.162,80.4l-24,0" style="fill: none; stroke: #a5def1; stroke-width: 12px" />
-    </svg>
-  </div>
-</div>
-<div class="hero-info-wrapper">
-  <label>Discover</label>
-  <ul class="hero-list">
-    <li>
-      <img class="list-icons" src="meanings_icon.svg" />
-      <span>Meanings</span>
-    </li>
-    <li>
-      <img class="list-icons" src="readings_icon.svg" />
-      <span>Readings</span>
-    </li>
-    <li>
-      <img class="list-icons" src="frequency_icon.svg" />
-      <span>Frequency of use</span>
-    </li>
-    <li>
-      <img class="list-icons" src="levels_icon.svg" />
-      <span>Language levels</span>
-    </li>
-    <li class="more">
-      <span>And more...</span>
-    </li>
-  </ul>
-</div>
-<div class="characters-info">
-  <div class="character-info-text">
-    <p>All Hiragana and Katanaka characters</p>
-    <p><span #kanjiCount>0</span> Kanjis</p>
-  </div>
-  <span class="char-flip" #charFlip>あ</span>
-</div>
-<div class="cta-section">
-  <app-navigation-btn
-    class="cta-primary"
-    title="Pick a character to practice"
-    [route]="['characters/picker/']"
-  />
-  <app-navigation-btn
-    class="cta-secondary"
-    title="Try the easiest one"
-    [route]="['/characters/info/kanji/4e00']"
-  />
-</div>
+</footer>
