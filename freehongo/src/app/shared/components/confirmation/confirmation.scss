@@ -14,12 +14,12 @@
 }
 
 .confirmation {
+  box-sizing: border-box;
   width: min(100%, 28rem);
   padding: 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  color: var(--text);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--text-primary);
   box-shadow: var(--shadow);
 }
 
@@ -29,18 +29,27 @@
 }
 
 .confirmation p {
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .confirmation__actions {
   display: flex;
+  flex-direction: row;
   justify-content: flex-end;
+  align-items: stretch;
   gap: 0.75rem;
   margin-top: 1.25rem;
 }
 
 .confirmation__actions app-action-btn {
-  width: 7rem;
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 9rem;
+}
+
+.confirmation__actions ::ng-deep button {
+  width: 100%;
 }
 
 @media (max-width: 480px) {
@@ -49,6 +58,8 @@
   }
 
   .confirmation__actions app-action-btn {
+    flex: none;
+    max-width: none;
     width: 100%;
   }
 }

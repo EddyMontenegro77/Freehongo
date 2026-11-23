@@ -6,6 +6,8 @@ import {
 } from '../../../shared/models/quizes/quizes.interface';
 import { StoredCharacterStat } from '../../../shared/models/quizes/quizes-storage.interface';
 import { QuizEvaluationStorageService } from './quiz-evaluation-storage.service';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
 
 const STARTED_AT = '2026-09-29T00:00:00.000Z';
 const COMPLETED_AT = '2026-09-29T00:05:00.000Z';
@@ -139,9 +141,14 @@ describe('QuizEvaluationStorageService', () => {
       ),
     };
 
-    TestBed.configureTestingModule({ providers: [QuizEvaluationStorageService] });
+    TestBed.configureTestingModule({
+      providers: [
+        QuizEvaluationStorageService,
+        { provide: DatabaseService, useValue: { database } },
+        { provide: SyncTriggerService, useValue: { schedule: vi.fn() } },
+      ],
+    });
     service = TestBed.inject(QuizEvaluationStorageService);
-    (service as any).database = database;
   });
 
   describe('sessions and answers', () => {

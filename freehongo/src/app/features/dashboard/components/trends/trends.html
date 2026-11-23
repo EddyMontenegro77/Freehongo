@@ -1,55 +1,127 @@
-<app-card class="trends">
-  <section card-header class="trends-header">
-    <h2>Trends</h2>
-    <div class="trends-filters">
-      <app-segmented-control
-        label="Period"
-        [options]="periodOptions"
-        [value]="period()"
-        (valueChange)="period.set($event)"
-      />
-      <app-segmented-control
-        label="Skill"
-        [options]="skillOptions"
-        [value]="skill()"
-        (valueChange)="skill.set($event)"
-      />
+<div class="trends__container">
+  <header class="trends__header">
+    <div class="trends__title">
+      <h2>Trends</h2>
+      <app-icon-btn title="Trends info" iconSrc="info.svg" [action]="openModal" />
     </div>
-  </section>
 
-  <div card-body class="trends-body">
-    @if (hasEnoughData()) {
-      <div class="trend-cards">
-        @for (card of cards(); track card.label) {
-          <div class="trend-card">
-            <span class="trend-label">{{ card.label }}</span>
-            <b class="trend-value">{{ card.value }}</b>
-            @if (card.delta) {
-              <span
-                class="trend-delta"
-                [class.is-up]="card.trend === 'up'"
-                [class.is-down]="card.trend === 'down'"
-              >
-                {{ card.delta }} vs previous period
-              </span>
-            }
-          </div>
-        }
+    <div class="trends__filters">
+      <div class="trends__segmenteds">
+        <app-segmented-control
+          label="Period"
+          [options]="periodOptions"
+          [value]="period()"
+          (valueChange)="period.set($event)"
+        />
+        <app-segmented-control
+          label="Skill"
+          [options]="skillOptions"
+          [value]="skill()"
+          (valueChange)="skill.set($event)"
+        />
       </div>
 
-      <section class="trend-section">
-        <h3>Accuracy and activity</h3>
-        <app-trend-chart [config]="mainChart()" />
-      </section>
+      <div class="trends__selects">
+        <app-select
+          label="Period"
+          [options]="periodSelectOptions"
+          [value]="periodSelectValue()"
+          (valueChange)="onPeriodSelect($event)"
+        />
+        <app-select
+          label="Skill"
+          [options]="skillSelectOptions"
+          [value]="skillSelectValue()"
+          (valueChange)="onSkillSelect($event)"
+        />
+      </div>
+    </div>
+  </header>
 
-      @if (skill() === 'all' && skillChart().datasets.length > 1) {
-        <section class="trend-section">
-          <h3>Accuracy by skill</h3>
-          <app-trend-chart [config]="skillChart()" />
-        </section>
+  @if (hasEnoughData()) {
+    <div class="trends__stats">
+      @for (card of cards(); track card.label) {
+        <div class="trend-stat">
+          <span class="trend-stat__label">{{ card.label }}</span>
+          <span class="trend-stat__value">{{ card.value }}</span>
+
+          @if (card.delta) {
+            <span class="trend-stat__delta">
+              <app-chip
+                [variant]="
+                  card.trend === 'up' ? 'success' : card.trend === 'down' ? 'danger' : 'default'
+                "
+              >
+                {{ card.delta }}
+              </app-chip>
+              <span class="trend-stat__note">vs previous period</span>
+            </span>
+          }
+        </div>
       }
-    } @else {
-      <p class="trends-empty">Practice a few different days to see your progress here.</p>
+    </div>
+
+    <section class="trend-section">
+      <h3>Accuracy and activity</h3>
+      <app-card variant="outline" size="md">
+        <div card-body>
+          <app-trend-chart [config]="mainChart()" />
+        </div>
+      </app-card>
+    </section>
+
+    @if (skill() === 'all' && skillChart().datasets.length > 1) {
+      <section class="trend-section">
+        <h3>Accuracy by skill</h3>
+        <app-card variant="outline" size="md">
+          <div card-body>
+            <app-trend-chart [config]="skillChart()" />
+          </div>
+        </app-card>
+      </section>
     }
+  } @else {
+    <p class="trends__empty">Practice a few different days to see your progress here.</p>
+  }
+</div>
+
+<app-modal title="How trends work" #infoModal>
+  <div modal-body class="trends-info">
+    <p>
+      Trends compare your recent practice with the period right before it, so you can see whether
+      you are improving.
+    </p>
+
+    <dl class="trends-info__items">
+      <div>
+        <dt>Period</dt>
+        <dd>The time window shown in the numbers and charts.</dd>
+      </div>
+      <div>
+        <dt>Skill</dt>
+        <dd>Shows all skills together or only one of them (reading, meaning or writing).</dd>
+      </div>
+      <div>
+        <dt>Numbers and changes</dt>
+        <dd>
+          Each number summarizes the selected period. The chip next to it shows the change against
+          the previous period of the same length: green means it went up and red means it went down.
+        </dd>
+      </div>
+      <div>
+        <dt>Accuracy and activity</dt>
+        <dd>How correct your answers were and how much you practiced, day by day.</dd>
+      </div>
+      <div>
+        <dt>Accuracy by skill</dt>
+        <dd>One line per skill, to compare them. It only appears when all skills are selected.</dd>
+      </div>
+    </dl>
+
+    <p>You need to practice on a few different days before the charts show up.</p>
   </div>
-</app-card>
+
+  <div modal-footer>
+    <app-action-btn title="Got it" variant="accent" [action]="closeModal" />
+  </div>
+</app-modal>

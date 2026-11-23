@@ -6,90 +6,147 @@
   } @else if (modifiedList(); as currentList) {
     <header class="list-header">
       @if (editMode) {
-        <div class="edit-form">
-          <app-input
-            label="List name"
-            [value]="currentList.name"
-            [required]="true"
-            (valueChange)="updateName($event)"
+        <div class="list-header__main">
+          <h1 class="list-heading">Edit list</h1>
+          <p class="list-subtitle">
+            Rename the list, change its visibility or remove characters. Nothing is saved until you
+            press Save.
+          </p>
+          <div class="edit-form">
+            <app-input
+              class="edit-form__name"
+              label="List name"
+              [value]="currentList.name"
+              [required]="true"
+              (valueChange)="updateName($event)"
+            />
+            <app-select
+              class="edit-form__type"
+              label="Type"
+              [value]="currentList.type"
+              [options]="listTypeOptions"
+              [required]="true"
+              (valueChange)="updateType($event)"
+            />
+            <app-toggle-button
+              class="edit-form__public"
+              label="Public list"
+              [checked]="currentList.isPublic"
+              (checkedChange)="updatePublic($event)"
+            />
+          </div>
+        </div>
+        <div class="header-actions">
+          <app-action-btn
+            title="Cancel"
+            [action]="cancelChanges"
+            [disabled]="isSaving()"
+            variant="danger"
           />
-          <app-select
-            label="Type"
-            [value]="currentList.type"
-            [options]="listTypeOptions"
-            [required]="true"
-            (valueChange)="updateType($event)"
-          />
-          <app-toggle-button
-            label="Public list"
-            [checked]="currentList.isPublic"
-            (checkedChange)="updatePublic($event)"
+          <app-action-btn
+            title="Save"
+            [action]="saveChanges"
+            [disabled]="isSaving()"
+            variant="success"
           />
         </div>
       } @else {
-        <div>
-          <h1>{{ currentList.name }}</h1>
-          <span
-            >Type: {{ currentList.type }} · {{ currentList.isPublic ? 'Public' : 'Private' }}</span
-          >
+        <div class="list-header__main">
+          <h1 class="list-heading">{{ currentList.name }}</h1>
+          <p class="list-subtitle">
+            {{ currentList.isPublic ? 'Anyone can see this list.' : 'Only you can see this list.' }}
+          </p>
         </div>
-        <app-action-btn title="Edit" [action]="enterEditMode" variant="primary" />
-      }
-
-      @if (saveError(); as error) {
-        <p class="save-error">{{ error }}</p>
       }
     </header>
 
-    <div class="list-dates">
-      <span>Created: {{ currentList.createdAt | date: 'medium' }}</span>
-      <span>Updated: {{ currentList.updatedAt | date: 'medium' }}</span>
-    </div>
-    <div class="char-cards-container">
-      @for (char of currentList.characters; track char) {
-        <app-card class="char-card">
-          <div card-header>
-            <app-icon-btn
-              title="View details"
-              iconSrc="eye_dark.svg"
-              [action]="() => goToCharacterDetails(char)"
-              class="view-details-btn"
-            />
-            <p class="char-unicode">{{ char }}</p>
-          </div>
-          <div card-body>
-            <p class="char-graphic">{{ char | unicodeCharacter }}</p>
-          </div>
-
-          <div card-footer>
-            @if (editMode) {
-              <app-icon-btn
-                title="Remove"
-                iconSrc="/close_dark.svg"
-                [action]="() => requestRemoveCharacter(char)"
-                class="remove-btn"
-              />
-            }
-          </div>
-        </app-card>
-      }
-    </div>
-    @if (editMode) {
-      <div class="edit-actions">
-        <app-action-btn
-          title="Cancel"
-          [action]="cancelChanges"
-          [disabled]="isSaving()"
-          variant="danger"
-        />
-        <app-action-btn
-          title="Save"
-          [action]="saveChanges"
-          [disabled]="isSaving()"
-          variant="success"
-        />
-      </div>
+    @if (saveError(); as error) {
+      <p class="save-error" role="alert">{{ error }}</p>
     }
+
+    <section class="list-stats" aria-label="List summary">
+      <div class="stat">
+        <span class="stat__label">Type</span>
+        <span class="stat__value">{{ currentList.type }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Visibility</span>
+        <span class="stat__value" [class.stat__value--public]="currentList.isPublic">
+          {{ currentList.isPublic ? 'Public' : 'Private' }}
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Characters</span>
+        <span class="stat__value">{{ currentList.characters.length }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__label">Created</span>
+        <span class="stat__value">{{ currentList.createdAt | date: 'mediumDate' }}</span>
+      </div>
+      @if (currentList.updatedAt) {
+        <div class="stat">
+          <span class="stat__label">Last updated</span>
+          <span class="stat__value">{{ currentList.updatedAt | date: 'mediumDate' }}</span>
+        </div>
+      }
+      <app-icon-btn
+        title="Edit"
+        iconSrc="edit.svg"
+        [showText]="true"
+        variant="accent"
+        [action]="enterEditMode"
+      />
+    </section>
+
+    <hr />
+
+    <section class="characters-section">
+      <div class="characters-header">
+        <h2>Characters</h2>
+        <p class="characters-hint">
+          @if (editMode) {
+            <span class="dot">*</span>Use the eye icon to view character details or the cross icon
+            to remove a character from the list.
+          } @else {
+            <span class="dot">*</span>Use the eye icon to view character details.
+          }
+        </p>
+      </div>
+
+      <div class="char-cards-container">
+        @for (char of currentList.characters; track char) {
+          <app-card class="char-card">
+            <div card-header class="char-header">
+              <p class="char-unicode">{{ char }}</p>
+            </div>
+
+            <div card-body class="char-body">
+              <p class="char-graphic">{{ char | unicodeCharacter }}</p>
+            </div>
+
+            <div card-footer class="char-actions">
+              <app-icon-btn
+                title="View details"
+                iconSrc="eye.svg"
+                [action]="() => goToCharacterDetails(char)"
+              />
+              @if (editMode) {
+                <app-icon-btn
+                  title="Remove"
+                  iconSrc="/close.svg"
+                  [action]="() => requestRemoveCharacter(char)"
+                  class="remove-btn"
+                />
+              }
+            </div>
+          </app-card>
+        } @empty {
+          <div class="empty-state">
+            <p>This list has no characters yet</p>
+          </div>
+        }
+      </div>
+    </section>
   }
 </div>
 

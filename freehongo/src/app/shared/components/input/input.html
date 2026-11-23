@@ -17,6 +17,8 @@
     [attr.min]="min()"
     [attr.max]="max()"
     [attr.step]="step()"
+    [class.default]="variant() === 'default'"
+    [class.outline]="variant() === 'outline'"
     (input)="onInput($event)"
     (blur)="touch.emit()"
   />

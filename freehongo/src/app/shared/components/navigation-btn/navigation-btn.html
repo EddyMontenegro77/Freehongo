@@ -1,6 +1,18 @@
-<button type="button" (click)="navigate()" [disabled]="disabled() || busy()">
-  <span>{{ title() }}</span>
+<button
+  type="button"
+  [class.full-width]="fullWidth()"
+  (click)="navigate()"
+  [disabled]="disabled() || busy()"
+>
   @if (icon()) {
-    <img [src]="icon()" [alt]="icon()" />
+    <span
+      class="icon"
+      [class.icon--original]="keepIconColors()"
+      aria-hidden="true"
+      [style.--icon-url]="'url(' + icon() + ')'"
+    ></span>
+  }
+  @if (showText()) {
+    <span class="label" [class.label--bold]="bold()">{{ title() }}</span>
   }
 </button>

@@ -13,6 +13,7 @@ describe('TrendChart', () => {
 
     fixture = TestBed.createComponent(TrendChart);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('config', { labels: [], datasets: [] });
     await fixture.whenStable();
   });
 

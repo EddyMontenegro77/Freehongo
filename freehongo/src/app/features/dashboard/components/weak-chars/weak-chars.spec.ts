@@ -13,6 +13,7 @@ describe('WeakChars', () => {
 
     fixture = TestBed.createComponent(WeakChars);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('data', []);
     await fixture.whenStable();
   });
 

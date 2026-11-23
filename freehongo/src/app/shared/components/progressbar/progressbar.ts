@@ -1,4 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy, signal } from '@angular/core';
+
+export type ProgressBarVariant = 'default' | 'accent';
 
 export interface Milestone {
   value: number;
@@ -7,39 +9,37 @@ export interface Milestone {
 
 @Component({
   selector: 'app-progressbar',
-  styleUrl: './progressbar.scss',
+  standalone: true,
   templateUrl: './progressbar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './progressbar.scss',
 })
 export class Progressbar {
   value = input<number>(0);
   max = input<number>(100);
   milestones = input<Milestone[]>([]);
   barAriaLabel = input<string>('Progress bar');
+  variant = input<ProgressBarVariant>('default');
 
-  percent = computed(() => {
+  percent = computed(() => this.toPercent(this.value()));
+
+  progressAriaLabel = computed(() => `${this.barAriaLabel()}: ${Math.round(this.percent())}%`);
+
+  position(milestone: Milestone): number {
+    return this.toPercent(milestone.value);
+  }
+
+  reached(milestone: Milestone): boolean {
+    return this.value() >= milestone.value;
+  }
+
+  private toPercent(value: number): number {
     const max = this.max();
-    const value = this.value();
 
     if (!Number.isFinite(max) || max <= 0 || !Number.isFinite(value)) {
       return 0;
     }
 
     return Math.min(100, Math.max(0, (value / max) * 100));
-  });
-
-  progressAriaLabel = computed(() => `${this.barAriaLabel()}: ${this.percent()}%`);
-
-  position(milestone: Milestone) {
-    const max = this.max();
-
-    if (!Number.isFinite(max) || max <= 0 || !Number.isFinite(milestone.value)) {
-      return 0;
-    }
-
-    return Math.min(100, Math.max(0, (milestone.value / max) * 100));
-  }
-
-  reached(milestone: Milestone) {
-    return this.value() >= milestone.value;
   }
 }

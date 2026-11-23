@@ -8,15 +8,31 @@
     </div>
     <div card-footer class="open__btns">
       <app-action-btn
+        class="btn-normal"
         title="Practice"
         [action]="openWritingPractice"
-        variant="light"
-      ></app-action-btn>
+        variant="primary"
+      />
       <app-action-btn
+        class="btn-normal"
         title="Details"
         [action]="openCharacterDetails"
         variant="accent"
-      ></app-action-btn>
+      />
+      <app-action-btn
+        class="btn-full-width"
+        title="Practice"
+        [fullWidth]="true"
+        [action]="openWritingPractice"
+        variant="primary"
+      />
+      <app-action-btn
+        class="btn-full-width"
+        [fullWidth]="true"
+        title="Details"
+        [action]="openCharacterDetails"
+        variant="accent"
+      />
     </div>
   </app-card>
 </div>

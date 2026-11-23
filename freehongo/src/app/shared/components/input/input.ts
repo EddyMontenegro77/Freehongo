@@ -13,6 +13,8 @@ type InputType =
   | 'time'
   | 'datetime-local';
 
+export type InputVariant = 'default' | 'outline';
+
 @Component({
   selector: 'app-input',
   standalone: true,
@@ -34,6 +36,7 @@ export class InputField {
   helperText = input<string>('');
   errorText = input<string>('');
   autocomplete = input<string>('');
+  variant = input<string>('default');
   min = input<string | number | null | undefined>(null);
   max = input<string | number | null | undefined>(null);
   step = input<string | number | null | undefined>(null);

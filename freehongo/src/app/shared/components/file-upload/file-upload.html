@@ -39,7 +39,14 @@
             <span class="file-upload__file-icon" aria-hidden="true">FILE</span>
           }
           <span class="file-upload__name" [title]="item.file.name">{{ item.file.name }}</span>
-          <button class="file-upload__remove" type="button" (click)="remove(index)" aria-label="Remove file">×</button>
+          <button
+            class="file-upload__remove"
+            type="button"
+            (click)="remove(index)"
+            aria-label="Remove file"
+          >
+            x
+          </button>
         </article>
       }
     </div>

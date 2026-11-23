@@ -31,9 +31,14 @@ func LoadConfig() (Config, error) {
 		return Config{}, fmt.Errorf("dotenv error: %w", err)
 	}
 
+	port := os.Getenv("API_PORT")
+	if port == "" {
+    	port = os.Getenv("PORT")
+	}
+
 	config := Config{
 		APIHost:            os.Getenv("API_HOST"),
-		APIPort:            os.Getenv("API_PORT"),
+		APIPort:            port,
 		APIAllowedOrigin:   os.Getenv("API_ALLOWED_ORIGIN"),
 		AppEnv:             os.Getenv("APP_ENV"),
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),

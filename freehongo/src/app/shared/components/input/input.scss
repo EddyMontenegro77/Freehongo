@@ -1,6 +1,7 @@
 :host {
   display: block;
   width: 100%;
+  font-weight: var(--font-weight-normal);
 }
 
 .field {
@@ -8,7 +9,7 @@
   flex-direction: column;
   gap: 0.45rem;
   width: 100%;
-  color: var(--text);
+  color: var(--text-secondary);
 }
 
 .field--disabled {
@@ -21,21 +22,18 @@
   gap: 0.25rem;
   font-size: 0.92rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--input-label-color, var(--text-primary));
 }
 
 .field__required {
-  color: var(--primary);
+  color: var(--color-danger);
 }
 
 .field__control {
   box-sizing: border-box;
   width: 100%;
   padding: 0.8rem 0.95rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
+  border-radius: var(--radius-sm);
   font: inherit;
   box-shadow: var(--shadow-sm);
   transition:
@@ -43,10 +41,26 @@
     box-shadow var(--transition-fast),
     background-color var(--transition-fast);
 
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+    opacity: 0.7;
+  }
+
+  &::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  &::-webkit-search-cancel-button {
+    filter: invert(1);
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
   &:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 100%, transparent);
   }
 
   &:disabled {
@@ -54,14 +68,40 @@
   }
 }
 
+.default {
+  border: none;
+  color: var(--text-input-default);
+  background: var(--color-secondary);
+  &::placeholder {
+    color: color-mix(in srgb, var(--text-secondary) 70%, transparent);
+    opacity: 1;
+  }
+}
+
+.outline {
+  border: 1px solid var(--input-outline-border, var(--color-secondary));
+  color: var(--input-outline-color, var(--text-primary));
+  background-color: var(
+    --input-outline-background,
+    color-mix(in srgb, var(--color-disabled) 10%, transparent)
+  );
+
+  &::placeholder {
+    color: var(
+      --input-outline-placeholder,
+      color-mix(in srgb, var(--text-primary) 70%, transparent)
+    );
+  }
+}
+
 .field__helper {
   font-size: 0.82rem;
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .field__error {
   font-size: 0.82rem;
-  color: #d84c4c;
+  color: var(--color-danger);
 }
 
 @media (max-width: 768px) {

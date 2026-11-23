@@ -3,10 +3,9 @@
   width: fit-content;
   max-width: 100%;
   overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-accent);
+  background: var(--color-primary);
+  box-shadow: var(--shadow);
 }
 
 .table-wrapper--center {
@@ -27,24 +26,27 @@ table {
   width: max-content;
   table-layout: auto;
   border-collapse: collapse;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 thead th {
   position: sticky;
   top: 0;
-  background: var(--surface);
+  background: var(--color-primary);
   z-index: 1;
   text-align: left;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--color-accent);
 }
 
 tbody td {
   padding: 0.65rem 1rem;
-  border-bottom: 1px solid var(--border);
 }
 
 tbody tr:nth-child(even) {
-  background: rgba(0, 0, 0, 0.02);
+  background: color-mix(in srgb, var(--color-secondary) 4%, transparent);
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }

@@ -1,6 +1,4 @@
 <div class="session-page">
-  <button type="button" class="back-link" (click)="back()">Go back</button>
-
   @if (loading()) {
     <p class="session-empty">Loading…</p>
   } @else if (notFound()) {
@@ -11,65 +9,75 @@
       </div>
     </app-card>
   } @else if (detail(); as d) {
-    <app-card class="session-header">
-      <div card-header class="session-title">
-        <div>
+    <section class="session-header">
+      <div class="session-title">
+        <div class="header-main">
+          <h1>Quiz details:</h1>
           <h2>{{ d.session.listName ?? 'Unknown list' }}</h2>
+          <app-icon-btn title="Go back" iconSrc="undo.svg" [action]="back" />
           <span class="session-date">
-            {{ d.session.finishedAt | date: 'dd/MM/yyyy · HH:mm' }}
+            Date: {{ d.session.finishedAt | date: 'dd/MM/yyyy · HH:mm' }}
           </span>
+          <span class="session-date">Session: {{ d.session.quizSessionId }}</span>
         </div>
         <span class="session-badge">{{ d.session.answerType | answerTypeLabel }}</span>
       </div>
 
-      <div card-body class="session-meta">
-        <div class="meta-item">
-          <span class="meta-label">Quiz type</span>
-          <b>{{ d.session.characterQuizType | characterQuizTypeLabel }}</b>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Question order</span>
-          <b>{{ d.session.randomOrder ? 'Random' : 'Sequential' }}</b>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Duration</span>
-          <b>{{ durationMs() | responseTime }}</b>
-        </div>
-      </div>
-    </app-card>
+      <div class="session-stats">
+        <section class="session-summary">
+          <app-card>
+            <div card-body class="summary-item">
+              <span class="summary-label">ACCURACY</span>
+              <b class="summary-value" [class]="accuracy() > 60 ? 'success' : 'danger'"
+                >{{ accuracy() }}%</b
+              >
+            </div>
+          </app-card>
+          <app-card>
+            <div card-body class="summary-item">
+              <span class="summary-label">CORRECT</span>
+              <b class="summary-value success" [class]="accuracy() > 60 ? 'success' : 'danger'"
+                >{{ correctCount() }}/{{ d.answers.length }}</b
+              >
+            </div>
+          </app-card>
+          <app-card>
+            <div card-body class="summary-item">
+              <span class="summary-label">AVG. RESPONSE</span>
+              <b class="summary-value">{{ averageResponseMs() | responseTime }}</b>
+            </div>
+          </app-card>
+        </section>
 
-    <section class="session-summary">
-      <app-card>
-        <div card-body class="summary-item">
-          <span class="meta-label">Accuracy</span>
-          <b class="summary-value">{{ accuracy() }}%</b>
-        </div>
-      </app-card>
-      <app-card>
-        <div card-body class="summary-item">
-          <span class="meta-label">Correct</span>
-          <b class="summary-value">{{ correctCount() }}/{{ d.answers.length }}</b>
-        </div>
-      </app-card>
-      <app-card>
-        <div card-body class="summary-item">
-          <span class="meta-label">Avg. response</span>
-          <b class="summary-value">{{ averageResponseMs() | responseTime }}</b>
-        </div>
-      </app-card>
+        <section class="session-meta">
+          <div class="meta-item">
+            <span class="meta-label">QUIZ TYPE</span>
+            <b>{{ d.session.characterQuizType | characterQuizTypeLabel }}</b>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">QUESTION ORDER</span>
+            <b>{{ d.session.randomOrder ? 'Random' : 'Sequential' }}</b>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">DURATION</span>
+            <b>{{ durationMs() | responseTime }}</b>
+          </div>
+        </section>
+      </div>
     </section>
 
-    <app-card>
-      <div card-header class="answers-header">
-        <h3>Answers</h3>
-        <app-segmented-control
-          label="Show"
-          [options]="filterOptions"
-          [value]="onlyErrors()"
-          (valueChange)="onlyErrors.set($event)"
-        />
-      </div>
+    <div class="answers-header">
+      <h3 class="answers-title">Answers</h3>
+      <app-segmented-control
+        class="answers-segmented"
+        label=""
+        [options]="filterOptions"
+        [value]="onlyErrors()"
+        (valueChange)="onlyErrors.set($event)"
+      />
+    </div>
 
+    <app-card>
       <ul card-body class="answers">
         @for (a of visibleAnswers(); track a.unicode) {
           <li class="answer" [class.is-correct]="a.isCorrect" [class.is-wrong]="!a.isCorrect">

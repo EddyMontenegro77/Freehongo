@@ -1,42 +1,78 @@
-@if (message(); as message) {
-  <p class="profile__message" role="status">{{ message }}</p>
-}
-@if (error(); as error) {
-  <p class="auth-error" role="alert">{{ error }}</p>
-}
-<div class="profile__wrapper">
-  <img [src]="pictureUrl()" class="user__picture" alt="User profile picture" />
-  <div class="user__info">
-    <div class="user__field">
-      <label>Username</label>
-      <span>{{ username() }}</span>
-    </div>
-    <div class="user__field">
-      <label>Email</label>
-      <span>{{ email() }}</span>
-      @if (verified()) {
-        <span class="verified">Verified</span>
-      } @else {
-        <div class="not__verified">
-          <span>Not verified</span>
-          <app-action-btn
-            title="Verify Email"
-            [action]="verifyEmail"
-            busyTitle="Sending..."
-            [cooldownSeconds]="60"
-            cooldownLabel="Resend in"
-          />
-        </div>
-      }
-    </div>
+<main class="profile">
+  <h1 class="profile__title">Profile</h1>
+  <hr />
+  @if (message(); as message) {
+    <p class="profile__message" role="status">{{ message }}</p>
+  }
+  @if (error(); as error) {
+    <p class="auth-error" role="alert">{{ error }}</p>
+  }
+
+  <div class="profile__wrapper">
+    <app-card class="profile__card" aria-labelledby="account-title">
+      <h2 id="account-title" card-header class="profile__section-title">Account</h2>
+
+      <div class="profile__account-body" card-body>
+        <a (click)="openModal()">
+          @if (pictureUrl()) {
+            <img [src]="pictureUrl()" class="user__picture" alt="User profile picture" />
+          } @else {
+            <img src="pfp.svg" class="user__picture" alt="User profile picture" />
+          }
+        </a>
+
+        <dl class="user__info">
+          <div class="user__field">
+            <dt>Username</dt>
+            <dd>{{ username() }}</dd>
+          </div>
+
+          <div class="user__field">
+            <dt>Email</dt>
+            <dd class="user__email-row">
+              <span class="user__email">{{ email() }}</span>
+              @if (verified()) {
+                <app-chip variant="success" class="verified">Verified</app-chip>
+              }
+            </dd>
+            @if (!verified()) {
+              <dd class="not__verified">
+                <span>Not verified</span>
+                <app-action-btn
+                  title="Verify Email"
+                  [action]="verifyEmail"
+                  busyTitle="Sending..."
+                  [cooldownSeconds]="60"
+                  cooldownLabel="Resend in"
+                />
+              </dd>
+            }
+          </div>
+        </dl>
+      </div>
+    </app-card>
+
+    <app-card class="profile__card" aria-labelledby="security-title">
+      <h2 id="security-title" card-header class="profile__section-title">Security</h2>
+
+      <div class="profile__action-row" card-body>
+        <span class="profile__action-text">Password</span>
+        <app-action-btn title="Reset password" variant="danger" [action]="resetPassword" />
+      </div>
+    </app-card>
+
+    <app-card class="profile__card profile__card--danger" aria-labelledby="danger-title">
+      <h2 id="danger-title" class="profile__section-title" card-header>Danger zone</h2>
+
+      <div class="profile__action-row" card-body>
+        <span class="profile__action-text">
+          Delete your account. This action cannot be undone.
+        </span>
+        <app-action-btn title="Delete account" [action]="openDeleteConfirmation" variant="danger" />
+      </div>
+    </app-card>
   </div>
-  <app-action-btn title="Reset password" [action]="resetPassword" />
-  <app-action-btn
-    title="Delete account"
-    [action]="openDeleteConfirmation"
-    variant="danger"
-  />
-</div>
+</main>
 
 <app-confirmation
   [open]="deleteConfirmationOpen()"
@@ -47,3 +83,31 @@
   [confirmAction]="deleteAccount"
   [cancelAction]="closeDeleteConfirmation"
 />
+
+<app-modal #updatePictureModal title="Update profile picture">
+  <app-file-upload
+    modal-body
+    label="Profile picture (optional)"
+    hint="JPG, PNG, GIF or WebP · maximum 1 MB"
+    accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
+    [multiple]="false"
+    [maxFiles]="1"
+    [maxSizeBytes]="1048576"
+    (filesChange)="onPictureChange($event)"
+    (validationError)="onPictureError($event)"
+  />
+
+  @if (pictureError(); as error) {
+    <p class="auth-error" role="alert" modal-body>{{ error }}</p>
+  }
+
+  <div modal-footer class="modal-actions">
+    <app-action-btn
+      title="Cancel"
+      [action]="closeModal"
+      [disabled]="isUpdatingPfp()"
+      variant="secondary"
+    />
+    <app-action-btn title="Update" [action]="updatePfp" variant="accent" />
+  </div>
+</app-modal>

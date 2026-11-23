@@ -13,6 +13,7 @@ describe('Trends', () => {
 
     fixture = TestBed.createComponent(Trends);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('data', { buckets: [] });
     await fixture.whenStable();
   });
 

@@ -8,7 +8,7 @@ import {
   signal,
   untracked,
   ViewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { WritingCanvas } from '../writing-canvas/writing-canvas';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';

@@ -46,17 +46,23 @@ func buildKanaDisplayOrderBy() string {
 	return " ORDER BY literal, unicode"
 }
 
-func buildKanjiDisplayOrderBy(sortBy string) string {
+
+func buildKanjiDisplayOrderBy(sortBy, sortOrder string) string {
+	direction := "ASC"
+	if sortOrder == "desc" || (sortOrder == "" && sortBy == "frequency_of_use") {
+		direction = "DESC"
+	}
+
 	switch sortBy {
 	case "frequency_of_use":
-		return " ORDER BY frequency_of_use DESC NULLS LAST, literal, unicode"
+		return " ORDER BY frequency_of_use " + direction + " NULLS LAST, literal, unicode"
 	case "jlpt_level":
-		return " ORDER BY jlpt_level ASC NULLS LAST, literal, unicode"
+		return " ORDER BY jlpt_level " + direction + " NULLS LAST, literal, unicode"
 	case "grade_level":
-		return " ORDER BY grade_level ASC NULLS LAST, literal, unicode"
+		return " ORDER BY grade_level " + direction + " NULLS LAST, literal, unicode"
 	case "literal":
 		fallthrough
 	default:
-		return " ORDER BY literal, unicode"
+		return " ORDER BY literal " + direction + ", unicode"
 	}
 }

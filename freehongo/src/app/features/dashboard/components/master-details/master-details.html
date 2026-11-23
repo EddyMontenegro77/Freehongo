@@ -1,47 +1,78 @@
-<app-card class="master-details">
-  <h2 card-header>Character explorer</h2>
+<div class="explorer__container">
+  <header class="explorer__title">
+    <h2>Character explorer</h2>
+    <app-icon-btn title="Explorer info" iconSrc="info.svg" [action]="openModal" />
+  </header>
 
-  <div card-body class="md-layout">
-    <aside class="md-master">
-      <div class="md-filters">
+  <div class="explorer__layout">
+    <aside class="explorer__master">
+      <div class="explorer__filters">
         <app-input
-          label="Search"
+          label="Search by char"
           placeholder="あ, 4e00…"
           type="text"
+          helperText="Type a character or its unicode"
           [value]="search()"
           (valueChange)="search.set($event)"
         />
-        <app-segmented-control
-          label="Category"
-          [options]="categoryOptions"
-          [value]="category()"
-          (valueChange)="category.set($event)"
-        />
-        <app-segmented-control
-          label="Sort"
-          [options]="sortOptions"
-          [value]="sortBy()"
-          (valueChange)="sortBy.set($event)"
-        />
+
+        <div class="explorer__segmenteds">
+          <app-segmented-control
+            label="Category"
+            [options]="categoryOptions"
+            [value]="category()"
+            [wrap]="true"
+            (valueChange)="category.set($event)"
+          />
+          <app-segmented-control
+            label="Sort by"
+            [options]="sortOptions"
+            [value]="sortBy()"
+            [wrap]="true"
+            (valueChange)="sortBy.set($event)"
+          />
+        </div>
+
+        <div class="explorer__selects">
+          <app-select
+            label="Category"
+            [options]="categoryOptions"
+            [value]="category()"
+            (valueChange)="onCategorySelect($event)"
+          />
+          <app-select
+            label="Sort by"
+            [options]="sortOptions"
+            [value]="sortBy()"
+            (valueChange)="onSortSelect($event)"
+          />
+        </div>
       </div>
 
-      <div class="md-list">
+      <p class="explorer__hint">
+        Each row shows the character, its level and attempts, and its mastery score from 0 to 100.
+        Select one to see its details.
+      </p>
+
+      <div class="explorer__list">
         @for (c of visibleCharacters(); track c.unicode) {
           <button
             type="button"
-            class="md-item"
+            class="item"
             [class.is-selected]="c.unicode === selected()"
             (click)="select(c.unicode)"
           >
-            <span class="md-item-char">{{ c.unicode | unicodeCharacter }}</span>
-            <span class="md-item-info">
-              <span class="md-item-level">{{ levelOf(c.masteryScore) }}</span>
-              <span class="md-item-meta">{{ c.attempts }} attempts</span>
+            <span class="item__char">{{ c.unicode | unicodeCharacter }}</span>
+            <span class="item__info">
+              <span class="item__level">{{ levelOf(c.masteryScore) }}</span>
+              <span class="item__meta">{{ c.attempts }} attempts</span>
             </span>
-            <b>{{ c.masteryScore | number: '1.0-0' }}</b>
+            <span class="item__score"
+              >{{ pct(c.masteryScore) }}<small class="small-score">pts</small></span
+            >
           </button>
         } @empty {
-          <p class="md-empty">No characters found</p>
+          <p class="explorer__empty">No characters found</p>
         }
         @if (hasMore()) {
           <div class="scroll-sentinel" appInView (inView)="loadMore()"></div>
@@ -49,56 +80,69 @@
       </div>
     </aside>
 
-    <section class="md-detail">
+    <section class="explorer__detail">
       @if (detail(); as d) {
-        <header class="detail-header">
-          <span class="detail-char">{{ d.unicode | unicodeCharacter }}</span>
-          <div>
-            <h3>
-              <a
-                [routerLink]="['/characters/info', kanaOrKanji(d.unicode), d.unicode.toUpperCase()]"
-              >
-                U+{{ d.unicode.toUpperCase() }}
-              </a>
-            </h3>
-            <span class="detail-category">{{ categoryOf(d.unicode) }}</span>
+        <header class="detail__header">
+          <span class="detail__char">{{ d.unicode | unicodeCharacter }}</span>
+          <div class="detail__id">
+            <span class="detail__label">Selected character</span>
+            <a [routerLink]="['/characters/info', kanaOrKanji(d.unicode), d.unicode.toUpperCase()]">
+              U+{{ d.unicode.toUpperCase() }} →
+            </a>
+            <app-chip>{{ categoryOf(d.unicode) | titlecase }}</app-chip>
           </div>
         </header>
 
-        <section class="detail-section">
-          <h4>Mastery</h4>
+        <section class="detail__section">
+          <h4>Mastery by category</h4>
+          <p class="detail__hint">
+            How often you answered this character correctly in each category, and how many times you
+            have practiced it.
+          </p>
           @for (s of d.stats; track s.answerType) {
-            <div class="stat-row">
-              <span>{{ s.answerType | answerTypeLabel }}</span>
-              <div class="bar">
-                <span [style.width.%]="accuracy(s.correctCount, s.attempts)"></span>
-              </div>
-              <small>{{ accuracy(s.correctCount, s.attempts) }}% · {{ s.attempts }}</small>
+            <div class="rate-row">
+              <span class="rate-row__label">{{ s.answerType | answerTypeLabel }}</span>
+              <app-progressbar
+                [value]="accuracy(s.correctCount, s.attempts)"
+                [max]="100"
+                variant="accent"
+                [barAriaLabel]="(s.answerType | answerTypeLabel) + ' accuracy'"
+              />
+              <span class="rate-row__value">
+                <b>{{ accuracy(s.correctCount, s.attempts) }}%</b>
+                <small>{{ s.attempts }} attempts</small>
+              </span>
             </div>
           } @empty {
-            <p class="md-empty">No stats yet</p>
+            <p class="explorer__empty">No stats yet</p>
           }
         </section>
 
         @if (d.confusedWith.length || d.confusedBy.length) {
-          <section class="detail-section">
-            <h4>Confusions</h4>
+          <section class="detail__section">
+            <h4>Mix-ups</h4>
+            <p class="detail__hint">
+              Characters you have confused with this one. The number is how many times it happened.
+              Select one to open it.
+            </p>
+
             @if (d.confusedWith.length) {
-              <p class="detail-hint">You answered these instead of this character</p>
-              <div class="chips">
+              <span class="detail__label">When this was the right answer, you chose</span>
+              <div class="confusions">
                 @for (c of d.confusedWith; track c.unicode) {
-                  <button type="button" class="chip" (click)="select(c.unicode)">
-                    {{ c.unicode | unicodeCharacter }} <small>×{{ c.count }}</small>
+                  <button type="button" class="confusion" (click)="select(c.unicode)">
+                    <app-chip>{{ c.unicode | unicodeCharacter }} · {{ c.count }}</app-chip>
                   </button>
                 }
               </div>
             }
+
             @if (d.confusedBy.length) {
-              <p class="detail-hint">You answered this character instead of these</p>
-              <div class="chips">
+              <span class="detail__label">When these were the right answer, you chose this</span>
+              <div class="confusions">
                 @for (c of d.confusedBy; track c.unicode) {
-                  <button type="button" class="chip" (click)="select(c.unicode)">
-                    {{ c.unicode | unicodeCharacter }} <small>×{{ c.count }}</small>
+                  <button type="button" class="confusion" (click)="select(c.unicode)">
+                    <app-chip>{{ c.unicode | unicodeCharacter }} · {{ c.count }}</app-chip>
                   </button>
                 }
               </div>
@@ -107,48 +151,168 @@
         }
 
         @if (d.writing; as w) {
-          <section class="detail-section">
-            <h4>Writing</h4>
-            <p class="detail-hint">
-              Stroke count correct {{ pct(w.strokeCountCorrectRate) }}% · Order correct
-              {{ pct(w.orderCorrectRate) }}% · {{ w.attempts }} attempts
+          <section class="detail__section">
+            <h4>Writing practice</h4>
+            <p class="detail__hint">
+              How well you draw this character, based on {{ w.attempts }} writing attempts.
             </p>
+
+            <div class="rate-row">
+              <span class="rate-row__label">Right stroke count</span>
+              <app-progressbar
+                [value]="pct(w.strokeCountCorrectRate)"
+                [max]="100"
+                variant="accent"
+                barAriaLabel="Attempts with the right stroke count"
+              />
+              <span class="rate-row__value">
+                <b>{{ pct(w.strokeCountCorrectRate) }}%</b>
+              </span>
+            </div>
+
+            <div class="rate-row">
+              <span class="rate-row__label">Right stroke order</span>
+              <app-progressbar
+                [value]="pct(w.orderCorrectRate)"
+                [max]="100"
+                variant="accent"
+                barAriaLabel="Attempts with the right stroke order"
+              />
+              <span class="rate-row__value">
+                <b>{{ pct(w.orderCorrectRate) }}%</b>
+              </span>
+            </div>
+
+            <span class="detail__label">Accuracy of each stroke, in order</span>
             <div class="strokes">
               @for (rate of w.validRateByStroke; track $index) {
                 <span
                   class="stroke"
-                  [style.background]="strokeColor(rate)"
-                  [title]="pct(rate) + '% valid'"
+                  [class]="strokeClass(rate)"
+                  [title]="'Stroke ' + ($index + 1) + ': ' + pct(rate) + '% valid'"
                 >
                   {{ $index + 1 }}
                 </span>
               }
             </div>
+            <p class="detail__hint">
+              Green means at least 70% of your attempts at that stroke were valid, red means fewer.
+              Grey means there is no data yet.
+            </p>
           </section>
         }
 
-        <section class="detail-section">
+        <section class="detail__section">
           <h4>Recent attempts</h4>
+          <p class="detail__hint">Your latest answers for this character, newest first.</p>
           <ul class="attempts">
             @for (a of d.recentAttempts; track $index) {
-              <li [class.is-correct]="a.isCorrect">
-                <span>{{ a.isCorrect ? 'Correct:' : 'Incorrect:' }}</span>
-                <span>{{ a.answeredAt | date: 'dd/MM/yyyy · HH:mm' }}</span>
-                <span>{{ a.answerType | answerTypeLabel }}</span>
+              <li class="attempt">
+                <app-chip [variant]="a.isCorrect ? 'success' : 'danger'">
+                  {{ a.isCorrect ? 'Correct' : 'Incorrect' }}
+                </app-chip>
+                <span class="attempt__text">
+                  {{ a.answerType | answerTypeLabel }} ·
+                  {{ a.answeredAt | date: 'dd/MM/yyyy · HH:mm' }}
+                </span>
                 @if (!a.isCorrect && a.givenAnswer) {
-                  <span>{{ a.givenAnswer }} → {{ a.expectedAnswer }}</span>
+                  <span class="attempt__answer">
+                    You answered <b>{{ a.givenAnswer }}</b
+                    >, expected
+                    <b>{{ a.expectedAnswer }}</b>
+                  </span>
                 }
               </li>
             } @empty {
-              <li>No attempts yet</li>
+              <li class="explorer__empty">No attempts yet</li>
             }
           </ul>
         </section>
       } @else if (detailLoading()) {
-        <p class="md-empty">Loading…</p>
+        <p class="explorer__empty">Loading…</p>
       } @else {
-        <p class="md-empty">Select a character</p>
+        <p class="explorer__empty">Select a character from the list to see its details</p>
       }
     </section>
   </div>
-</app-card>
+</div>
+
+<app-modal title="How the explorer works" #infoModal>
+  <div modal-body class="explorer-info">
+    <p>
+      Browse every character you have practiced and select one to see how you are doing with it.
+    </p>
+
+    <dl class="explorer-info__items">
+      <div>
+        <dt>Search</dt>
+        <dd>Type the character itself or its unicode, for example あ or 4e00.</dd>
+      </div>
+      <div>
+        <dt>Category and sort by</dt>
+        <dd>
+          Filter by hiragana, katakana or kanji, and order the list by weakest, strongest, most
+          practiced or most recent.
+        </dd>
+      </div>
+      <div>
+        <dt>List</dt>
+        <dd>
+          Each row shows the character, its level, how many attempts it has and its mastery score
+          from 0 to 100 on the right.
+        </dd>
+      </div>
+    </dl>
+
+    <p class="explorer-info__formula">accuracy × min(attempts / 10, 1)</p>
+
+    <p>
+      The mastery score is your accuracy, reduced while you have fewer than 10 attempts. That way a
+      character answered correctly once does not look mastered. The level comes from this score:
+    </p>
+
+    <dl class="explorer-info__items">
+      @for (criterion of criteria; track criterion.label) {
+        <div>
+          <dt>{{ criterion.label }}</dt>
+          <dd>{{ criterion.description }}</dd>
+        </div>
+      }
+    </dl>
+
+    <dl class="explorer-info__items">
+      <div>
+        <dt>Mastery by skill</dt>
+        <dd>
+          How often you answered the selected character correctly in each skill, and how many times
+          you have practiced it there.
+        </dd>
+      </div>
+      <div>
+        <dt>Mix-ups</dt>
+        <dd>
+          Characters you have confused with this one, in both directions, and how many times. Select
+          one to open it.
+        </dd>
+      </div>
+      <div>
+        <dt>Writing practice</dt>
+        <dd>
+          How often you got the stroke count and the stroke order right. Each square is one stroke:
+          green when most of your attempts at it were valid, red when you often miss.
+        </dd>
+      </div>
+      <div>
+        <dt>Recent attempts</dt>
+        <dd>
+          Your latest answers for this character, newest first. When you miss, it shows what you
+          answered and what was expected. Scroll the list to see more.
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Got it" variant="accent" [action]="closeModal" />
+  </div>
+</app-modal>

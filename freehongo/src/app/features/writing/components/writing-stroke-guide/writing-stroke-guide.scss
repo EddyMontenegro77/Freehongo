@@ -11,22 +11,20 @@
   height: 100%;
 }
 
-// Sizes (stroke width, marker radius, font size) are SVG attributes computed
-// in the component so they stay constant on screen whatever the stroke space is.
 .guide-stroke {
   fill: none;
-  stroke: var(--accent, #2563eb);
+  stroke: var(--color-accent);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .guide-start {
   circle {
-    fill: var(--accent, #2563eb);
+    fill: var(--color-accent);
   }
 
   text {
-    fill: #fff;
+    fill: var(--color-primary);
     font-weight: 700;
     user-select: none;
   }

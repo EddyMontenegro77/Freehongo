@@ -3,6 +3,8 @@ import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../../environments/environments';
 import { AuthService } from './auth.service';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncService } from '../../../core/sync/sync.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -10,7 +12,13 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        AuthService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: DatabaseService, useValue: { initialize: vi.fn().mockResolvedValue(undefined) } },
+        { provide: SyncService, useValue: { sync: vi.fn().mockResolvedValue(undefined) } },
+      ],
     });
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -152,8 +160,18 @@ describe('AuthService', () => {
   });
 
   it('logs out and clears the local user', async () => {
+    const sessionPromise = service.loadSession();
+    const sessionRequest = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
+    sessionRequest.flush({ userId: 'user-1', name: 'User', email: 'user@example.com', verified: true });
+    await sessionPromise;
+
     const promise = service.logout();
-    const request = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
+    let request: any;
+    await vi.waitFor(() => {
+      const matches = httpMock.match(`${environment.apiUrl}/auth/logout`);
+      expect(matches).toHaveLength(1);
+      request = matches[0];
+    });
 
     expect(request.request.withCredentials).toBe(true);
     request.flush(null);

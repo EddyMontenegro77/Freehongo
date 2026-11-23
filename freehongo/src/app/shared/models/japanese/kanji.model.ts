@@ -51,6 +51,7 @@ export interface KanjiDisplayParams {
   meaning?: string;
   nanori?: string;
   sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   offset?: number;
 }
 

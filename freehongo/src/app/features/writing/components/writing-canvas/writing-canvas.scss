@@ -8,8 +8,19 @@ canvas {
   max-width: 100%;
   height: auto;
   touch-action: none;
-  box-shadow: var(--shadow);
-  background-color: var(--canvas-bg);
+  box-shadow: var(--shadow-md);
+  background-color: var(--color-pampas);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.canvas-drawing-area {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  line-height: 0;
 }
 
 .writing-canvas-container {
@@ -37,6 +48,15 @@ canvas {
   max-width: 100%;
 }
 
+.undo-redo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+}
+
 .canvas-overlay {
   position: absolute;
   inset: 0;
@@ -44,9 +64,11 @@ canvas {
 }
 
 .canvas-tools {
+  padding-top: 0.5rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 0.5rem;
 }
 

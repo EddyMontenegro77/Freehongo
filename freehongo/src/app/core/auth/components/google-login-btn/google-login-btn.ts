@@ -32,8 +32,6 @@ export class GoogleLoginBtn {
     const init = () => {
       clearInterval(this.pollId);
 
-      // GIS keeps this configuration globally. Multiple button components can
-      // be created during navigation, so initialize it only once per page.
       if (!GoogleLoginBtn.googleInitialized) {
         google.accounts.id.initialize({
           client_id: environment.googleClientID,
@@ -58,10 +56,11 @@ export class GoogleLoginBtn {
       this.observer.observe(host, { childList: true, subtree: true });
 
       google.accounts.id.renderButton(this.googleLoginBtn.nativeElement, {
+        type: 'standard',
         theme: 'outline',
         size: 'large',
-        text: 'sign_in_with',
-        shape: 'circular',
+        text: 'continue_with',
+        shape: 'rectangular',
         logo_alignment: 'center',
       });
     };

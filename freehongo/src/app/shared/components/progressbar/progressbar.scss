@@ -1,51 +1,95 @@
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2.5rem 1.5rem 0.75rem;
+}
+
 .track {
   position: relative;
-  height: 15px;
-  background: var(--progress-bar-bg);
-  border-radius: 4px;
+  height: 0.9rem;
+  background: var(--color-primary);
+  outline: 1px solid var(--color-secondary);
 }
 
 .fill {
   height: 100%;
-  background: var(--progress-bar-fill);
-  border-radius: 4px;
-  transition: width 0.3s;
+  border-radius: inherit;
+  background: var(--color-secondary);
+  transition: width var(--transition-normal);
 }
 
 .milestone {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   z-index: 2;
+  display: flex;
+  transform: translate(-50%, -50%);
 }
 
 .dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--progress-bar-dot);
-  border: 2px solid white;
+  width: 1.25rem;
+  height: 1.25rem;
   box-sizing: border-box;
-  z-index: 1;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .label {
   position: absolute;
-  top: -30px;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 0.9rem;
-  color: var(--progress-bar-label);
+  font-size: 0.85rem;
+  color: var(--text-primary);
 }
 
-.milestone.reached .dot {
-  background: #4caf50;
-  transform: scale(1.2);
+.milestone.reached {
+  .dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    transform: scale(1.15);
+  }
+
+  .label {
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
-.milestone.reached .label {
-  color: #4caf50;
-  font-weight: 600;
+.track.accent {
+  outline: 1px solid var(--color-secondary);
+  .fill {
+    background: var(--color-accent);
+  }
+
+  .dot {
+    background: var(--color-primary);
+    border-color: var(--color-accent);
+  }
+
+  .label {
+    color: var(--text-primary);
+  }
+
+  .milestone.reached {
+    .dot {
+      border-color: var(--color-secondary);
+      background: var(--color-secondary);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .dot {
+    transition: none;
+  }
 }

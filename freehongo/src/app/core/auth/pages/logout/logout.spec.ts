@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Logout } from './logout';
+import { AuthService } from '../../../../shared/services/auth/auth.service';
+import { Router } from '@angular/router';
 
 describe('Logout', () => {
   let component: Logout;
@@ -7,7 +9,11 @@ describe('Logout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Logout]
+      imports: [Logout],
+      providers: [
+        { provide: AuthService, useValue: { logout: vi.fn().mockResolvedValue(undefined) } },
+        { provide: Router, useValue: { navigate: vi.fn().mockResolvedValue(true) } },
+      ],
     })
       .compileComponents();
 

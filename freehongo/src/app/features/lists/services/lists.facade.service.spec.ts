@@ -96,7 +96,7 @@ describe('ListsFacade', () => {
     listService.createList.mockResolvedValue('new-list');
     listService.addCharacterToList.mockResolvedValue(true);
 
-    const input = { name: 'Practice', type: 'mixed' as const, characters: [] };
+    const input = { name: 'Practice', type: 'mixed' as const, isPublic: false, characters: [] };
 
     await expect(facade.createList(input)).resolves.toBe('new-list');
     await expect(facade.addCharacterToList('new-list', '3042')).resolves.toBe(true);

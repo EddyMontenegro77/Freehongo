@@ -1,37 +1,40 @@
-import { Component, input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { Card } from '../../../../shared/components/card/card';
 import { Chip } from '../../../../shared/components/chip/chip';
 import { ChipGroup } from '../../../../shared/components/chip-group/chip-group';
 import { Character } from '../../../../shared/models/japanese/character.model';
-import { Modal } from '../../../../shared/components/modal/modal';
+import { WritingStrokeGuide } from '../../../writing/components/writing-stroke-guide/writing-stroke-guide';
+import { Stroke } from '../../../../shared/models/writing/stroke.model';
+import { ListPopup } from '../../../../shared/components/character-lists/list-popup/list-popup';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
-import { ThemeService } from '../../../../shared/services/theme/theme.service';
+import { LoadingState } from '../../../../shared/components/app-state/loading-state/loading-state';
 
 @Component({
   selector: 'app-character-meta',
   standalone: true,
-  imports: [Card, ActionBtn, Chip, ChipGroup, Modal, IconBtn],
+  imports: [Chip, ChipGroup, Card, WritingStrokeGuide, ActionBtn, ListPopup, IconBtn, LoadingState],
   templateUrl: './character-meta.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './character-meta.scss',
 })
 export class CharacterMeta {
-  @ViewChild('expectedPreviewModal') expectedPreviewModal!: Modal;
-
+  private readonly router = inject(Router);
   private readonly practiceRoute = 'writing';
+  private readonly guide = viewChild(WritingStrokeGuide);
+  private readonly listPopup = viewChild(ListPopup);
 
   character = input.required<Character>();
   expectedUrl = input.required<string>();
-
-  constructor(
-    private router: Router,
-    public themeService: ThemeService,
-  ) {}
+  strokes = input<Stroke[]>([]);
 
   entries<T>(value: Record<string, T>): Array<[string, T]> {
     return Object.entries(value) as Array<[string, T]>;
+  }
+
+  label(key: string): string {
+    return key.replace(/_/g, ' ');
   }
 
   openPractice = (): void => {
@@ -39,11 +42,7 @@ export class CharacterMeta {
     this.router.navigate([this.practiceRoute, current.kind, current.unicode]);
   };
 
-  openExpectedPreviewModal = (): void => {
-    this.expectedPreviewModal.open();
-  };
+  openListPopup = (): void => this.listPopup()?.openlistPopupModal();
 
-  closeExpectedPreviewModal = (): void => {
-    this.expectedPreviewModal.close();
-  };
+  replay = (): void => this.guide()?.play();
 }

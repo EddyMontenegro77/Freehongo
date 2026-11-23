@@ -1,36 +1,21 @@
-import { Component, ElementRef, OnDestroy, effect, inject, input, viewChild } from '@angular/core';
 import {
-  BarController,
-  BarElement,
-  CategoryScale,
-  Chart,
-  ChartConfiguration,
-  Legend,
-  LinearScale,
-  LineController,
-  LineElement,
-  PointElement,
-  Tooltip,
-  TooltipItem,
-} from 'chart.js';
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
+import type { Chart as ChartInstance, ChartConfiguration, TooltipItem } from 'chart.js';
 import { TrendChartConfig } from '../../models/dashboard.models';
-
-Chart.register(
-  BarController,
-  LineController,
-  BarElement,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-);
 
 @Component({
   selector: 'app-trend-chart',
   styleUrl: './trend-chart.scss',
   templateUrl: './trend-chart.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrendChart implements OnDestroy {
   readonly config = input.required<TrendChartConfig>();
@@ -38,22 +23,51 @@ export class TrendChart implements OnDestroy {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
-  private chart?: Chart<'bar' | 'line'>;
+  private chart?: ChartInstance<'bar' | 'line'>;
+  private chartLoad?: Promise<typeof import('chart.js')>;
+  private renderVersion = 0;
+  private destroyed = false;
 
   constructor() {
     effect(() => {
       const canvas = this.canvas();
       const config = this.config();
       if (!canvas) return;
-      this.render(canvas.nativeElement, config);
+      void this.render(canvas.nativeElement, config);
     });
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
+    this.renderVersion++;
     this.chart?.destroy();
+    this.chart = undefined;
   }
 
-  private render(canvas: HTMLCanvasElement, cfg: TrendChartConfig): void {
+  private loadChartLibrary(): Promise<typeof import('chart.js')> {
+    return this.chartLoad ??= import('chart.js').then((module) => {
+      module.Chart.register(
+        module.BarController,
+        module.LineController,
+        module.BarElement,
+        module.LineElement,
+        module.PointElement,
+        module.CategoryScale,
+        module.LinearScale,
+        module.Tooltip,
+        module.Legend,
+      );
+
+      return module;
+    });
+  }
+
+  private async render(canvas: HTMLCanvasElement, cfg: TrendChartConfig): Promise<void> {
+    const version = ++this.renderVersion;
+    const { Chart } = await this.loadChartLibrary();
+
+    if (this.destroyed || version !== this.renderVersion) return;
+
     this.chart?.destroy();
 
     const styles = getComputedStyle(this.host.nativeElement);
@@ -124,6 +138,8 @@ export class TrendChart implements OnDestroy {
         },
       },
     };
+
+    if (this.destroyed || version !== this.renderVersion) return;
 
     this.chart = new Chart(canvas, config);
   }

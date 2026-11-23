@@ -6,7 +6,7 @@
     <p class="error-state__message">{{ message() }}</p>
 
     @if (action()) {
-      <app-action-btn [title]="actionTitle()" [action]="action()!" />
+      <app-action-btn [title]="actionTitle()" variant="secondary" [action]="action()!" />
     }
   </div>
 </div>
