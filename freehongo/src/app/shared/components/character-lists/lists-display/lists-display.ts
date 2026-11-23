@@ -36,6 +36,7 @@ import { SyncService } from '../../../../core/sync/sync.service';
 import { Card } from '../../card/card';
 import { PublicListsFacadeService } from '../../../../features/lists/services/public-lists.facade.service';
 import { debounceTime, merge } from 'rxjs';
+import { InViewDirective } from '../../../directives/in-view.directive';
 
 export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
 export type ListPublicOptions = 'private' | 'public' | 'official';
@@ -57,6 +58,7 @@ export type QuizListSelection = { listId: string; source: ListPublicOptions };
     Confirmation,
     ToggleButton,
     Card,
+    InViewDirective,
   ],
   templateUrl: './lists-display.html',
   changeDetection: ChangeDetectionStrategy.Eager,

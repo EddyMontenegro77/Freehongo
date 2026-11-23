@@ -153,12 +153,7 @@
       </div>
 
       @if (publicListsFacade.hasMore()) {
-        <app-action-btn
-          title="Load more"
-          variant="outline"
-          [action]="loadMorePublic"
-          [disabled]="publicListsFacade.isLoading()"
-        />
+        <div class="scroll-sentinel" appInView (inView)="loadMorePublic()"></div>
       }
     }
   } @else if (isLoading()) {
