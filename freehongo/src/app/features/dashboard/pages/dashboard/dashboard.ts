@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { Milestone, Progressbar } from '../../../../shared/components/progressbar/progressbar';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Milestone } from '../../../../shared/components/progressbar/progressbar';
 import { LoadingState } from '../../../../shared/components/app-state/loading-state/loading-state';
 import { Summary } from '../../components/summary/summary';
 import {
@@ -21,6 +21,7 @@ import { MasterDetails } from '../../components/master-details/master-details';
 import { Trends } from '../../components/trends/trends';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LoadingState,
     Summary,

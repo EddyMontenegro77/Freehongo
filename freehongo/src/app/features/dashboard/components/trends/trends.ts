@@ -1,4 +1,4 @@
-import { Component, computed, input, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal, viewChild } from '@angular/core';
 import { Card } from '../../../../shared/components/card/card';
 import {
   SegmentedControl,
@@ -45,6 +45,7 @@ interface SummaryCard {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Card, SegmentedControl, TrendChart, Chip, SelectField, IconBtn, ActionBtn, Modal],
   selector: 'app-trends',
   styleUrl: './trends.scss',

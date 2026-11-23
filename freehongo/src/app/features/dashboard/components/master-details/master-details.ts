@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -59,6 +60,7 @@ const SORTERS: Record<SortKey, (a: PracticedCharacter, b: PracticedCharacter) =>
 const STROKE_OK_THRESHOLD = 0.7;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AnswerTypePipe,
     UnicodeCharacterPipe,

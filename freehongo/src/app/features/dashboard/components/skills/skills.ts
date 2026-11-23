@@ -1,4 +1,4 @@
-import { Component, input, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, viewChild } from '@angular/core';
 import { DashboardSkill, SkillProgress } from '../../models/dashboard.models';
 import { KeyValuePipe, UpperCasePipe } from '@angular/common';
 import { ResponseTimePipe } from '../../../../shared/pipes/response-time.pipe';
@@ -19,6 +19,7 @@ export const LEVEL_CRITERIA = [
 type LevelDistribution = { new: number; beginner: number; intermediate: number; mastered: number };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     KeyValuePipe,
     ResponseTimePipe,

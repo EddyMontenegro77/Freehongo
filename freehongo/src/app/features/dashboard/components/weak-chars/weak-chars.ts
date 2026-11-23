@@ -1,4 +1,4 @@
-import { Component, input, output, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, viewChild } from '@angular/core';
 import { StoredCharacterStat } from '../../../../shared/models/quizes/quizes-storage.interface';
 import { Card } from '../../../../shared/components/card/card';
 import { DatePipe } from '@angular/common';
@@ -11,6 +11,7 @@ import { Modal } from '../../../../shared/components/modal/modal';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     UnicodeCharacterPipe,

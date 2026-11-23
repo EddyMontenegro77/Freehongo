@@ -1,10 +1,11 @@
-import { Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { GeneralSummary, MasteryLevel } from '../../models/dashboard.models';
 import { ResponseTimePipe } from '../../../../shared/pipes/response-time.pipe';
 import { Card } from '../../../../shared/components/card/card';
 import { DecimalPipe, TitleCasePipe } from '@angular/common';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ResponseTimePipe, Card, DecimalPipe, TitleCasePipe],
   selector: 'app-summary',
   styleUrl: './summary.scss',

@@ -1,7 +1,12 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  inject,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { NavigationBtn } from '../../../../shared/components/navigation-btn/navigation-btn';
 import { Progressbar } from '../../../../shared/components/progressbar/progressbar';
 
@@ -15,15 +20,16 @@ interface HomeFeature {
 
 @Component({
   selector: 'app-home',
-  imports: [NavigationBtn, Progressbar],
+  imports: [NavigationBtn, Progressbar, RouterLink],
   templateUrl: './home.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './home.scss',
 })
 export class Home implements AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef<HTMLElement>);
-  private animationContext?: gsap.Context;
+  private animationContext?: { revert: () => void };
+  private destroyed = false;
 
   readonly currentYear = new Date().getFullYear();
 
@@ -78,14 +84,32 @@ export class Home implements AfterViewInit, OnDestroy {
     void this.router.navigate([route]);
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     if (typeof window.matchMedia !== 'function') return;
 
-    gsap.registerPlugin(ScrollTrigger);
     const root = this.host.nativeElement as HTMLElement;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduceMotion) {
+      root.querySelectorAll<HTMLElement>('.hero__content > *, [data-reveal]').forEach((element) => {
+        element.style.opacity = '1';
+        element.style.transform = 'none';
+      });
+      const kanjiCount = root.querySelector<HTMLElement>('.progress-demo__kanji-count span');
+      if (kanjiCount) kanjiCount.textContent = '6,400';
+      return;
+    }
+
+    const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+      import('gsap'),
+      import('gsap/ScrollTrigger'),
+    ]);
+
+    if (this.destroyed) return;
+
+    gsap.registerPlugin(ScrollTrigger);
 
     this.animationContext = gsap.context(() => {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const heroItems = root.querySelectorAll<HTMLElement>('.hero__content > *');
       const logo = root.querySelector<HTMLElement>('.hero__logo');
       const floatingChars = root.querySelectorAll<HTMLElement>('.hero__character');
@@ -94,21 +118,31 @@ export class Home implements AfterViewInit, OnDestroy {
       const kanjiCount = root.querySelector<HTMLElement>('.progress-demo__kanji-count span');
       const progressSection = root.querySelector<HTMLElement>('.progress-section');
 
-      if (reduceMotion) {
-        gsap.set(heroItems, { opacity: 1, clearProps: 'transform' });
-        gsap.set(revealItems, { opacity: 1, clearProps: 'transform' });
-        if (kanjiCount) kanjiCount.textContent = '6,400';
-        return;
-      }
-
-      gsap.fromTo(heroItems, { opacity: 0, y: 28 }, {
-        opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out',
-      });
+      gsap.fromTo(
+        heroItems,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: 'power3.out',
+        },
+      );
 
       if (logo) {
-        gsap.fromTo(logo, { opacity: 0, scale: 0.82, rotation: -8 }, {
-          opacity: 1, scale: 1, rotation: 0, duration: 1.1, ease: 'back.out(1.6)', delay: 0.15,
-        });
+        gsap.fromTo(
+          logo,
+          { opacity: 0, scale: 0.82, rotation: -8 },
+          {
+            opacity: 1,
+            scale: 1,
+            rotation: 0,
+            duration: 1.1,
+            ease: 'back.out(1.6)',
+            delay: 0.15,
+          },
+        );
       }
 
       floatingChars.forEach((character, index) => {
@@ -126,19 +160,23 @@ export class Home implements AfterViewInit, OnDestroy {
       if (practiceCharacter) {
         let index = 0;
 
-        gsap.timeline({ repeat: -1, repeatDelay: 1.1 }).to(practiceCharacter, {
-          rotationX: 90,
-          duration: 0.3,
-          ease: 'power1.in',
-          onComplete: () => {
-            index = (index + 1) % this.heroChars.length;
-            practiceCharacter.textContent = this.heroChars[index];
-          },
-        }).set(practiceCharacter, { rotationX: -90 }).to(practiceCharacter, {
-          rotationX: 0,
-          duration: 0.3,
-          ease: 'power1.out',
-        });
+        gsap
+          .timeline({ repeat: -1, repeatDelay: 1.1 })
+          .to(practiceCharacter, {
+            rotationX: 90,
+            duration: 0.3,
+            ease: 'power1.in',
+            onComplete: () => {
+              index = (index + 1) % this.heroChars.length;
+              practiceCharacter.textContent = this.heroChars[index];
+            },
+          })
+          .set(practiceCharacter, { rotationX: -90 })
+          .to(practiceCharacter, {
+            rotationX: 0,
+            duration: 0.3,
+            ease: 'power1.out',
+          });
       }
 
       if (kanjiCount && progressSection) {
@@ -160,35 +198,44 @@ export class Home implements AfterViewInit, OnDestroy {
       }
 
       revealItems.forEach((section) => {
-        gsap.fromTo(section, { opacity: 0, y: 42 }, {
+        gsap.fromTo(
+          section,
+          { opacity: 0, y: 42 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 82%',
+              toggleActions: 'play none none reverse',
+            },
+          },
+        );
+      });
+
+      gsap.fromTo(
+        root.querySelectorAll<HTMLElement>('.feature-card'),
+        { opacity: 0, y: 24 },
+        {
           opacity: 1,
           y: 0,
-          duration: 0.75,
+          duration: 0.55,
+          stagger: 0.1,
           ease: 'power2.out',
           scrollTrigger: {
-            trigger: section,
+            trigger: '.features-grid',
             start: 'top 82%',
             toggleActions: 'play none none reverse',
           },
-        });
-      });
-
-      gsap.fromTo(root.querySelectorAll<HTMLElement>('.feature-card'), { opacity: 0, y: 24 }, {
-        opacity: 1,
-        y: 0,
-        duration: 0.55,
-        stagger: 0.1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '.features-grid',
-          start: 'top 82%',
-          toggleActions: 'play none none reverse',
         },
-      });
+      );
     }, root);
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.animationContext?.revert();
   }
 }

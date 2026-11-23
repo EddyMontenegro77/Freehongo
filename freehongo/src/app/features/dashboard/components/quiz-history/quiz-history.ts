@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Card } from '../../../../shared/components/card/card';
 import { InputField } from '../../../../shared/components/input/input';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
@@ -26,6 +26,7 @@ type CharacterQuizTypeFilter = CharacterQuizType | 'all';
 const PAGE_SIZE = 20;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Card,
     InputField,

@@ -1,4 +1,4 @@
-import { Component, input, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, viewChild } from '@angular/core';
 import { KeyValuePipe, UpperCasePipe } from '@angular/common';
 import { CategoryProgress, DashboardCategory } from '../../models/dashboard.models';
 import { Chip } from '../../../../shared/components/chip/chip';
@@ -16,6 +16,7 @@ export const LEVEL_CRITERIA = [
 ] as const;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [KeyValuePipe, Chip, ChipGroup, Progressbar, IconBtn, ActionBtn, Modal, UpperCasePipe],
   selector: 'app-categories',
   styleUrl: './categories.scss',
