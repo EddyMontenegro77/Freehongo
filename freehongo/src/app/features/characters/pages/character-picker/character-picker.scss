@@ -110,6 +110,13 @@ app-select {
   width: 100%;
 }
 
+.scroll-sentinel {
+  width: 100%;
+  height: 1px;
+  margin-top: 1rem;
+  pointer-events: none;
+}
+
 .character__results-state {
   display: flex;
   justify-content: center;

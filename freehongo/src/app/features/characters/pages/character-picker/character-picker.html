@@ -150,7 +150,7 @@
   </div>
   <hr />
   <section class="character__results">
-    @if (isLoading()) {
+    @if (isLoading() && !characters().length) {
       <div class="character__results-state">
         <app-loading-state message="Loading characters..." />
       </div>
@@ -187,12 +187,10 @@
           </div>
         }
       </div>
+
+      @if (hasMore()) {
+        <div class="scroll-sentinel" appInView (inView)="loadMore()"></div>
+      }
     }
   </section>
-
-  <app-pagination-controller
-    [currentPage]="currentPage"
-    [totalPages]="totalPages"
-    (pageChange)="loadPage($event)"
-  />
 </div>

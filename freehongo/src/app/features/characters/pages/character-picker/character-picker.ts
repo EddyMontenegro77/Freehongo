@@ -1,5 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { PaginationController } from '../../../../shared/components/pagination-controller/pagination-controller';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { InputField } from '../../../../shared/components/input/input';
 import { CharacterType } from '../../../../shared/models/japanese/character.type';
@@ -25,12 +24,12 @@ import { CharacterCard } from '../../components/character-card/character-card';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { ListPopup } from '../../../../shared/components/character-lists/list-popup/list-popup';
 import { convertRomajiToJapanese, JapaneseScript } from '../../../../shared/utils/japanese.utils';
+import { InViewDirective } from '../../../../shared/directives/in-view.directive';
 
 @Component({
   selector: 'app-character-picker',
   standalone: true,
   imports: [
-    PaginationController,
     ReactiveFormsModule,
     InputField,
     SegmentedControl,
@@ -41,6 +40,7 @@ import { convertRomajiToJapanese, JapaneseScript } from '../../../../shared/util
     ErrorState,
     IconBtn,
     ListPopup,
+    InViewDirective,
   ],
   templateUrl: './character-picker.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -55,6 +55,7 @@ export class CharacterPicker {
   totalCount = signal<number>(0);
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
+  hasMore = computed(() => this.characters().length < this.totalCount());
 
   unicode = new FormControl<string>('');
   literal = new FormControl<string>('');
@@ -119,12 +120,6 @@ export class CharacterPicker {
   kanjiNanori = new FormControl<string>('');
 
   currentPage: number = 1;
-  totalPages: number = 1;
-
-  loadPage(page: number) {
-    this.currentPage = page;
-    this.loadCharacters();
-  }
 
   ngOnInit() {
     this.loadCharacters();
@@ -133,6 +128,13 @@ export class CharacterPicker {
   applyFilters = (): void => {
     this.currentPage = 1;
     this.loadCharacters();
+  };
+
+  loadMore = (): void => {
+    if (this.isLoading() || !this.hasMore()) return;
+
+    this.currentPage += 1;
+    this.loadCharacters(true);
   };
 
   resetFilters = (): void => {
@@ -159,20 +161,19 @@ export class CharacterPicker {
     return convertRomajiToJapanese(text, script) || text;
   }
 
-  private loadCharacters(): void {
+  private loadCharacters(append = false): void {
     this.isLoading.set(true);
     this.loadError.set(null);
 
     this.characterPickerFacadeService.loadCharacters(this.buildFilters()).subscribe({
       next: (result: CharacterPickerPageResult) => {
-        this.characters.set(result.items);
+        this.characters.update((current) => (append ? [...current, ...result.items] : result.items));
         this.totalCount.set(result.totalCount);
-        this.totalPages = Math.max(1, Math.ceil(result.totalCount / this.pageSize));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error(err);
-        this.characters.set([]);
+        if (!append) this.characters.set([]);
         this.totalCount.set(0);
         this.loadError.set('Could not load characters.');
         this.isLoading.set(false);
