@@ -197,6 +197,7 @@ export class QuizSyncService {
     const session: StoredQuizSession = {
       quizSessionId: detail.quizSessionId,
       listId: detail.listId,
+      listName: detail.listName,
       answerType: detail.answerType as AnswerType,
       characterQuizType: (detail.characterQuizType || undefined) as CharacterQuizType | undefined,
       startedAt: new Date(detail.startedAt),

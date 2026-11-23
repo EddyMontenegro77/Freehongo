@@ -26,13 +26,13 @@ export class QuizHistoryRepository {
       (list) => list.listId,
     )
       .filter(([session, list]) => {
-        if (listName && !list?.name.toLowerCase().includes(listName)) return false;
+        if (listName && !(list?.name ?? session.listName ?? '').toLowerCase().includes(listName)) return false;
         if (filters.answerType && session.answerType !== filters.answerType) return false;
         if (filters.characterQuizType && session.characterQuizType !== filters.characterQuizType)
           return false;
         if (filters.finishedAt && dayKey(session.finishedAt) !== filters.finishedAt) return false;
         return true;
       })
-      .map(([session, list]) => ({ ...session, listName: list?.name ?? null }));
+      .map(([session, list]) => ({ ...session, listName: list?.name ?? session.listName ?? null }));
   }
 }

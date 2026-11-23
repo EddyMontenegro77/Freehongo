@@ -71,6 +71,7 @@ export class StrokesQuiz {
   private shuffle = false;
 
   private listId = '';
+  private listName = '';
   private startedAt: Date | null = null;
   private characterShownAt = 0;
   private readonly attempts = new Map<string, RecordedAttempt>();
@@ -146,6 +147,7 @@ export class StrokesQuiz {
     }
 
     this.listId = listId;
+    this.listName = list.name;
     this.sourceCharacters = list.characters;
     this.shuffle = order === 'random';
     this.startSession();
@@ -245,6 +247,7 @@ export class StrokesQuiz {
     const result: WritingQuizResult = {
       id: newId(),
       listId: this.listId,
+      listName: this.listName,
       order: this.shuffle ? 'random' : 'list',
       startedAt: this.startedAt.toISOString(),
       completedAt: nowIso(),

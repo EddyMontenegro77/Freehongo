@@ -95,6 +95,7 @@ export class CharacterQuizFacade {
   readonly saveFailed = signal(false);
 
   private activeConfig: CharacterQuizConfig | null = null;
+  private activeListName: string | null = null;
   private startedAt: Date | null = null;
   private questionShownAt = 0;
 
@@ -121,6 +122,7 @@ export class CharacterQuizFacade {
       }
 
       assertEnoughCharacters(list.characters);
+      this.activeListName = list.name;
 
       const characters = await this.loadCharacters(list.characters);
       this.questions.set(this.buildQuestions(characters, config));
@@ -204,6 +206,7 @@ export class CharacterQuizFacade {
     this.isLoading.set(true);
     this.error.set(null);
     this.emptyList.set(false);
+    this.activeListName = null;
     this.resetSession();
     this.activeConfig = config;
   }
@@ -313,6 +316,7 @@ export class CharacterQuizFacade {
     const base = {
       id: newId(),
       listId: config.listId,
+      listName: this.activeListName ?? undefined,
       order: config.order,
       startedAt: startedAt.toISOString(),
       completedAt: nowIso(),

@@ -12,6 +12,7 @@ export interface WritingAttemptResult {
 export interface StoredQuizSession {
   quizSessionId: string;
   listId: string;
+  listName?: string | null;
   answerType: AnswerType;
   characterQuizType?: CharacterQuizType;
   startedAt: Date;

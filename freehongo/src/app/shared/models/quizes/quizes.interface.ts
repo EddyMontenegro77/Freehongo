@@ -99,6 +99,7 @@ export interface WritingAnswerResult extends BaseAnswerResult {
 interface BaseQuizResult {
   id: string;
   listId: string;
+  listName?: string;
   order: QuizOrder;
   startedAt: string; // ISO
   completedAt: string; // ISO

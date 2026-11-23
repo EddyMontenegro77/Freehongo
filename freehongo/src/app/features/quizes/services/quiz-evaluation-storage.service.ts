@@ -18,6 +18,7 @@ function toStoredQuizSession(r: QuizEvaluationResult): StoredQuizSession {
   return {
     quizSessionId: r.id,
     listId: r.listId,
+    listName: r.listName,
     answerType: r.answerType,
     characterQuizType: r.answerType === 'strokeWriting' ? undefined : r.characterQuizType,
     startedAt: new Date(r.startedAt),
@@ -137,7 +138,7 @@ export class QuizEvaluationStorageService {
     ]);
 
     return {
-      session: { ...session, listName: list?.name ?? null },
+      session: { ...session, listName: list?.name ?? session.listName ?? null },
       answers,
     };
   }
