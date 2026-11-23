@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	authHandlers "freehongo-api/internal/auth/handlers"
 	"freehongo-api/internal/auth/repository"
 	"freehongo-api/internal/auth/services"
@@ -12,26 +13,35 @@ import (
 	quizServices "freehongo-api/internal/quizes/services"
 	ratelimitmiddleware "freehongo-api/internal/rate_limiter/middleware"
 	"freehongo-api/internal/storage"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Deps struct {
-	UserRepo       *repository.UserRepository
-	PasswordAuth   *services.FreeHongoAuthService
-	ProfileService authHandlers.ProfileAuthService
-	ProfileStorage *storage.SupabaseStorage
-	EmailFlows     authHandlers.EmailFlowService
-	GoogleAuth     gin.HandlerFunc
-	RequireAuth    gin.HandlerFunc
-	RateLimiters   *ratelimitmiddleware.Limiters
+	Database        *sql.DB
+	UserRepo        *repository.UserRepository
+	PasswordAuth    *services.FreeHongoAuthService
+	ProfileService  authHandlers.ProfileAuthService
+	ProfileStorage  *storage.SupabaseStorage
+	EmailFlows      authHandlers.EmailFlowService
+	GoogleAuth      gin.HandlerFunc
+	RequireAuth     gin.HandlerFunc
+	RateLimiters    *ratelimitmiddleware.Limiters
 	JapaneseService *japaneseServices.JapaneseService
-	ListService		*listServices.ListService
-	QuizService		*quizServices.QuizService
+	ListService     *listServices.ListService
+	QuizService     *quizServices.QuizService
 }
 
 func SetupRoutes(router *gin.Engine, d Deps) {
-	router.SetTrustedProxies(nil)
+	if os.Getenv("APP_ENV") == "development" {
+		router.SetTrustedProxies(nil)
+	} else {
+		router.SetTrustedProxies([]string{"0.0.0.0/0", "::/0"})
+	}
+
+	router.GET("/health", healthHandler())
+	router.GET("/health/ready", readinessHandler(d.Database))
 
 	public := router.Group("/api")
 	public.Use(d.RateLimiters.General())
@@ -98,4 +108,21 @@ func SetupRoutes(router *gin.Engine, d Deps) {
 	authProtected.GET("/quizes/stats/characters", quizHandlers.GetCharacterStats(d.QuizService))
 	authProtected.GET("/quizes/stats/list", quizHandlers.GetListStats(d.QuizService))
 	authProtected.GET("/quizes/stats/weak", quizHandlers.GetWeakCharacters(d.QuizService))
+}
+
+func healthHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	}
+}
+
+func readinessHandler(database *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if database == nil || database.PingContext(c.Request.Context()) != nil {
+			c.JSON(503, gin.H{"status": "not_ready"})
+			return
+		}
+
+		c.JSON(200, gin.H{"status": "ready"})
+	}
 }

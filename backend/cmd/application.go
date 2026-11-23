@@ -57,8 +57,8 @@ func NewApplication(config Config) (*Application, error) {
 	kanaRepository := japaneseRepository.NewKanaRepository(database)
 	kanjiRepository := japaneseRepository.NewKanjiRepository(database)
 	japaneseService := japaneseServices.NewJapaneseService(kanaRepository, kanjiRepository)
-	listService		:= listServices.NewListService(txm, config.OfficialUserId)
-	quizService		:= quizServices.NewQuizService(txm)
+	listService := listServices.NewListService(txm, config.OfficialUserId)
+	quizService := quizServices.NewQuizService(txm)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -68,6 +68,7 @@ func NewApplication(config Config) (*Application, error) {
 		AllowCredentials: true,
 	}))
 	SetupRoutes(router, Deps{
+		Database:        database,
 		UserRepo:        userRepo,
 		ProfileService:  profileService,
 		ProfileStorage:  objectStorage,
@@ -77,8 +78,8 @@ func NewApplication(config Config) (*Application, error) {
 		RequireAuth:     authMiddleware.RequireAuth(userRepo),
 		RateLimiters:    rateLimiters,
 		JapaneseService: japaneseService,
-		ListService:	 listService,
-		QuizService:	 quizService,
+		ListService:     listService,
+		QuizService:     quizService,
 	})
 
 	return &Application{
