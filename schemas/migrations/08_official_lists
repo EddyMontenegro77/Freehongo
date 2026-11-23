@@ -172,4 +172,3 @@ LEFT JOIN app.list_characters lc ON lc.list_id = l.list_id
 WHERE l.user_id = '01a1c73f-a157-7eed-8388-49b0a8b7b2b9' AND l.deleted_at IS NULL
 GROUP BY l.name, l.list_type
 ORDER BY l.list_type, l.name;
-ROLLBACK;
