@@ -1,0 +1,175 @@
+BEGIN;
+WITH defs(name, list_type, chars) AS (VALUES
+  -- Basic and voiced kana
+  ('Hiragana - Basic',                  'hiragana', 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'),
+  ('Hiragana - Dakuten and Handakuten', 'hiragana', 'がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ'),
+  ('Katakana - Basic',                  'katakana', 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン'),
+  ('Katakana - Dakuten and Handakuten', 'katakana', 'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ'),
+
+  -- Hiragana rows
+  ('Hiragana - A-row', 'hiragana', 'あいうえお'),
+  ('Hiragana - K-row', 'hiragana', 'かきくけこ'),
+  ('Hiragana - S-row', 'hiragana', 'さしすせそ'),
+  ('Hiragana - T-row', 'hiragana', 'たちつてと'),
+  ('Hiragana - N-row', 'hiragana', 'なにぬねの'),
+  ('Hiragana - H-row', 'hiragana', 'はひふへほ'),
+  ('Hiragana - M-row', 'hiragana', 'まみむめも'),
+  ('Hiragana - Y-row', 'hiragana', 'やゆよ'),
+  ('Hiragana - R-row', 'hiragana', 'らりるれろ'),
+  ('Hiragana - W-row', 'hiragana', 'わをん'),
+  ('Hiragana - G-row', 'hiragana', 'がぎぐげご'),
+  ('Hiragana - Z-row', 'hiragana', 'ざじずぜぞ'),
+  ('Hiragana - D-row', 'hiragana', 'だぢづでど'),
+  ('Hiragana - B-row', 'hiragana', 'ばびぶべぼ'),
+  ('Hiragana - P-row', 'hiragana', 'ぱぴぷぺぽ'),
+
+  -- Katakana rows
+  ('Katakana - A-row', 'katakana', 'アイウエオ'),
+  ('Katakana - K-row', 'katakana', 'カキクケコ'),
+  ('Katakana - S-row', 'katakana', 'サシスセソ'),
+  ('Katakana - T-row', 'katakana', 'タチツテト'),
+  ('Katakana - N-row', 'katakana', 'ナニヌネノ'),
+  ('Katakana - H-row', 'katakana', 'ハヒフヘホ'),
+  ('Katakana - M-row', 'katakana', 'マミムメモ'),
+  ('Katakana - Y-row', 'katakana', 'ヤユヨ'),
+  ('Katakana - R-row', 'katakana', 'ラリルレロ'),
+  ('Katakana - W-row', 'katakana', 'ワヲン'),
+  ('Katakana - G-row', 'katakana', 'ガギグゲゴ'),
+  ('Katakana - Z-row', 'katakana', 'ザジズゼゾ'),
+  ('Katakana - D-row', 'katakana', 'ダヂヅデド'),
+  ('Katakana - B-row', 'katakana', 'バビブベボ'),
+  ('Katakana - P-row', 'katakana', 'パピプペポ'),
+
+  -- Look-alikes
+  ('Hiragana - Look-alikes', 'hiragana', 'ぬめわれねはほるろさちいりき'),
+  ('Katakana - Look-alikes', 'katakana', 'シツソンノリヌスクタウワフヲコユ'),
+
+  -- Themed kanji
+  ('Kanji - Numbers',          'kanji', '一二三四五六七八九十百千万円'),
+  ('Kanji - Days of the Week', 'kanji', '日月火水木金土'),
+  ('Kanji - Time',             'kanji', '年月日時分今毎週間朝昼夕夜午前後'),
+  ('Kanji - Directions',       'kanji', '上下左右中前後東西南北内外'),
+  ('Kanji - Human Body',       'kanji', '体頭顔首手足目耳口心'),
+  ('Kanji - Family & People',  'kanji', '父母兄姉弟妹子男女友先生人'),
+  ('Kanji - Nature',           'kanji', '山川田森林木火水石空雨花海天気'),
+  ('Kanji - Colors',           'kanji', '赤青白黒黄緑茶色'),
+  ('Kanji - Animals',          'kanji', '犬猫鳥魚馬牛羊虫'),
+  ('Kanji - Food & Drink',     'kanji', '米肉魚茶酒飯野菜卵塩'),
+  ('Kanji - Basic Verbs',      'kanji', '見行来食飲言話聞読書買立休入出会思使作'),
+  ('Kanji - Basic Adjectives', 'kanji', '大小高安新古長多少早強弱広遠近重')
+),
+new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', name, true, list_type
+  FROM defs
+  RETURNING list_id, name
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, c.unicode
+FROM new_lists nl
+JOIN defs d ON d.name = nl.name
+CROSS JOIN LATERAL regexp_split_to_table(d.chars, '') WITH ORDINALITY AS t(ch, n)
+JOIN (
+  SELECT unicode, literal::text AS lit FROM japanese.kana
+  UNION ALL
+  SELECT unicode, literal::text FROM japanese.kanji
+) c ON c.lit = t.ch
+ORDER BY nl.list_id, t.n;
+
+WITH defs(name, list_type) AS (VALUES
+  ('Hiragana - Complete', 'hiragana'),
+  ('Katakana - Complete', 'katakana')
+),
+new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', name, true, list_type
+  FROM defs
+  RETURNING list_id, name
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, k.unicode
+FROM new_lists nl
+JOIN defs d ON d.name = nl.name
+JOIN japanese.kana k ON k.type = d.list_type
+ORDER BY nl.list_id, k.literal COLLATE "C";
+
+WITH new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', 'Kanji - JLPT Level ' || level, true, 'kanji'
+  FROM japanese.jlpt
+  RETURNING list_id, name
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, k.unicode
+FROM new_lists nl
+JOIN japanese.jlpt j ON nl.name = 'Kanji - JLPT Level ' || j.level
+JOIN japanese.kanji k ON k.jlpt_level = j.level
+ORDER BY nl.list_id, k.frequency_of_use NULLS LAST, k.unicode;
+
+WITH new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', 'Kanji - School Grade ' || level, true, 'kanji'
+  FROM japanese.grade
+  RETURNING list_id, name
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, k.unicode
+FROM new_lists nl
+JOIN japanese.grade g ON nl.name = 'Kanji - School Grade ' || g.level
+JOIN japanese.kanji k ON k.grade_level = g.level
+ORDER BY nl.list_id, k.frequency_of_use NULLS LAST, k.unicode;
+
+
+WITH defs(name, top_n) AS (VALUES
+  ('Kanji - Top 100 Most Common', 100),
+  ('Kanji - Top 500 Most Common', 500)
+),
+new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', name, true, 'kanji'
+  FROM defs
+  RETURNING list_id, name
+),
+ranked AS (
+  SELECT unicode, row_number() OVER (ORDER BY frequency_of_use, unicode) AS rk
+  FROM japanese.kanji
+  WHERE frequency_of_use IS NOT NULL
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, r.unicode
+FROM new_lists nl
+JOIN defs d ON d.name = nl.name
+JOIN ranked r ON r.rk <= d.top_n
+ORDER BY nl.list_id, r.rk;
+
+
+WITH defs(name, lo, hi) AS (VALUES
+  ('Kanji - 1 to 4 Strokes',  1, 4),
+  ('Kanji - 5 to 7 Strokes',  5, 7),
+  ('Kanji - 8 to 10 Strokes', 8, 10)
+),
+new_lists AS (
+  INSERT INTO app.user_lists (user_id, name, is_public, list_type)
+  SELECT '01a1c73f-a157-7eed-8388-49b0a8b7b2b9', name, true, 'kanji'
+  FROM defs
+  RETURNING list_id, name
+)
+INSERT INTO app.list_characters (list_id, unicode)
+SELECT nl.list_id, k.unicode
+FROM new_lists nl
+JOIN defs d ON d.name = nl.name
+JOIN japanese.kanji k
+  ON k.frequency_of_use IS NOT NULL
+ AND k.stroke_count BETWEEN d.lo AND d.hi
+ORDER BY nl.list_id, k.frequency_of_use, k.unicode;
+
+COMMIT;
+
+
+SELECT l.name, l.list_type, count(lc.unicode) AS total
+FROM app.user_lists l
+LEFT JOIN app.list_characters lc ON lc.list_id = l.list_id
+WHERE l.user_id = '01a1c73f-a157-7eed-8388-49b0a8b7b2b9' AND l.deleted_at IS NULL
+GROUP BY l.name, l.list_type
+ORDER BY l.list_type, l.name;
+ROLLBACK;
