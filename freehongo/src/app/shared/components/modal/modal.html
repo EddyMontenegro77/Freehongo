@@ -2,11 +2,7 @@
   <div class="modal__panel">
     <header class="modal__header">
       <h2 class="modal__title">{{ title() }}</h2>
-      <app-icon-btn
-        type="button"
-        [title]="'Close'"
-        [action]="close"
-        [iconSrc]="themeService.getTheme() === 'dark' ? 'close_dark.svg' : 'close_light.svg'"
+      <app-icon-btn type="button" [title]="'Close'" [action]="close" iconSrc="close.svg"
         >Close</app-icon-btn
       >
     </header>

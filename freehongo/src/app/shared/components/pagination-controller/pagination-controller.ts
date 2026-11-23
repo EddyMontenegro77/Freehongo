@@ -1,10 +1,19 @@
-import { Component, computed, effect, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActionBtn } from '../action-btn/action-btn';
+import { InputField } from '../input/input';
 
 @Component({
   selector: 'app-pagination-controller',
   standalone: true,
-  imports: [ActionBtn],
+  imports: [ActionBtn, InputField],
   templateUrl: './pagination-controller.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pagination-controller.scss',
@@ -19,7 +28,13 @@ export class PaginationController {
 
   canSelectPage = computed(() => {
     const page = this.selectedPage();
-    return page >= 1;
+
+    return (
+      Number.isInteger(page) &&
+      page >= 1 &&
+      page <= this.totalPages() &&
+      page !== this.currentPage()
+    );
   });
 
   constructor() {
@@ -36,6 +51,10 @@ export class PaginationController {
 
   nextPage = (): void => {
     this.pageChange.emit(this.currentPage() + 1);
+  };
+
+  onPageValueChange = (value: string): void => {
+    this.selectedPage.set(value === '' ? 0 : Number(value));
   };
 
   onPageInput = (event: Event): void => {

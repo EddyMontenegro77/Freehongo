@@ -5,27 +5,121 @@
     <title>Freehongo</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="FreeHonGo_logo.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="favicon.ico" />
     <style>
+      :root {
+        --bootstrap-bg: #1a1d24;
+        --bootstrap-panel: #252a34;
+        --bootstrap-text: #f2f0eb;
+        --bootstrap-muted: rgba(242, 240, 235, 0.64);
+        --bootstrap-accent: #ff7160;
+      }
+
       html,
       body {
         margin: 0;
         min-height: 100%;
-        background: #0f1a24;
+        background: var(--bootstrap-bg);
+      }
+
+      app-root {
+        display: block;
       }
 
       .app-bootstrap-loading {
-        min-height: 100vh;
+        min-height: 100svh;
         display: grid;
         place-items: center;
-        color: #f5f5f5;
-        font:
-          16px system-ui,
-          sans-serif;
+        padding: 1.5rem;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 42%, rgba(255, 113, 96, 0.12), transparent 24rem),
+          var(--bootstrap-bg);
+        color: var(--bootstrap-text);
+        font-family: 'Poppins', 'Noto Sans JP Variable', sans-serif;
+        text-align: center;
       }
 
-      .app-bootstrap-loading::after {
-        content: 'Loading Freehongo...';
+      .app-bootstrap-loading__card {
+        display: grid;
+        justify-items: center;
+        gap: 0.75rem;
+        width: min(100%, 22rem);
+        padding: 2.5rem 2rem 2rem;
+        border: 1px solid rgba(242, 240, 235, 0.12);
+        background: rgba(37, 42, 52, 0.82);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .app-bootstrap-loading__logo {
+        display: block;
+        width: min(12rem, 70vw);
+        height: auto;
+        margin-bottom: 0.75rem;
+      }
+
+      .app-bootstrap-loading__message {
+        margin: 0;
+        color: var(--bootstrap-muted);
+        font-size: 0.9rem;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+      }
+
+      .app-bootstrap-loading__progress {
+        width: min(100%, 13rem);
+        height: 0.3rem;
+        margin-top: 0.75rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(242, 240, 235, 0.12);
+      }
+
+      .app-bootstrap-loading__progress::before {
+        display: block;
+        width: 42%;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--bootstrap-accent);
+        content: '';
+        animation: bootstrap-loading 1.35s ease-in-out infinite;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @keyframes bootstrap-loading {
+        0% {
+          transform: translateX(-140%);
+        }
+        50% {
+          transform: translateX(120%);
+        }
+        100% {
+          transform: translateX(300%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .app-bootstrap-loading__progress::before {
+          animation: none;
+          transform: translateX(80%);
+        }
+      }
+
+      @media (max-width: 420px) {
+        .app-bootstrap-loading__card {
+          padding-inline: 1.25rem;
+        }
       }
     </style>
     <link rel="preconnect" href="https://accounts.google.com" />
@@ -33,7 +127,14 @@
   </head>
   <body>
     <app-root>
-      <div class="app-bootstrap-loading" role="status" aria-live="polite"></div>
+      <div class="app-bootstrap-loading" role="status" aria-live="polite">
+        <div class="app-bootstrap-loading__card">
+          <img class="app-bootstrap-loading__logo" src="FreeHonGo_logo.svg" alt="FreeHonGo" />
+          <p class="app-bootstrap-loading__message">Preparing your practice space…</p>
+          <div class="app-bootstrap-loading__progress" aria-hidden="true"></div>
+          <span class="visually-hidden">Loading FreeHonGo</span>
+        </div>
+      </div>
     </app-root>
   </body>
 </html>

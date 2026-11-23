@@ -4,6 +4,7 @@ import {
   ElementRef,
   inject,
   input,
+  OnInit,
   output,
   signal,
   ViewChild,
@@ -32,8 +33,13 @@ import { Confirmation } from '../../confirmation/confirmation';
 import { ToggleButton } from '../../toggle-button/toggle-button';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SyncService } from '../../../../core/sync/sync.service';
+import { Card } from '../../card/card';
+import { PublicListsFacadeService } from '../../../../features/lists/services/public-lists.facade.service';
+import { debounceTime, merge } from 'rxjs';
 
 export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
+export type ListPublicOptions = 'private' | 'public' | 'official';
+export type QuizListSelection = { listId: string; source: ListPublicOptions };
 
 @Component({
   selector: 'app-lists-display',
@@ -50,14 +56,16 @@ export type ListsDisplayMode = 'manage' | 'select' | 'quiz';
     ErrorState,
     Confirmation,
     ToggleButton,
+    Card,
   ],
   templateUrl: './lists-display.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './lists-display.scss',
 })
-export class ListsDisplay {
+export class ListsDisplay implements OnInit {
   private readonly listsFacade = inject(ListsFacade);
   private readonly destroyRef = inject(DestroyRef);
+  readonly publicListsFacade = inject(PublicListsFacadeService);
   readonly auth = inject(AuthService);
   readonly syncService = inject(SyncService);
 
@@ -65,7 +73,7 @@ export class ListsDisplay {
   compact = input(false);
   listSelected = output<string>();
   listCreated = output<string>();
-  quizSelected = output<string>();
+  quizSelected = output<string | QuizListSelection>();
 
   lists = this.listsFacade.lists;
   filteredLists = this.listsFacade.filteredLists;
@@ -84,29 +92,35 @@ export class ListsDisplay {
     nonNullable: true,
   });
 
-  // List filters
   listName = new FormControl<string>('');
   characterType = new FormControl<CharacterListTypeFilter>('any');
+  listPublicOptionSelected = new FormControl<ListPublicOptions>('private');
+
+  listPublicOptions: SegmentedOption<ListPublicOptions>[] = [
+    { label: 'Private', value: 'private' },
+    { label: 'Public', value: 'public' },
+    { label: 'Official', value: 'official' },
+  ];
 
   characterOptions: SegmentedOption<CharacterListTypeFilter>[] = [
     {
-      label: 'katakana',
+      label: 'Katakana',
       value: 'katakana',
     },
     {
-      label: 'hiragana',
+      label: 'Hiragana',
       value: 'hiragana',
     },
     {
-      label: 'kanji',
+      label: 'Kanji',
       value: 'kanji',
     },
     {
-      label: 'mixed',
+      label: 'Mixed',
       value: 'mixed',
     },
     {
-      label: 'any',
+      label: 'Any',
       value: 'any',
     },
   ];
@@ -131,16 +145,44 @@ export class ListsDisplay {
   ];
 
   ngOnInit(): void {
-    this.fetchUserLists();
+    // La suscripción va primero para que el setValue de initLists() dispare applyFilters()
+    merge(
+      this.listName.valueChanges.pipe(debounceTime(300)),
+      this.characterType.valueChanges,
+      this.listPublicOptionSelected.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.applyFilters());
 
-    this.listName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.filterLists();
-    });
-
-    this.characterType.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.filterLists();
-    });
+    void this.initLists();
   }
+
+  private async initLists(): Promise<void> {
+    await this.fetchUserLists();
+
+    const noPrivateLists = this.lists().length === 0 && !this.loadError();
+
+    if (this.mode() === 'quiz' && noPrivateLists) {
+      this.listPublicOptionSelected.setValue('official');
+    }
+  }
+
+  applyFilters(): void {
+    const source = this.listPublicOptionSelected.value ?? 'private';
+    const name = this.listName.value ?? '';
+    const type = this.characterType.value ?? 'any';
+
+    if (source === 'private') {
+      this.publicListsFacade.clear();
+      this.filterLists();
+      return;
+    }
+
+    this.publicListsFacade.search(source, name, type);
+  }
+
+  loadMorePublic = (): void => this.publicListsFacade.loadMore();
+  retryPublic = (): void => this.applyFilters();
 
   trySync = async (): Promise<void> => {
     this.operationError.set(null);
@@ -242,5 +284,14 @@ export class ListsDisplay {
     const type = this.characterType.value ?? 'any';
 
     this.listsFacade.filterLists(name, type);
+  }
+
+  isPublicView(): boolean {
+    return this.listPublicOptionSelected.value !== 'private';
+  }
+
+  quizSelection(listId: string): string | QuizListSelection {
+    const source = this.listPublicOptionSelected.value ?? 'private';
+    return source === 'private' ? listId : { listId, source };
   }
 }

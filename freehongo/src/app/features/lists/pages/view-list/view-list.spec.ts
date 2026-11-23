@@ -67,7 +67,7 @@ describe('ViewList', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Kana basics');
     expect(fixture.nativeElement.textContent).toContain('あ');
-    expect(fixture.nativeElement.querySelector('app-action-btn')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-icon-btn')).toBeTruthy();
   });
 
   it('shows an error when the list does not exist', async () => {

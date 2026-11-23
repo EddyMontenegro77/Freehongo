@@ -29,6 +29,7 @@ describe('CharacterQuiz', () => {
       submitAnswer: vi.fn(),
       nextQuestion: vi.fn(),
       dismissEmptyList: vi.fn(),
+      saveFailed: signal(false),
     };
 
     await TestBed.configureTestingModule({

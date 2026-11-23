@@ -3,7 +3,7 @@ export type TableRow = object;
 export type TableCellAlign = 'left' | 'center' | 'right';
 
 export interface TableColumn<T extends object = TableRow> {
-  key: Extract<keyof T, string>; // Keep only keys of T
+  key: Extract<keyof T, string>;
   header: string;
   align?: TableCellAlign;
   formatter?: (value: unknown, row: T) => string | number | boolean | null | undefined;

@@ -24,6 +24,7 @@ import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { CharacterCard } from '../../components/character-card/character-card';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 import { ListPopup } from '../../../../shared/components/character-lists/list-popup/list-popup';
+import { convertRomajiToJapanese, JapaneseScript } from '../../../../shared/utils/japanese.utils';
 
 @Component({
   selector: 'app-character-picker',
@@ -51,10 +52,10 @@ export class CharacterPicker {
   private readonly pageSize = 20;
 
   characters = signal<CharacterPickerItem[]>([]);
+  totalCount = signal<number>(0);
   isLoading = signal<boolean>(true);
   loadError = signal<string | null>(null);
 
-  // General filters
   unicode = new FormControl<string>('');
   literal = new FormControl<string>('');
   characterType = new FormControl<CharacterType>('kanji');
@@ -69,7 +70,6 @@ export class CharacterPicker {
     },
   ];
 
-  // Kana filters
   kanaType = new FormControl<kanaType>('all');
   kanaTypeOptions: SegmentedOption<kanaType>[] = [
     {
@@ -87,27 +87,33 @@ export class CharacterPicker {
   ];
   kanaReading = new FormControl<string>('');
 
-  // Kanji filters
   radicalName = new FormControl<string>('');
   jlptLevel = new FormControl<string>('');
   gradeLevel = new FormControl<string>('');
   sortBy = new FormControl<string>('literal');
+  sortOrder = new FormControl<string>('');
   sortByOptions: SegmentedOption<string>[] = [
     { label: 'Literal', value: 'literal' },
-    { label: 'Frequency', value: 'frequency_of_use' },
+    { label: 'Usage', value: 'frequency_of_use' },
     { label: 'JLPT', value: 'jlpt_level' },
     { label: 'Grade', value: 'grade_level' },
   ];
+  sortOrderOptions: SegmentedOption<string>[] = [
+    { label: 'Default', value: '' },
+    { label: 'ASC', value: 'asc' },
+    { label: 'DESC', value: 'desc' },
+  ];
   jlptLevelOptions: SegmentedOption<string>[] = [
+    { label: 'Any', value: '' },
     { label: '1', value: '1' },
     { label: '2', value: '2' },
     { label: '3', value: '3' },
     { label: '4', value: '4' },
   ];
-  gradeLevelOptions = Array.from({ length: 10 }, (_, index) => {
-    const level = index + 1;
-    return { label: `g${level}`, value: `g${level}` };
-  });
+  gradeLevelOptions = [
+    { label: 'Any', value: '' },
+    ...Array.from({ length: 10 }, (_, i) => ({ label: `g${i + 1}`, value: `g${i + 1}` })),
+  ];
   kanjiReading = new FormControl<string>('');
   kanjiMeaning = new FormControl<string>('');
   kanjiNanori = new FormControl<string>('');
@@ -139,6 +145,7 @@ export class CharacterPicker {
     this.jlptLevel.reset('');
     this.gradeLevel.reset('');
     this.sortBy.reset('literal');
+    this.sortOrder.reset('');
     this.kanjiReading.reset('');
     this.kanjiMeaning.reset('');
     this.kanjiNanori.reset('');
@@ -147,6 +154,11 @@ export class CharacterPicker {
     this.loadCharacters();
   };
 
+  private toKana(value: string | null, script: JapaneseScript = 'hiragana'): string {
+    const text = (value ?? '').trim();
+    return convertRomajiToJapanese(text, script) || text;
+  }
+
   private loadCharacters(): void {
     this.isLoading.set(true);
     this.loadError.set(null);
@@ -154,12 +166,14 @@ export class CharacterPicker {
     this.characterPickerFacadeService.loadCharacters(this.buildFilters()).subscribe({
       next: (result: CharacterPickerPageResult) => {
         this.characters.set(result.items);
+        this.totalCount.set(result.totalCount);
         this.totalPages = Math.max(1, Math.ceil(result.totalCount / this.pageSize));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error(err);
         this.characters.set([]);
+        this.totalCount.set(0);
         this.loadError.set('Could not load characters.');
         this.isLoading.set(false);
       },
@@ -167,9 +181,11 @@ export class CharacterPicker {
   }
 
   buildFilters(): CharacterPickerFilters {
+    const script: JapaneseScript = this.kanaType.value === 'katakana' ? 'katakana' : 'hiragana';
+
     const general: CharacterPickerGeneralFilters = {
       unicode: this.unicode.value as string,
-      literal: this.literal.value as string,
+      literal: this.toKana(this.literal.value, script),
     };
 
     const kana: CharacterPickerKanaFilters = {
@@ -180,6 +196,7 @@ export class CharacterPicker {
     const kanji: CharacterPickerKanjiFilters = {
       radicalName: this.radicalName.value as string,
       sortBy: this.sortBy.value as string,
+      sortOrder: this.sortOrder.value as 'asc' | 'desc' | undefined,
       jlptLevel: this.jlptLevel.value as string,
       gradeLevel: this.gradeLevel.value as string,
       kanjiReading: this.kanjiReading.value as string,
@@ -195,5 +212,4 @@ export class CharacterPicker {
       page: this.currentPage,
     };
   }
-
 }

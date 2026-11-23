@@ -13,6 +13,7 @@ describe('Skills', () => {
 
     fixture = TestBed.createComponent(Skills);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('data', {});
     await fixture.whenStable();
   });
 

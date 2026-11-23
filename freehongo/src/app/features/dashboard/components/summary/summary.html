@@ -1,9 +1,43 @@
-<div class="summary__container">
-  <span class="summary__item">Mastery Level: {{ data().masteryLevel }}</span>
-  <span class="summary__item">Accuracy: {{ data().accuracy }}%</span>
-  <span class="summary__item">Quiz sessions: {{ data().totalSessions }}</span>
-  <span class="summary__item">Streak: {{ data().dayStreak }} days</span>
-  <span class="summary__item"
-    >Average Response Time: {{ data().averageResponseTimeMs | responseTime }}</span
-  >
+<div class="">
+  <div class="summary__container">
+    <app-card class="summary__item">
+      <label card-body class="summary__label">Attempted Mastery Level</label>
+      <span
+        card-body
+        class="summary__value__big mastery__indicator"
+        [style.--progress.%]="masteryMap[data().masteryLevel]"
+        >{{
+          data().masteryLevel === 'mastered' ? 'Master' : (data().masteryLevel | titlecase)
+        }}</span
+      >
+    </app-card>
+    <app-card class="summary__item">
+      <label card-body class="summary__label">ACCURACY</label>
+      <span
+        card-body
+        class="summary__value__big accuracy__indicator"
+        [style.--progress.%]="data().accuracy"
+        >{{ data().accuracy | number: '1.2-2' }}%</span
+      >
+    </app-card>
+    <app-card class="summary__item">
+      <label card-body class="summary__label">STREAK</label>
+      <span
+        card-body
+        class="summary__value__big day__streak__indicator"
+        [style.--progress.%]="data().dayStreak"
+        >{{ data().dayStreak }} {{ data().dayStreak === 1 ? 'day' : 'days' }}</span
+      >
+    </app-card>
+    <app-card class="summary__item">
+      <label card-body class="summary__label">RESPONSE TIME</label>
+      <span card-body class="summary__value">{{
+        data().averageResponseTimeMs | responseTime
+      }}</span>
+    </app-card>
+    <app-card class="summary__item">
+      <label card-body class="summary__label">QUIZ SESSIONS</label>
+      <span card-body class="summary__value">{{ data().totalSessions }}</span>
+    </app-card>
+  </div>
 </div>

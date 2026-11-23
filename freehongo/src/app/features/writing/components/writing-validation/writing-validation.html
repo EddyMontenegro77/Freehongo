@@ -4,7 +4,7 @@
     <app-icon-btn
       title="How to use writing canvas"
       [action]="openInfoModal"
-      [iconSrc]="themeService.getTheme() === 'dark' ? 'info_dark.svg' : 'info_light.svg'"
+      [iconSrc]="'info.svg'"
     />
   </div>
 
@@ -54,6 +54,6 @@
   </div>
 
   <div modal-footer>
-    <app-action-btn title="Close" [action]="closeInfoModal" />
+    <app-action-btn title="Close" variant="secondary" [action]="closeInfoModal" />
   </div>
 </app-modal>

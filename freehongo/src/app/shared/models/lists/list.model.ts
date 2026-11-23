@@ -30,6 +30,24 @@ export class CreateCharacterListInput {
   characters: string[] = [];
 }
 
+export type PublicListSource = 'public' | 'official';
+export type ListSource = 'private' | PublicListSource;
+
+export interface PublicListInfo {
+  listId: string;
+  userId: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  isPublic: boolean;
+  listType: CharacterListType;
+  charUnicodes: string[];
+}
+
+export interface PublicListsResponse {
+  lists: PublicListInfo[];
+}
+
 export function shuffleCharacters(characters: string[]): string[] {
   const result = [...characters];
   for (let i = result.length - 1; i > 0; i--) {

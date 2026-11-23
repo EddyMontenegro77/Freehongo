@@ -13,6 +13,7 @@ describe('Summary', () => {
 
     fixture = TestBed.createComponent(Summary);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('data', { masteryLevel: 'new', accuracy: 0, totalSessions: 0, dayStreak: 0, averageResponseTimeMs: 0 });
     await fixture.whenStable();
   });
 

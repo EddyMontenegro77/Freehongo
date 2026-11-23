@@ -1,7 +1,13 @@
 <div class="writing-canvas-container">
   <section class="canvas-section" aria-label="canvas-section">
-    <div class="canvas-stage">
-      <canvas
+    <section class="canvas-stage">
+      <div class="undo-redo">
+        <app-icon-btn title="Undo" iconSrc="undo.svg" [action]="undoStroke" />
+        <app-action-btn title="Reset" [action]="resetCanvas" variant="danger" />
+        <app-icon-btn title="Redo" iconSrc="redo.svg" [action]="redoStroke" />
+      </div>
+      <div class="canvas-drawing-area">
+        <canvas
         #writingCanvas
         (pointerdown)="onPointerDown($event)"
         (pointerup)="onPointerUp($event)"
@@ -9,42 +15,39 @@
         [width]="width()"
         [height]="height()"
       >
-      </canvas>
+        </canvas>
 
-      @if (ui().showExpectedPreview && showPreview()) {
-        <app-writing-stroke-guide
+        @if (ui().showExpectedPreview && showPreview()) {
+          <app-writing-stroke-guide
           class="canvas-overlay"
           [strokes]="expectedStrokes()"
           [width]="width()"
           [height]="height()"
-        />
-      }
-    </div>
-
-    <section class="canvas-tools" aria-label="canvas-tools">
-      <app-action-btn title="Undo" [action]="undoStroke" variant="primary" />
-      <app-action-btn title="Reset" [action]="resetCanvas" variant="danger" />
-      <app-action-btn title="Redo" [action]="redoStroke" variant="primary" />
-      @if (ui().showExpectedPreview) {
-        <app-action-btn
-          [title]="showPreview() ? 'Hide guide' : 'Show guide'"
-          [action]="togglePreview"
-          variant="light"
-        />
-        @if (showPreview()) {
-          <app-action-btn title="Replay" [action]="replayGuide" variant="light" />
+          />
         }
-      }
+      </div>
     </section>
 
-    @if (ui().showValidateButton) {
-      <app-action-btn
-        class="validate-btn"
-        title="Validate"
-        [action]="getSequenceValidationResults"
-        variant="accent"
-      />
-    }
+    <section class="canvas-tools" aria-label="canvas-tools">
+      @if (ui().showExpectedPreview) {
+        <app-action-btn
+          [title]="showPreview() ? 'Hide' : 'Show guide'"
+          [action]="togglePreview"
+          variant="outline"
+        />
+        @if (showPreview()) {
+          <app-icon-btn title="Replay" iconSrc="play.svg" [action]="replayGuide" variant="light" />
+        }
+      }
+      @if (ui().showValidateButton) {
+        <app-action-btn
+          class="validate-btn"
+          title="Validate"
+          [action]="getSequenceValidationResults"
+          variant="accent"
+        />
+      }
+    </section>
   </section>
 
   @if (ui().showValidationResults) {

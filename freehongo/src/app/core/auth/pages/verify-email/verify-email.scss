@@ -1,6 +1,14 @@
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
 .email-action {
   display: grid;
   gap: 1rem;
+  width: 100%;
   max-width: 32rem;
-  margin: 4rem auto;
 }

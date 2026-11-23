@@ -3,10 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { LoadingState } from '../../../../shared/components/app-state/loading-state/loading-state';
 import { AuthService } from '../../../../shared/services/auth/auth.service';
+import { InputField } from '../../../../shared/components/input/input';
 
 @Component({
   selector: 'app-verify-email',
-  imports: [ActionBtn, LoadingState],
+  imports: [ActionBtn, LoadingState, InputField],
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

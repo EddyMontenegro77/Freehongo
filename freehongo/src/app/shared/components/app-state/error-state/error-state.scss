@@ -12,10 +12,9 @@
   padding: 1.25rem;
   width: fit-content;
   max-width: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
+  border: 1px solid var(--color-accent);
+  background: var(--color-primary);
+  color: var(--text-primary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -26,8 +25,8 @@
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  background: color-mix(in srgb, #d64545 15%, transparent);
-  color: #d64545;
+  background: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  color: var(--color-danger);
   font-weight: 700;
 }
 
@@ -45,7 +44,7 @@
 
 .error-state__message {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--color-danger);
 }
 
 @media (max-width: 768px) {

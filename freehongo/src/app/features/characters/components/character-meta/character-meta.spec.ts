@@ -36,9 +36,7 @@ describe('CharacterMeta', () => {
     expect(fixture.nativeElement.textContent).toContain('Reading');
     expect(fixture.nativeElement.textContent).toContain('a');
     expect(fixture.nativeElement.textContent).toContain('Type');
-    expect(fixture.nativeElement.querySelector('.preview-image')?.getAttribute('src')).toContain(
-      'kana/3042.svg',
-    );
+    expect(fixture.nativeElement.querySelector('.stroke-guide')).toBeTruthy();
   });
 
   it('should render kanji groups, expected preview and navigate to practice', () => {
@@ -72,9 +70,7 @@ describe('CharacterMeta', () => {
     expect(fixture.nativeElement.textContent).toContain('ひ');
     expect(fixture.nativeElement.textContent).toContain('sun');
     expect(fixture.nativeElement.textContent).toContain('day');
-    expect(fixture.nativeElement.querySelector('.preview-image')?.getAttribute('src')).toContain(
-      'kanji/65e5.svg',
-    );
+    expect(fixture.nativeElement.querySelector('.stroke-guide')).toBeTruthy();
 
     const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     component.openPractice();

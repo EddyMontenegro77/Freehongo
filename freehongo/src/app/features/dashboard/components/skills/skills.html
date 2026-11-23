@@ -1,19 +1,68 @@
 <div class="skills__container">
-  <h2>Skills</h2>
+  <header class="skills__title">
+    <h2>Skills</h2>
+    <app-icon-btn title="Skill info" iconSrc="info.svg" [action]="openModal" />
+  </header>
+
   @if (data(); as skills) {
     <div class="skill__group">
       @for (item of skills | keyvalue: keepOrder; track item.key) {
         <section class="skill">
-          <h3>{{ item.value.skill }}</h3>
+          <header class="skill__header">
+            <h3>{{ item.value.skill | uppercase }}</h3>
+            <div class="small-separator">
+              <span class="skill__response">{{ item.value.averageResponseMs | responseTime }}</span>
+              <small>AVG. TIME</small>
+            </div>
+          </header>
 
-          <p>Average response: {{ item.value.averageResponseMs | responseTime }}</p>
+          <app-progressbar
+            [value]="masteredPercent(item.value)"
+            [max]="100"
+            variant="accent"
+            [barAriaLabel]="item.value.skill + ' mastered'"
+          />
 
-          <p>Starting: {{ item.value.levelDistribution.new }}</p>
-          <p>Beginner: {{ item.value.levelDistribution.beginner }}</p>
-          <p>Intermediate: {{ item.value.levelDistribution.intermediate }}</p>
-          <p>Mastered: {{ item.value.levelDistribution.mastered }}</p>
+          <app-chip-group title="Masteries" layout="wrap">
+            <app-chip>New: {{ item.value.levelDistribution.new }}</app-chip>
+            <app-chip>Beginner: {{ item.value.levelDistribution.beginner }}</app-chip>
+            <app-chip>Intermediate: {{ item.value.levelDistribution.intermediate }}</app-chip>
+            <app-chip variant="success">
+              Mastered: {{ item.value.levelDistribution.mastered }}
+            </app-chip>
+          </app-chip-group>
         </section>
       }
     </div>
   }
 </div>
+
+<app-modal title="How levels work" #infoModal>
+  <div modal-body class="skills-info">
+    <p>
+      Each character gets a mastery score from 0 to 100 per skill. It combines how often you answer
+      correctly with how many times you have practiced it.
+    </p>
+
+    <p class="skills-info__formula">accuracy × min(attempts / 10, 1)</p>
+
+    <dl class="skills-info__levels">
+      @for (criterion of criteria; track criterion.label) {
+        <div>
+          <dt>{{ criterion.label }}</dt>
+          <dd>{{ criterion.description }}</dd>
+        </div>
+      }
+    </dl>
+
+    <p>
+      The number next to the skill name is your average response time in that skill, and it does not
+      affect the level. The bar shows the percentage of characters at Mastered, and the chips count
+      the characters at each level.
+    </p>
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Got it" variant="accent" [action]="closeModal" />
+  </div>
+</app-modal>

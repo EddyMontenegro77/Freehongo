@@ -3,6 +3,7 @@
   role="progressbar"
   [attr.aria-label]="progressAriaLabel()"
   [attr.aria-valuenow]="percent()"
+  [class]="variant()"
   aria-valuemin="0"
   aria-valuemax="100"
 >
@@ -15,10 +16,7 @@
       [style.left.%]="position(milestone)"
     >
       <span class="dot" aria-hidden="true"></span>
-
-      <span class="label">
-        {{ milestone.label }}
-      </span>
+      <span class="label">{{ milestone.label }}</span>
     </div>
   }
 </div>

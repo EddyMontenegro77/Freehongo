@@ -103,7 +103,7 @@ describe('strokes-quiz-results', () => {
       const rows = buildRows([correct('3042'), notAttempted('3044')], (unicode) => `<${unicode}>`);
 
       expect(rows).toEqual([
-        { character: '<3042>', result: 'Correct', strokes: '2/2', detail: '—' },
+        { character: '<3042>', result: 'Correct:', strokes: '2/2', detail: '—' },
         { character: '<3044>', result: 'Not attempted', strokes: '—', detail: 'Not attempted' },
       ]);
     });

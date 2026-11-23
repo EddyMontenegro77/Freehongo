@@ -1,25 +1,32 @@
-<div class="pagination__wrapper">
-  <app-action-btn
-    title="Previous"
-    [action]="previousPage"
-    [disabled]="currentPage() <= 1"
-    variant="primary"
-  />
-
-  <label class="pagination__field">
-    <span class="pagination__label">Page</span>
-    <input
-      class="pagination__input"
+<div class="pagination">
+  <div class="pagination__field">
+    <app-input
+      label="Page"
       type="number"
-      [value]="selectedPage()"
+      placeholder="1"
+      [value]="selectedPage().toString()"
+      (valueChange)="onPageValueChange($event)"
       [min]="1"
       [max]="totalPages()"
-      (input)="onPageInput($event)"
-      (keyup.enter)="selectPage()"
     />
-  </label>
 
-  <app-action-btn title="Go" [action]="selectPage" [disabled]="!canSelectPage()" variant="accent" />
+    <span class="pagination__total"> of {{ totalPages() }} </span>
+  </div>
 
-  <app-action-btn title="Next" [action]="nextPage" variant="light" />
+  <div class="pagination__actions">
+    <app-action-btn title="Previous" [action]="previousPage" [disabled]="currentPage() <= 1" />
+
+    <app-action-btn
+      title="Next"
+      [action]="nextPage"
+      [disabled]="currentPage() >= totalPages()"
+      variant="light"
+    />
+    <app-action-btn
+      title="Go"
+      [action]="selectPage"
+      [disabled]="!canSelectPage()"
+      variant="accent"
+    />
+  </div>
 </div>

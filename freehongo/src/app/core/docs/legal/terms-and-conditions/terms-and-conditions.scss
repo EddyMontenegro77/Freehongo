@@ -1,0 +1,111 @@
+:host {
+  display: block;
+}
+
+.legal-page {
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 7vw, 5rem) 1.5rem clamp(4rem, 9vw, 7rem);
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.legal-page h1 {
+  max-width: none;
+  margin: 0 0 0.5rem;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+/* "Last updated: ..." justo debajo del título */
+.legal-page h1 + p {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 14%, transparent);
+  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
+  font-size: 0.9rem;
+}
+
+.legal-page h2 {
+  margin: 3rem 0 0.75rem;
+  padding-top: 0.25rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 5rem;
+}
+
+.legal-page h3 {
+  margin: 2rem 0 0.5rem;
+  color: var(--color-accent);
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.legal-page p {
+  margin: 0 0 1rem;
+  color: color-mix(in srgb, var(--text-primary) 82%, transparent);
+}
+
+.legal-page strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.legal-page ul,
+.legal-page ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.4rem;
+}
+
+.legal-page li {
+  margin-bottom: 0.35rem;
+  color: color-mix(in srgb, var(--text-primary) 82%, transparent);
+}
+
+.legal-page li::marker {
+  color: var(--color-accent);
+}
+
+.legal-page a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: opacity 160ms ease;
+}
+
+.legal-page a:hover,
+.legal-page a:focus-visible {
+  opacity: 0.8;
+}
+
+.legal-page hr {
+  margin: 3rem 0 1.5rem;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--text-primary) 14%, transparent);
+}
+
+/* Línea final del copyright */
+.legal-page hr + p {
+  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 500px) {
+  .legal-page {
+    padding-inline: 1rem;
+    line-height: 1.65;
+  }
+}
+
+@media print {
+  .legal-page {
+    max-width: none;
+    padding: 0;
+    color: #000;
+  }
+}

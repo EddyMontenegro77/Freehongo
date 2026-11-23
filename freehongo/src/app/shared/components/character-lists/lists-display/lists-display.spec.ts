@@ -120,6 +120,7 @@ describe('ListsDisplay', () => {
     expect(listsFacadeMock.createList).toHaveBeenCalledWith({
       name: 'My kana',
       type: 'mixed',
+      isPublic: false,
       characters: [],
     });
     expect(created).toHaveBeenCalledWith('new-list');

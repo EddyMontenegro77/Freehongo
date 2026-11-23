@@ -1,3 +1,15 @@
-<button type="button" (click)="handleClick()" [title]="title()" [disabled]="disabled() || busy()">
-  <img [src]="iconSrc()" />
+<button
+  type="button"
+  [class.full-width]="fullWidth()"
+  (click)="handleClick()"
+  [disabled]="disabled() || busy()"
+>
+  <span
+    class="icon"
+    aria-hidden="true"
+    [style.--icon-url]="'url(&quot;' + iconSrc() + '&quot;)'"
+  ></span>
+  @if (showText()) {
+    <span class="label">{{ title() }}</span>
+  }
 </button>

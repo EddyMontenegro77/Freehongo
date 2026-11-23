@@ -44,6 +44,7 @@ type KanjiSearch struct {
 	Meaning        string `json:"meaning"`
 	Nanori         string `json:"nanori"`
 	SortBy         string `json:"sort_by"`
+	SortOrder      string `json:"sort_order"`
 }
 
 type Reading struct {

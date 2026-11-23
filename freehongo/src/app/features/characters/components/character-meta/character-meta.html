@@ -1,53 +1,82 @@
 @let current = character();
 
 <div class="character-meta-wrapper">
-  <app-card variant="outline" size="lg">
-    <div card-header class="character-meta__header">
-      <div class="character-meta__identity">
-        <div class="identity__head__wrapper">
-          <h2 class="character-meta__literal">{{ current.literal }}</h2>
-          <p class="character-meta__unicode">{{ current.unicode }}</p>
-        </div>
-        <app-icon-btn
-          title="Expected strokes preview"
-          [action]="openExpectedPreviewModal"
-          [iconSrc]="themeService.getTheme() === 'dark' ? 'eye_dark.svg' : 'eye_light.svg'"
-        />
-      </div>
+  <h1 class="title">Character details</h1>
 
-      <span class="character-meta__kind">{{ current.kind }}</span>
+  <div class="general">
+    <div class="general-info">
+      <app-icon-btn
+        class="save-btn"
+        title="Save"
+        [action]="listPopup.openlistPopupModal"
+        iconSrc="add_icon.svg"
+      />
+      <h2 class="literal" lang="ja">{{ current.literal }}</h2>
+      <div class="down-literal">
+        <p class="unicode">U+{{ current.unicode.toUpperCase() }}</p>
+        <span class="kind">{{ current.kind }}</span>
+      </div>
     </div>
 
-    <div card-body class="character-meta__body">
-      @if (current.kind === 'kana') {
-        <app-chip-group title="Reading">
-          <app-chip>{{ current.reading }}</app-chip>
-          <app-chip>Type: {{ current.type }}</app-chip>
-        </app-chip-group>
-      } @else {
-        <app-chip-group title="Summary">
-          @if (current.radical_name) {
-            <app-chip>Radical: {{ current.radical_name }}</app-chip>
-          }
+    <app-card variant="outline" size="lg" class="image-wrapper">
+      <div card-header>
+        <h3 class="card-title">Stroke order</h3>
+      </div>
 
-          @if (current.frequency_of_use !== undefined) {
-            <app-chip>Frequency: {{ current.frequency_of_use }}</app-chip>
-          }
+      <div card-body class="stroke-guide">
+        @if (strokes().length) {
+          <app-writing-stroke-guide
+            [strokes]="strokes()"
+            [width]="300"
+            [height]="300"
+            [lineWidth]="8"
+          />
+        } @else {
+          <app-loading-state />
+        }
+      </div>
 
-          @if (current.jlpt_level !== undefined) {
-            <app-chip>JLPT: N{{ current.jlpt_level }}</app-chip>
-          }
+      <div card-footer class="stroke-actions">
+        @if (strokes().length) {
+          <app-action-btn title="Replay" variant="outline" [action]="replay" />
+        }
+        <app-action-btn title="Practice" variant="accent" [action]="openPractice" />
+      </div>
+    </app-card>
+  </div>
 
-          @if (current.grade_level) {
-            <app-chip>Grade: {{ current.grade_level }}</app-chip>
-          }
-        </app-chip-group>
+  <div class="detail">
+    @if (current.kind === 'kana') {
+      <app-chip-group title="Reading">
+        <app-chip>{{ current.reading }}</app-chip>
+        <app-chip>Type: {{ current.type }}</app-chip>
+      </app-chip-group>
+    } @else {
+      <app-chip-group title="Summary">
+        @if (current.radical_name) {
+          <app-chip>Radical: {{ current.radical_name }}</app-chip>
+        }
 
+        @if (current.frequency_of_use != null) {
+          <app-chip>Frequency rank: #{{ current.frequency_of_use }}</app-chip>
+        }
+
+        @if (current.jlpt_level != null) {
+          <app-chip>JLPT: N{{ current.jlpt_level }}</app-chip>
+        }
+
+        @if (current.grade_level) {
+          <app-chip>Grade: {{ current.grade_level }}</app-chip>
+        }
+      </app-chip-group>
+
+      @let readings = entries(current.readings);
+      @if (readings.length) {
         <app-chip-group title="Readings" layout="stack">
-          @for (entry of entries(current.readings); track entry[0]) {
-            <div class="character-meta__entry">
-              <p class="character-meta__entry-title">{{ entry[0] }}</p>
-              <div class="character-meta__entry-content">
+          @for (entry of readings; track entry[0]) {
+            <div class="entry">
+              <p class="entry-title">{{ label(entry[0]) }}</p>
+              <div class="entry-content">
                 @for (reading of entry[1]; track reading) {
                   <app-chip>{{ reading }}</app-chip>
                 }
@@ -55,12 +84,15 @@
             </div>
           }
         </app-chip-group>
+      }
 
+      @let meanings = entries(current.meanings);
+      @if (meanings.length) {
         <app-chip-group title="Meanings" layout="stack">
-          @for (entry of entries(current.meanings); track entry[0]) {
-            <div class="character-meta__entry">
-              <p class="character-meta__entry-title">{{ entry[0] }}</p>
-              <div class="character-meta__entry-content">
+          @for (entry of meanings; track entry[0]) {
+            <div class="entry">
+              <p class="entry-title">{{ label(entry[0]) }}</p>
+              <div class="entry-content">
                 @for (meaning of entry[1]; track meaning) {
                   <app-chip>{{ meaning }}</app-chip>
                 }
@@ -68,27 +100,17 @@
             </div>
           }
         </app-chip-group>
+      }
 
+      @if (current.nanori.length) {
         <app-chip-group title="Nanori">
           @for (nanoriItem of current.nanori; track nanoriItem) {
             <app-chip>{{ nanoriItem }}</app-chip>
           }
         </app-chip-group>
       }
-    </div>
-
-    <div card-footer class="character-meta__footer">
-      <app-action-btn title="Practice" [action]="openPractice" />
-    </div>
-  </app-card>
+    }
+  </div>
 </div>
 
-<app-modal #expectedPreviewModal title="Expected Preview">
-  <div modal-body>
-    <img [src]="expectedUrl()" alt="expected strokes preview" class="preview-image" />
-  </div>
-
-  <div modal-footer>
-    <app-action-btn title="Close" [action]="closeExpectedPreviewModal" />
-  </div>
-</app-modal>
+<app-list-popup #listPopup [unicode]="current.unicode" />

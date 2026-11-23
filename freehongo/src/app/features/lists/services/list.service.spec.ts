@@ -1,5 +1,8 @@
+import { TestBed } from '@angular/core/testing';
 import { FreeHongoDB } from '../../../core/db/db';
 import { ListService } from './list.service';
+import { DatabaseService } from '../../../core/db/services/database.service';
+import { SyncTriggerService } from '../../../core/sync/services/sync-trigger.service';
 
 const T0 = '2026-10-16T10:00:00.000Z';
 const T1 = '2026-10-16T11:00:00.000Z';
@@ -48,8 +51,14 @@ describe('ListService', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(T0));
 
-    service = new ListService();
-    (service as any).database = database;
+    TestBed.configureTestingModule({
+      providers: [
+        ListService,
+        { provide: DatabaseService, useValue: { database } },
+        { provide: SyncTriggerService, useValue: { schedule: vi.fn() } },
+      ],
+    });
+    service = TestBed.inject(ListService);
   });
 
   afterEach(() => {
@@ -61,6 +70,7 @@ describe('ListService', () => {
       const listId = await service.createList({
         name: 'Basic kana',
         type: 'hiragana',
+        isPublic: false,
         characters: ['3042'],
       });
 
@@ -81,6 +91,7 @@ describe('ListService', () => {
       const listId = await service.createList({
         name: '  Basic kana  ',
         type: 'hiragana',
+        isPublic: false,
         characters: ['3042', '3044', '3042'],
       });
 
@@ -92,7 +103,7 @@ describe('ListService', () => {
 
     it('rejects a blank name without saving anything', async () => {
       await expect(
-        service.createList({ name: '   ', type: 'mixed', characters: [] }),
+        service.createList({ name: '   ', type: 'mixed', isPublic: false, characters: [] }),
       ).rejects.toThrow('A list needs a name.');
 
       expect(database.lists.add).not.toHaveBeenCalled();
@@ -101,7 +112,7 @@ describe('ListService', () => {
 
   describe('updateList', () => {
     it('stamps the change and marks an already synced list as pending again', async () => {
-      const listId = await service.createList({ name: 'Old name', type: 'kanji', characters: [] });
+      const listId = await service.createList({ name: 'Old name', type: 'kanji', isPublic: false, characters: [] });
       records.get(listId).syncStatus = 'synced';
 
       vi.setSystemTime(new Date(T1));
@@ -116,7 +127,7 @@ describe('ListService', () => {
     });
 
     it('trims the name and removes duplicate characters', async () => {
-      const listId = await service.createList({ name: 'Kana', type: 'mixed', characters: [] });
+      const listId = await service.createList({ name: 'Kana', type: 'mixed', isPublic: false, characters: [] });
 
       await service.updateList(listId, {
         name: '  Renamed  ',
@@ -130,7 +141,7 @@ describe('ListService', () => {
     });
 
     it('rejects a blank name and leaves the list unchanged', async () => {
-      const listId = await service.createList({ name: 'Kana', type: 'mixed', characters: [] });
+      const listId = await service.createList({ name: 'Kana', type: 'mixed', isPublic: false, characters: [] });
 
       await expect(service.updateList(listId, { name: '  ' })).rejects.toThrow(
         'A list needs a name.',
@@ -142,7 +153,7 @@ describe('ListService', () => {
 
   describe('addCharacterToList', () => {
     it('adds a character only once', async () => {
-      const listId = await service.createList({ name: 'Practice', type: 'mixed', characters: [] });
+      const listId = await service.createList({ name: 'Practice', type: 'mixed', isPublic: false, characters: [] });
 
       await expect(service.addCharacterToList(listId, '3042')).resolves.toBe(true);
       await expect(service.addCharacterToList(listId, '3042')).resolves.toBe(false);
@@ -151,7 +162,7 @@ describe('ListService', () => {
     });
 
     it('marks the list as pending when a character is added', async () => {
-      const listId = await service.createList({ name: 'Practice', type: 'mixed', characters: [] });
+      const listId = await service.createList({ name: 'Practice', type: 'mixed', isPublic: false, characters: [] });
       records.get(listId).syncStatus = 'synced';
 
       await service.addCharacterToList(listId, '3042');
@@ -166,7 +177,7 @@ describe('ListService', () => {
     });
 
     it('throws when the list was deleted', async () => {
-      const listId = await service.createList({ name: 'Practice', type: 'mixed', characters: [] });
+      const listId = await service.createList({ name: 'Practice', type: 'mixed', isPublic: false, characters: [] });
       await service.deleteList(listId);
 
       await expect(service.addCharacterToList(listId, '3042')).rejects.toThrow('List not found');
@@ -175,7 +186,7 @@ describe('ListService', () => {
 
   describe('deleteList', () => {
     it('soft deletes the list so the sync can report the deletion', async () => {
-      const listId = await service.createList({ name: 'Old name', type: 'kanji', characters: [] });
+      const listId = await service.createList({ name: 'Old name', type: 'kanji', isPublic: false, characters: [] });
       records.get(listId).syncStatus = 'synced';
 
       vi.setSystemTime(new Date(T1));
@@ -190,7 +201,7 @@ describe('ListService', () => {
     });
 
     it('hides a deleted list from every getter', async () => {
-      const listId = await service.createList({ name: 'Old name', type: 'kanji', characters: [] });
+      const listId = await service.createList({ name: 'Old name', type: 'kanji', isPublic: false, characters: [] });
 
       await service.deleteList(listId);
 
@@ -202,8 +213,8 @@ describe('ListService', () => {
 
   describe('queries', () => {
     it('returns only the lists that are not deleted', async () => {
-      const keptId = await service.createList({ name: 'Kept', type: 'mixed', characters: [] });
-      const deletedId = await service.createList({ name: 'Gone', type: 'mixed', characters: [] });
+      const keptId = await service.createList({ name: 'Kept', type: 'mixed', isPublic: false, characters: [] });
+      const deletedId = await service.createList({ name: 'Gone', type: 'mixed', isPublic: false, characters: [] });
       await service.deleteList(deletedId);
 
       const lists = await service.getAllLists();
@@ -215,6 +226,7 @@ describe('ListService', () => {
       const listId = await service.createList({
         name: 'Basic kana',
         type: 'hiragana',
+        isPublic: false,
         characters: [],
       });
 

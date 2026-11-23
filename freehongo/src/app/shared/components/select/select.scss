@@ -8,7 +8,6 @@
   flex-direction: column;
   gap: 0.45rem;
   width: 100%;
-  color: var(--text);
 }
 
 .field--disabled {
@@ -20,23 +19,24 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.92rem;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
 }
 
 .field__required {
-  color: var(--primary);
+  color: var(--color-danger);
 }
 
 .field__control {
+  appearance: base-select;
   box-sizing: border-box;
   width: 100%;
   padding: 0.8rem 2.25rem 0.8rem 0.95rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
+  border: 1px solid var(--color);
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-sm);
   transition:
     border-color var(--transition-fast),
@@ -44,9 +44,9 @@
     background-color var(--transition-fast);
 
   &:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    outline: 3px solid var(--color-accent);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 80%, transparent);
   }
 
   &:disabled {
@@ -56,12 +56,53 @@
 
 .field__helper {
   font-size: 0.82rem;
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .field__error {
   font-size: 0.82rem;
-  color: #d84c4c;
+  color: var(--color-danger);
+}
+
+.field__control::picker(select) {
+  appearance: base-select;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary);
+  box-shadow: var(--shadow);
+  font-weight: var(--font-weight-semibold);
+}
+
+.field__control option {
+  padding: 0.6rem 0.8rem;
+  color: var(--text-secondary);
+  &:focus {
+    outline: 3px solid var(--color-accent);
+  }
+}
+
+.field__control option:hover {
+  background: color-mix(in srgb, var(--color-accent) 80%, transparent);
+  color: var(--text-primary);
+}
+
+.field__control option:checked {
+  background: var(--color-accent);
+  color: var(--text-accent);
+
+  &:focus {
+    outline: 3px solid var(--color-primary);
+  }
+}
+
+.field__control option:disabled {
+  background: var(--color-disabled);
+  color: var(--color-pampas);
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

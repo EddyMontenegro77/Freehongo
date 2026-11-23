@@ -1,19 +1,66 @@
 <div class="categories__container">
-  <h2>Categories</h2>
+  <header class="categories__title">
+    <h2>Categories</h2>
+    <app-icon-btn title="Category info" iconSrc="info.svg" [action]="openModal" />
+  </header>
+
   @if (data(); as categories) {
     <div class="category__group">
       @for (item of categories | keyvalue; track item.key) {
         <section class="category">
-          <h3>{{ item.value.category }}</h3>
+          <header class="category__header">
+            <h3>{{ item.value.category | uppercase }}</h3>
+            <div class="small-separator">
+              <span class="category__total">{{ item.value.totalCharacters }}</span>
+              <small>CHARS</small>
+            </div>
+          </header>
 
-          <p>Total: {{ item.value.totalCharacters }}</p>
+          <app-progressbar
+            [value]="masteredPercent(item.value)"
+            [max]="100"
+            variant="accent"
+            [barAriaLabel]="item.value.category + ' mastered'"
+          />
 
-          <p>New: {{ item.value.levelDistribution.new }}</p>
-          <p>Beginner: {{ item.value.levelDistribution.beginner }}</p>
-          <p>Intermediate: {{ item.value.levelDistribution.intermediate }}</p>
-          <p>Mastered: {{ item.value.levelDistribution.mastered }}</p>
+          <app-chip-group title="Masteries" layout="wrap">
+            <app-chip>New: {{ item.value.levelDistribution.new }}</app-chip>
+            <app-chip>Beginner: {{ item.value.levelDistribution.beginner }}</app-chip>
+            <app-chip>Intermediate: {{ item.value.levelDistribution.intermediate }}</app-chip>
+            <app-chip variant="success">
+              Mastered: {{ item.value.levelDistribution.mastered }}
+            </app-chip>
+          </app-chip-group>
         </section>
       }
     </div>
   }
 </div>
+
+<app-modal title="How categories work" #infoModal>
+  <div modal-body class="categories-info">
+    <p>
+      Characters are grouped by type: hiragana, katakana and kanji. The big number is how many
+      characters the category has.
+    </p>
+
+    <p>
+      A character counts toward a level when it has reached that level in at least one skill
+      (reading, meaning or writing). The chips show how many characters are at each level, and the
+      bar shows the percentage that reached Mastered.
+    </p>
+
+    <dl class="categories-info__levels">
+      @for (criterion of criteria; track criterion.label) {
+        <div>
+          <dt>{{ criterion.label }}</dt>
+          <dd>{{ criterion.description }}</dd>
+        </div>
+      }
+    </dl>
+  </div>
+
+  <div modal-footer>
+    <app-action-btn title="Got it" variant="accent" [action]="closeModal" />
+  </div>
+</app-modal>

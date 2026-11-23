@@ -1,11 +1,11 @@
 @if (listType() === 'ol') {
-  <ol class="list" [attr.aria-label]="ariaLabel()">
+  <ol class="list" [style.list-style-type]="marker()" [attr.aria-label]="ariaLabel()">
     @for (item of items(); track $index) {
       <li class="list__item">{{ item }}</li>
     }
   </ol>
 } @else {
-  <ul class="list" [attr.aria-label]="ariaLabel()">
+  <ul class="list" [style.list-style-type]="marker()" [attr.aria-label]="ariaLabel()">
     @for (item of items(); track $index) {
       <li class="list__item">{{ item }}</li>
     }

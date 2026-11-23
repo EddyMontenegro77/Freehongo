@@ -1,0 +1,26 @@
+<section class="demo">
+  <header class="demo__header">
+    <h3 class="demo__title">{{ heading() }}</h3>
+    @if (description()) {
+      <p class="demo__description">{{ description() }}</p>
+    }
+  </header>
+
+  <div class="demo__preview">
+    <ng-content />
+  </div>
+
+  @if (code()) {
+    <details class="demo__code">
+      <summary class="demo__summary">View code</summary>
+
+      <div class="demo__toolbar">
+        <button type="button" class="demo__copy" (click)="copy()">
+          {{ copied() ? 'Copied' : 'Copy' }}
+        </button>
+      </div>
+
+      <pre class="demo__pre"><code>{{ code() }}</code></pre>
+    </details>
+  }
+</section>

@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Home } from './home';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('Home', () => {
   let component: Home;
   let fixture: ComponentFixture<Home>;
-  let router: { navigate: ReturnType<typeof vi.fn> };
+  let router: any;
 
   beforeEach(async () => {
     router = {
       navigate: vi.fn(),
+      createUrlTree: vi.fn().mockReturnValue({}),
+      serializeUrl: vi.fn().mockReturnValue('/'),
     };
 
     await TestBed.configureTestingModule({
@@ -20,12 +22,20 @@ describe('Home', () => {
           provide: Router,
           useValue: router,
         },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: {} },
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Home);
     component = fixture.componentInstance;
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
   });
 
   it('should create', () => {

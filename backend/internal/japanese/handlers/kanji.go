@@ -18,6 +18,11 @@ var allowedKanjiSortBy = map[string]struct{}{
 	"grade_level":      {},
 }
 
+var allowedKanjiSortOrder = map[string]struct{}{
+	"asc":  {},
+	"desc": {},
+}
+
 func GetKanji(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		unicode := c.Param("unicode")
@@ -109,6 +114,10 @@ func buildKanjiSearch(c *gin.Context) (*models.KanjiSearch, error) {
 	if err != nil {
 		return nil, err
 	}
+	sortOrder, err := parseOptionalEnumQuery(c, "sort_order", allowedKanjiSortOrder)
+	if err != nil {
+		return nil, err
+	}
 
 	return &models.KanjiSearch{
 		Unicode:        c.Query("unicode"),
@@ -121,5 +130,6 @@ func buildKanjiSearch(c *gin.Context) (*models.KanjiSearch, error) {
 		Meaning:        c.Query("meaning"),
 		Nanori:         c.Query("nanori"),
 		SortBy:         sortBy,
+		SortOrder:      sortOrder,
 	}, nil
 }

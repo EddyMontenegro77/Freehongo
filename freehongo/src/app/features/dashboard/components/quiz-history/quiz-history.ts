@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Card } from '../../../../shared/components/card/card';
 import { InputField } from '../../../../shared/components/input/input';
 import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
@@ -17,6 +17,8 @@ import { CharacterQuizTypePipe } from '../../../../shared/pipes/character-quiz-t
 import { AnswerTypePipe } from '../../../../shared/pipes/answer-type.pipe';
 import { InViewDirective } from '../../../../shared/directives/in-view.directive';
 import { Router } from '@angular/router';
+import { SelectField } from '../../../../shared/components/select/select';
+import { Chip } from '../../../../shared/components/chip/chip';
 
 type AnswerTypeFilter = AnswerType | 'all';
 type CharacterQuizTypeFilter = CharacterQuizType | 'all';
@@ -24,6 +26,7 @@ type CharacterQuizTypeFilter = CharacterQuizType | 'all';
 const PAGE_SIZE = 20;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Card,
     InputField,
@@ -33,6 +36,8 @@ const PAGE_SIZE = 20;
     CharacterQuizTypePipe,
     AnswerTypePipe,
     InViewDirective,
+    SelectField,
+    Chip,
   ],
   selector: 'app-quiz-history',
   styleUrl: './quiz-history.scss',
@@ -75,6 +80,12 @@ export class QuizHistory {
   answerType = signal<AnswerTypeFilter>('all');
   characterQuizType = signal<CharacterQuizTypeFilter>('all');
 
+  readonly orderSelectValue = computed(() => String(this.order()));
+  readonly orderSelectOptions = this.orderOptions.map((o) => ({
+    ...o,
+    value: String(o.value),
+  }));
+
   ngOnInit() {
     this.filterQuizes();
   }
@@ -89,6 +100,21 @@ export class QuizHistory {
 
   setCharacterQuizType(value: CharacterQuizTypeFilter): void {
     this.characterQuizType.set(value);
+  }
+
+  onAnswerTypeSelect(raw: string): void {
+    const option = this.answerTypeOptions.find((o) => String(o.value) === raw);
+    if (option) this.setAnswerType(option.value);
+  }
+
+  onCharacterQuizTypeSelect(raw: string): void {
+    const option = this.characterQuizTypeOptions.find((o) => String(o.value) === raw);
+    if (option) this.setCharacterQuizType(option.value);
+  }
+
+  onOrderSelect(raw: string): void {
+    const option = this.orderOptions.find((o) => String(o.value) === raw);
+    if (option) this.setOrder(option.value);
   }
 
   loadMore(): void {

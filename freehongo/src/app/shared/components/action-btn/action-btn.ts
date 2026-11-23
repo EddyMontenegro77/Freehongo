@@ -7,7 +7,15 @@ import {
   signal,
 } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'light' | 'accent' | 'danger' | 'success';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'dark'
+  | 'light'
+  | 'accent'
+  | 'danger'
+  | 'success'
+  | 'outline';
 export type ButtonType = 'button' | 'submit';
 
 @Component({
@@ -27,6 +35,7 @@ export class ActionBtn implements OnDestroy {
   busyTitle = input<string>('');
   cooldownSeconds = input<number>(0);
   cooldownLabel = input<string>('Retry in');
+  fullWidth = input<boolean>(false);
   busy = signal<boolean>(false);
   cooldownRemaining = signal(0);
   displayTitle = computed(() => {

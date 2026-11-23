@@ -1,5 +1,81 @@
-.auth-error {
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.signup-form {
+  width: 100%;
+  max-width: 450px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+}
+
+hr {
+  border: 5px solid var(--color-accent);
+}
+
+app-input,
+app-file-upload {
+  padding: 1rem;
+}
+
+.social-auth {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.google {
+  width: 100%;
+  transform: scale(1.25);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  gap: 1rem;
+  margin: 1.5rem auto;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 5px;
+    background: var(--color-accent);
+  }
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.signup-btn {
+  display: block;
+  width: 100%;
+}
+
+.auth-error,
+.auth-message {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   margin: 0;
-  color: #d84c4c;
+  padding: 1rem;
+  color: var(--color-danger);
   font-size: 0.88rem;
+  overflow-wrap: anywhere;
 }
