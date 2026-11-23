@@ -27,8 +27,7 @@
   --text-input-default: var(--color-accent);
 
   --color-background: var(--color-primary);
-
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --color-canvas: var(--color-pampas) --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme='dark'] {
@@ -42,6 +41,7 @@
   --text-input-default: var(--color-dark);
 
   --color-background: var(--color-primary);
+  --color-canvas: var(--color-secondary-dark);
 
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }

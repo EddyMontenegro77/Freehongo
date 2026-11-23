@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -10,17 +10,22 @@ const THEME_STORAGE_KEY = 'freehongo-theme';
 })
 export class ThemeService {
   private document = inject(DOCUMENT);
+  private readonly currentTheme = signal<ThemeMode>(
+    this.getSavedTheme() ?? this.getPreferredTheme(),
+  );
 
   initTheme(): ThemeMode {
     const savedTheme = this.getSavedTheme();
     const preferredTheme = this.getPreferredTheme();
     const theme = savedTheme ?? preferredTheme;
 
+    this.currentTheme.set(theme);
     this.applyTheme(theme);
     return theme;
   }
 
   setTheme(theme: ThemeMode): void {
+    this.currentTheme.set(theme);
     this.applyTheme(theme);
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }
@@ -33,7 +38,7 @@ export class ThemeService {
   }
 
   getTheme(): ThemeMode {
-    return this.getSavedTheme() ?? this.getPreferredTheme();
+    return this.currentTheme();
   }
 
   private applyTheme(theme: ThemeMode): void {

@@ -8,6 +8,7 @@ import {
   signal,
   ViewChild,
   ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { StrokeService } from '../../services/stroke.service';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
@@ -26,6 +27,7 @@ import {
   WritingValidationEvent,
 } from '../../../../shared/models/quizes/quizes.interface';
 import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
+import { ThemeService } from '../../../../shared/services/theme/theme.service';
 
 @Component({
   selector: 'app-writing-canvas',
@@ -38,6 +40,8 @@ import { IconBtn } from '../../../../shared/components/icon-btn/icon-btn';
 export class WritingCanvas {
   @ViewChild('writingCanvas') writingCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild(WritingStrokeGuide) private strokeGuide?: WritingStrokeGuide;
+
+  private readonly themeService = inject(ThemeService);
 
   width = input.required<number>();
   height = input.required<number>();
@@ -64,6 +68,16 @@ export class WritingCanvas {
   private strokeService = inject(StrokeService);
   private canvasRenderService = inject(CanvasRenderService);
   private strokeValidationService = inject(StrokeValidationService);
+  private canvasReady = false;
+
+  constructor() {
+    effect(() => {
+      this.themeService.getTheme();
+
+      if (!this.canvasReady) return;
+      this.canvasRenderService.updateCanvasTheme(this.strokeService.getStrokes());
+    });
+  }
 
   ngAfterViewInit() {
     const canvasContext = this.writingCanvas.nativeElement.getContext('2d', {
@@ -71,6 +85,8 @@ export class WritingCanvas {
     });
     if (!canvasContext) throw new Error('Canvas 2D context cannot be obtained');
     this.canvasRenderService.setCanvasContext(canvasContext);
+    this.canvasReady = true;
+    this.canvasRenderService.updateCanvasTheme(this.strokeService.getStrokes());
   }
 
   onPointerDown(event: PointerEvent): void {

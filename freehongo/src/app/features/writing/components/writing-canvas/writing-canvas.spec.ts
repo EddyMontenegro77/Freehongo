@@ -8,6 +8,7 @@ import { ActionBtn } from '../../../../shared/components/action-btn/action-btn';
 import { StrokeService } from '../../services/stroke.service';
 import { CanvasRenderService } from '../../services/canvas-render.service';
 import { StrokeValidationService } from '../../services/stroke-validation.service';
+import { ThemeService } from '../../../../shared/services/theme/theme.service';
 import { sequenceErrorLabel } from '../../mappers/sequence-error-label.mapper';
 import { Stroke } from '../../../../shared/models/writing/stroke.model';
 import {
@@ -54,6 +55,7 @@ describe('WritingCanvas', () => {
     setCanvasContext: ReturnType<typeof vi.fn>;
     renderPoint: ReturnType<typeof vi.fn>;
     renderAllStrokes: ReturnType<typeof vi.fn>;
+    updateCanvasTheme: ReturnType<typeof vi.fn>;
     saveCanvasSnapshot: ReturnType<typeof vi.fn>;
     clearCanvas: ReturnType<typeof vi.fn>;
     undoCanvasSnapshot: ReturnType<typeof vi.fn>;
@@ -101,6 +103,7 @@ describe('WritingCanvas', () => {
       setCanvasContext: vi.fn(),
       renderPoint: vi.fn(),
       renderAllStrokes: vi.fn(),
+      updateCanvasTheme: vi.fn(),
       saveCanvasSnapshot: vi.fn(),
       clearCanvas: vi.fn(),
       undoCanvasSnapshot: vi.fn().mockReturnValue(true),
@@ -143,6 +146,16 @@ describe('WritingCanvas', () => {
     setup();
 
     expect(canvasRender.setCanvasContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('redraws the canvas when the theme changes', () => {
+    setup();
+    canvasRender.updateCanvasTheme.mockClear();
+
+    TestBed.inject(ThemeService).setTheme('dark');
+    fixture.detectChanges();
+
+    expect(canvasRender.updateCanvasTheme).toHaveBeenCalledWith([]);
   });
 
   describe('drawing', () => {

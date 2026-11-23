@@ -1,20 +1,21 @@
-import { ElementRef, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Point } from '../../../shared/models/writing/point.interface';
 import { Stroke } from '../../../shared/models/writing/stroke.model';
 import { smoothPoints } from '../utils/stroke-smoothing.util';
+import { ThemeService } from '../../../shared/services/theme/theme.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CanvasRenderService {
   canvasContext!: CanvasRenderingContext2D;
-  // Keep only recent canvas states to bound memory usage.
+
   historyImages: ImageData[] = [];
   historyIndex: number = 0;
 
   setCanvasContext(canvasContext: CanvasRenderingContext2D, fillStyle: string = 'black'): void {
     this.canvasContext = canvasContext;
-    canvasContext.fillStyle = fillStyle;
+    this.updateFillStyle();
     canvasContext.lineWidth = 4;
     canvasContext.lineCap = 'round';
     canvasContext.lineJoin = 'round';
@@ -117,5 +118,20 @@ export class CanvasRenderService {
       x: (event.clientX - rect.left) * scaleX,
       y: (event.clientY - rect.top) * scaleY,
     };
+  }
+
+  private getStrokeColor(): string {
+    return getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+  }
+
+  private updateFillStyle() {
+    this.canvasContext.strokeStyle = getComputedStyle(document.documentElement)
+      .getPropertyValue('--text-primary')
+      .trim();
+  }
+
+  updateCanvasTheme(strokes: Stroke[]): void {
+    this.updateFillStyle();
+    this.renderAllStrokes(strokes);
   }
 }

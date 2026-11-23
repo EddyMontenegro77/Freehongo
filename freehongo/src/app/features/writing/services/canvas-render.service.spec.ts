@@ -36,11 +36,16 @@ describe('CanvasRenderService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should set canvas context and fill style', () => {
+  it('should set canvas context and stroke style', () => {
     service.setCanvasContext(ctx);
 
     expect(service.canvasContext).toBe(ctx);
-    expect(ctx.fillStyle).toBe('black');
+    expect(ctx.strokeStyle).toBe(
+      getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim(),
+    );
+    expect(ctx.lineWidth).toBe(4);
+    expect(ctx.lineCap).toBe('round');
+    expect(ctx.lineJoin).toBe('round');
     expect(service.historyImages).toHaveLength(1);
     expect(service.historyIndex).toBe(0);
   });
