@@ -7,14 +7,18 @@ const environmentsDirectory = resolve(projectRoot, 'src/environments');
 const developmentFile = resolve(environmentsDirectory, 'environments.ts');
 const productionFile = resolve(environmentsDirectory, 'environments.production.ts');
 
-const apiUrl = process.env.FRONTEND_API_URL ?? process.env.API_URL;
+const apiUrl =
+  process.env.FREEHONGO_API_URL ??
+  process.env.FRONTEND_API_URL ??
+  process.env.FREEHONGO_API ??
+  process.env.API_URL;
 const supabaseUrl = process.env.SUPABASE_URL;
 const googleClientID = process.env.GOOGLE_CLIENT_ID;
 const runningOnVercel = process.env.VERCEL === '1';
 
 if (runningOnVercel && (!apiUrl || !supabaseUrl || !googleClientID)) {
   throw new Error(
-    'Missing FRONTEND_API_URL, SUPABASE_URL or GOOGLE_CLIENT_ID in Vercel environment variables.',
+    'Missing FREEHONGO_API_URL, SUPABASE_URL or GOOGLE_CLIENT_ID in Vercel environment variables.',
   );
 }
 
@@ -25,7 +29,7 @@ if (!apiUrl && !supabaseUrl && !googleClientID && existsSync(developmentFile) &&
 
 if (!apiUrl || !supabaseUrl || !googleClientID) {
   throw new Error(
-    'Set FRONTEND_API_URL, SUPABASE_URL and GOOGLE_CLIENT_ID, or create local src/environments files.',
+    'Set FREEHONGO_API_URL, SUPABASE_URL and GOOGLE_CLIENT_ID, or create local src/environments files.',
   );
 }
 
