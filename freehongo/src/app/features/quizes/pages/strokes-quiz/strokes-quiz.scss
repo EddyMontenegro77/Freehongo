@@ -9,9 +9,11 @@
   gap: 0.5rem;
   width: 100%;
   max-width: 72rem;
+  min-height: 100dvh;
   margin-inline: auto;
   padding: 1rem;
   box-sizing: border-box;
+  background-color: var(--color-background);
 }
 
 .quiz-header {

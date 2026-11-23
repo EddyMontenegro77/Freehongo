@@ -7,13 +7,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   width: 100%;
+  min-height: 100dvh;
+  padding: 1rem 0;
+  background-color: var(--color-background);
 }
 
 .writing-practice__state {
   display: flex;
   width: 100%;
-  min-height: min(60vh, 24rem);
+  min-height: 100dvh;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
@@ -21,11 +25,11 @@
 }
 
 .writing-practice__state--loading {
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .writing-practice__state--error {
-  color: var(--text);
+  color: var(--color-danger);
 }
 
 .writing-practice__error {
@@ -37,3 +41,4 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
+

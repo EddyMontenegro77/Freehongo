@@ -1,8 +1,9 @@
 .quiz-page {
   width: min(100% - 2rem, 48rem);
-  min-height: 60vh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: 2rem 0 3rem;
+  background-color: var(--color-background);
 }
 
 h1 {
@@ -90,6 +91,13 @@ h1 {
 
 .quiz-option {
   display: grid;
+  border-radius: var(--radius-sm);
+  outline: 3px solid transparent;
+  transition: outline-color var(--transition-fast);
+
+  &:hover {
+    outline-color: var(--color-accent);
+  }
 }
 
 .quiz-option--locked {
@@ -106,10 +114,11 @@ h1 {
 .quiz-answer-input {
   width: 100%;
   --input-outline-border: var(--color-primary);
-  --input-outline-color: var(--color-primary);
-  --input-outline-background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-  --input-outline-placeholder: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  --input-outline-color: var(--color-accent);
+  --input-outline-background: color-mix(in srgb, var(--color-primary) 100%, transparent);
+  --input-outline-placeholder: color-mix(in srgb, var(--color-accent) 80%, transparent);
   --input-label-color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .quiz-open-answer-footer {
