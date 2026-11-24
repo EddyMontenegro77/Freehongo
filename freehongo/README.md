@@ -1,6 +1,6 @@
 # FreeHonGo frontend
 
-This directory contains the Angular frontend for FreeHonGo.
+This project uses [Angular CLI](https://github.com/angular/angular-cli) version 22, installed locally through the project dependencies. A global Angular CLI installation is not required.
 
 For project-wide setup, architecture, environment variables and deployment instructions, see the [root README](../README.md).
 
