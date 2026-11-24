@@ -159,7 +159,7 @@ Configure the Go API to listen on `0.0.0.0` and use Render's `PORT` variable. Se
 
 ## Screenshots
 
-[Home screenshot](https://i.ibb.co/CKnmCCBm/Captura-de-pantalla-2026-11-23-013507-1.webp)
-[Character picker screenshot](https://i.ibb.co/Ngns7sDk/Captura-de-pantalla-2026-11-23-235343.webp)
-[Writing practice screenshot](https://i.ibb.co/tMx7YKfs/Captura-de-pantalla-2026-11-23-235422.webp)
-[Dashboard screenshot](https://i.ibb.co/B2vnYZ3K/merge1.webp)
+![Home screenshot](https://i.ibb.co/CKnmCCBm/Captura-de-pantalla-2026-11-23-013507-1.webp)
+![Character picker screenshot](https://i.ibb.co/Ngns7sDk/Captura-de-pantalla-2026-11-23-235343.webp)
+![Writing practice screenshot](https://i.ibb.co/tMx7YKfs/Captura-de-pantalla-2026-11-23-235422.webp)
+![Dashboard screenshot](https://i.ibb.co/B2vnYZ3K/merge1.webp)
