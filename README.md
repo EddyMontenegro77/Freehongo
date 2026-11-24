@@ -42,6 +42,7 @@ See [architecture](docs/architecture.md) and [database documentation](docs/datab
 ## Requirements
 
 - Node.js and npm.
+- Angular CLI 22, installed locally from `freehongo/package.json`.
 - Go 1.26 or the version declared in `backend/go.mod`.
 - PostgreSQL/Supabase for a fully functional backend.
 - TLS certificate files for local backend development when `APP_ENV=development`.
